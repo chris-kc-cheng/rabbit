@@ -1,0 +1,94 @@
+name: Deploy production
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+concurrency:
+  group: rabbit-production
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set image coordinates
+        id: image
+        shell: bash
+        run: |
+          image="ghcr.io/${GITHUB_REPOSITORY,,}"
+          echo "name=$image" >> "$GITHUB_OUTPUT"
+          echo "tag=$image:${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+
+      - name: Sign in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and publish immutable image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ steps.image.outputs.tag }}
+            ${{ steps.image.outputs.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Configure Hostinger SSH
+        shell: bash
+        env:
+          SSH_KEY: ${{ secrets.HOSTINGER_SSH_KEY }}
+          KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
+        run: |
+          install -m 700 -d ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/hostinger
+          chmod 600 ~/.ssh/hostinger
+          printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Copy isolated Compose definition
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+        run: |
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "mkdir -p '$DEPLOY_PATH'"
+          scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:$DEPLOY_PATH/compose.prod.yml"
+
+      - name: Deploy exact image on Hostinger
+        shell: bash
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          PORT: ${{ secrets.HOSTINGER_SSH_PORT }}
+          USER: ${{ secrets.HOSTINGER_USER }}
+          DEPLOY_PATH: ${{ secrets.HOSTINGER_DEPLOY_PATH }}
+          IMAGE: ${{ steps.image.outputs.tag }}
+          GHCR_USER: ${{ github.actor }}
+          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RABBIT_PORT: ${{ vars.RABBIT_PORT || '3100' }}
+        run: |
+          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" \
+            "docker login ghcr.io --username '$GHCR_USER' --password-stdin"
+          printf 'RABBIT_IMAGE=%s\nRABBIT_PORT=%s\n' "$IMAGE" "$RABBIT_PORT" | \
+            ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" \
+              "umask 077; cat > '$DEPLOY_PATH/.env.production'"
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" \
+            "cd '$DEPLOY_PATH' && docker compose --project-name rabbit-learning --env-file .env.production -f compose.prod.yml pull && docker compose --project-name rabbit-learning --env-file .env.production -f compose.prod.yml up -d --remove-orphans && docker compose --project-name rabbit-learning --env-file .env.production -f compose.prod.yml ps"

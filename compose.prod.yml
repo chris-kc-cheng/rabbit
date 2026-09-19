@@ -1,0 +1,26 @@
+name: rabbit-learning
+
+services:
+  web:
+    image: ${RABBIT_IMAGE:?Set RABBIT_IMAGE to the published image tag}
+    restart: unless-stopped
+    init: true
+    ports:
+      - "127.0.0.1:${RABBIT_PORT:-3100}:3000"
+    environment:
+      NODE_ENV: production
+      NEXT_TELEMETRY_DISABLED: "1"
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1:3000/api/health"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - rabbit_internal
+
+networks:
+  rabbit_internal:
+    name: rabbit-learning-internal
