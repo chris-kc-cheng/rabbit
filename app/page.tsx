@@ -1,9 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { FractionBar } from "@/components/FractionBar";
 import { MathFormula } from "@/components/MathFormula";
+import { ParentRewardSettings } from "@/components/ParentRewardSettings";
 import { generateQuestions } from "@/lib/questions";
+import { DEFAULT_REWARD_SETTINGS, normalizeRewardSettings, pointsProgress, REWARD_STORAGE_KEY, type RewardSettings } from "@/lib/rewards";
 
 const letters = ["A", "B", "C", "D"];
 
@@ -16,11 +18,32 @@ export default function Home() {
   const [correctCount, setCorrectCount] = useState(0);
   const [streak, setStreak] = useState(3);
   const [finished, setFinished] = useState(false);
+  const [parentSettingsOpen, setParentSettingsOpen] = useState(false);
+  const [rewardSettings, setRewardSettings] = useState<RewardSettings>(DEFAULT_REWARD_SETTINGS);
+  const [earsListening, setEarsListening] = useState(false);
+
+  useEffect(() => {
+    const saved = window.localStorage.getItem(REWARD_STORAGE_KEY);
+    if (!saved) return;
+    try {
+      setRewardSettings(normalizeRewardSettings(JSON.parse(saved)));
+    } catch {
+      window.localStorage.removeItem(REWARD_STORAGE_KEY);
+    }
+  }, []);
 
   const question = questions[questionIndex];
   const isCorrect = selectedId === question.correctChoiceId;
   const selectedChoice = question.choices.find((choice) => choice.id === selectedId);
   const progress = finished ? 100 : (questionIndex / questions.length) * 100;
+  const points = 120 + correctCount * 10;
+  const rewardProgress = pointsProgress(points, rewardSettings.targetPoints);
+
+  const saveRewardSettings = (settings: RewardSettings) => {
+    setRewardSettings(settings);
+    window.localStorage.setItem(REWARD_STORAGE_KEY, JSON.stringify(settings));
+    setParentSettingsOpen(false);
+  };
 
   const checkAnswer = () => {
     if (!selectedId || checked) return;
@@ -57,14 +80,14 @@ export default function Home() {
   return (
     <main className="app-shell">
       <header className="topbar">
-        <a className="brand" href="#main-card" aria-label="Rabbit home">
+        <button className="brand" aria-label="Rabbit logo" onClick={() => setEarsListening((listening) => !listening)}>
           <span className="brand-mark" aria-hidden="true">
             <span className="ear ear-left" />
             <span className="ear ear-right" />
             <span className="face">•ᴗ•</span>
           </span>
           <span>rabbit</span>
-        </a>
+        </button>
 
         <div className="trail-progress" aria-label={`${Math.round(progress)}% lesson progress`}>
           <div className="progress-label">
@@ -76,8 +99,8 @@ export default function Home() {
 
         <div className="header-stats">
           <div className="stat"><span aria-hidden="true">🔥</span><strong>{streak}</strong><small>streak</small></div>
-          <div className="stat"><span aria-hidden="true">◆</span><strong>{120 + correctCount * 10}</strong><small>gems</small></div>
-          <button className="avatar" aria-label="Open profile">M</button>
+          <div className="stat"><span aria-hidden="true">◆</span><strong>{points}</strong><small>points</small></div>
+          <button className="avatar" aria-label="Open parent reward settings" onClick={() => setParentSettingsOpen(true)}>P</button>
         </div>
       </header>
 
@@ -100,15 +123,26 @@ export default function Home() {
         </aside>
 
         <section className="main-column" id="main-card">
+          {rewardSettings.enabled && (
+            <div className={`reward-banner ${points >= rewardSettings.targetPoints ? "achieved" : ""}`}>
+              <span className="reward-icon" aria-hidden="true">{points >= rewardSettings.targetPoints ? "★" : "◇"}</span>
+              <div className="reward-copy">
+                <small>{points >= rewardSettings.targetPoints ? "Goal reached — amazing effort!" : "Family reward goal"}</small>
+                <strong>{rewardSettings.present}</strong>
+                <div className="reward-track" aria-label={`${Math.round(rewardProgress)}% toward ${rewardSettings.present}`}><span style={{ width: `${rewardProgress}%` }} /></div>
+              </div>
+              <b>{points} / {rewardSettings.targetPoints}</b>
+            </div>
+          )}
           {finished ? (
             <div className="question-card finish-card">
               <div className="celebration" aria-hidden="true">★</div>
               <p className="eyebrow">Trail complete</p>
               <h1>You kept going!</h1>
-              <p className="finish-copy">You solved {correctCount} of {questions.length} questions on your first try and earned {correctCount * 10} gems.</p>
+              <p className="finish-copy">You solved {correctCount} of {questions.length} questions on your first try and earned {correctCount * 10} points.</p>
               <div className="result-grid">
                 <div><strong>{correctCount}/{questions.length}</strong><span>correct</span></div>
-                <div><strong>+{correctCount * 10}</strong><span>gems</span></div>
+                <div><strong>+{correctCount * 10}</strong><span>points</span></div>
                 <div><strong>{Math.round((correctCount / questions.length) * 100)}%</strong><span>score</span></div>
               </div>
               <button className="primary-button restart-button" onClick={restart}>Practice again</button>
@@ -177,18 +211,25 @@ export default function Home() {
         </section>
 
         <aside className="encouragement-card">
-          <div className="mascot" aria-hidden="true">
+          <button className="mascot" aria-label="Rabbit is listening" onClick={() => setEarsListening((listening) => !listening)}>
             <span className="mascot-ear left" /><span className="mascot-ear right" />
             <span className="mascot-face"><i className="eye left" /><i className="eye right" /><i className="nose" /></span>
             <span className="mascot-body" />
-          </div>
+          </button>
           <div className="speech-bubble">
-            <strong>You&apos;ve got this!</strong>
-            <p>Take your time. Every try makes your math brain stronger.</p>
+            <strong>{earsListening ? "I’m all ears!" : "You’ve got this!"}</strong>
+            <p>{earsListening ? "That’s why I’m called Rabbit — I listen carefully and learn something new in every class." : "Take your time. Every try makes your math brain stronger."}</p>
           </div>
           <div className="focus-card"><span aria-hidden="true">◎</span><div><small>Today&apos;s focus</small><strong>Clear thinking</strong></div></div>
         </aside>
       </section>
+      <ParentRewardSettings
+        open={parentSettingsOpen}
+        settings={rewardSettings}
+        onClose={() => setParentSettingsOpen(false)}
+        onSave={saveRewardSettings}
+      />
+      {earsListening && <div className="easter-toast" role="status"><span aria-hidden="true">🐰</span><p><strong>Rabbit is all ears!</strong>It listens carefully in every class.</p></div>}
     </main>
   );
 }
