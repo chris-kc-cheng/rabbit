@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import json
 import operator
+import os
 import random
 import re
 from dataclasses import dataclass
@@ -12,7 +13,7 @@ from typing import Any
 from .models import ContentBlock, PublicChoice, PublicQuestion
 
 ROOT = Path(__file__).resolve().parents[2]
-BANK_PATH = ROOT / "content" / "math.question-bank.json"
+BANK_PATH = Path(os.environ.get("RABBIT_QUESTION_BANK", ROOT / "content" / "math.question-bank.json"))
 TOKEN = re.compile(r"{{\s*(.*?)\s*}}")
 
 _BINARY_OPERATORS = {

@@ -17,12 +17,47 @@ complete implemented/partial/not-yet-implemented inventory.
 
 ## Run the complete stack with Docker Compose
 
+Prerequisites:
+
+- Docker Engine or Docker Desktop with Compose v2.
+- Ports do not need to be exposed publicly; Rabbit binds to `127.0.0.1`.
+
+From the repository root, verify the Compose definition and start both services:
+
 ```bash
-docker compose up --build
+docker compose config
+docker compose up --build -d
+docker compose ps
 ```
 
 Open <http://localhost:8080>. API documentation is proxied at
 <http://localhost:8080/api/docs>.
+
+Follow startup logs if either service is not healthy:
+
+```bash
+docker compose logs -f api web
+```
+
+To use another loopback port, set `RABBIT_PORT` for both startup and later
+commands:
+
+```bash
+RABBIT_PORT=8090 docker compose up --build -d
+```
+
+Then open <http://localhost:8090>. To rebuild after source or dependency changes:
+
+```bash
+docker compose up --build -d --remove-orphans
+```
+
+Stop the Rabbit containers and network without touching unrelated Compose
+projects:
+
+```bash
+docker compose down
+```
 
 The stack uses the explicit `rabbit-learning` Compose project, an internal named
 network, and loopback port binding so it does not stop or expose unrelated local
