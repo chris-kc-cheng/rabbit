@@ -18,6 +18,7 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] JSON schema documentation, required-format example, and reusable AI

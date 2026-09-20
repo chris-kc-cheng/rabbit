@@ -1,0 +1,55 @@
+:root {
+  --ink: #183e43;
+  --muted: #5d7173;
+  --purple: #ad493d;
+  --purple-dark: #87352d;
+  --soft: #fff0e9;
+  --line: #e8ded7;
+  --green: #277c67;
+  --green-soft: #e7f5ec;
+  --amber: #df9d37;
+  --paper: #fffdfa;
+  --bg: #fff8f2;
+  font-family: "Trebuchet MS", "Avenir Next", ui-rounded, system-ui, sans-serif;
+}
+
+body { background: var(--bg); }
+button, input { font-family: inherit; }
+button:focus-visible, input:focus-visible { outline: 3px solid #147a78; outline-offset: 3px; }
+.topbar { background: rgba(255, 253, 250, .96); }
+.brand { color: var(--ink); font-size: 28px; letter-spacing: -.055em; font-weight: 900; gap: 5px; }
+.brand-logo { width: 51px; height: 51px; object-fit: contain; }
+.topbar nav { background: #f5e9e1; }
+.topbar nav button { font-size: 13px; }
+.topbar nav button.active { color: var(--purple); }
+.points { color: var(--purple); font-size: 13px; }
+.eyebrow { color: var(--purple); font-size: 11px; letter-spacing: .09em; }
+.trail h2 { font-size: 20px; letter-spacing: -.035em; }
+.trail .active { color: var(--purple); }
+.lesson-progress b { background: linear-gradient(90deg, var(--purple), #ee9374); }
+.lesson-progress i { background: #f0e5dd; }
+.card { box-shadow: 0 18px 48px #704d3b12; }
+.question-header h1, .finish h1, .parent-heading h1,
+.prompt, .panel h2, .metric-grid strong { font-family: "Trebuchet MS", "Avenir Next", ui-rounded, system-ui, sans-serif; letter-spacing: -.04em; }
+.question-header h1, .finish h1, .parent-heading h1 { font-weight: 800; }
+.prompt { font-weight: 800; }
+.skill { background: #f7eee7; }
+.choice { border-radius: 17px; }
+.choice>span { background: #f7eee7; }
+.choice:hover:not(:disabled) { border-color: #df9a87; }
+.choice.selected { background: #fff1e9; }
+.primary { border-radius: 14px; font-size: 14px; }
+.quiet { font-size: 13px; }
+.mascot { width: 142px; height: 142px; padding: 0; }
+.mascot img { width: 100%; height: 100%; object-fit: contain; }
+.coach>div { background: #fffdfa; box-shadow: 0 8px 25px #704d3b0d; }
+.coach p { font-size: 12px; }
+.metric-grid article, .panel { background: var(--paper); box-shadow: 0 10px 30px #704d3b0b; }
+.metric-grid strong { color: var(--purple); font-weight: 800; }
+.attempt-list>div { background: #fbf3ec; }
+.toast { background: var(--ink); }
+
+@media(max-width:760px) {
+  .brand { font-size: 0; }
+  .brand-logo { width: 45px; height: 45px; }
+}
