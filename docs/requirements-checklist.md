@@ -7,7 +7,9 @@ working in this repository, not production-ready at population scale.
 
 - [x] React and TypeScript frontend with responsive desktop/mobile layouts.
 - [x] FastAPI backend with JSON request/response models and generated OpenAPI docs.
-- [x] Docker Compose orchestration for separate frontend and backend containers.
+- [x] Docker Compose orchestration under project `rabbit` for separate frontend
+  and backend containers; web binds to host loopback port 8090 by default, and
+  API port 8000 remains internal.
 - [x] JSON Schema and a Git-managed JSON question bank with ten elementary-math
   single-select templates.
 - [x] Seeded parameter generation, server-side grading, answer shuffling, hints,
@@ -21,6 +23,8 @@ working in this repository, not production-ready at population scale.
 - [x] JSON schema documentation, required-format example, and reusable AI
   structured-output prompt.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
+  The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for
+  Compose image tags and host port.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 

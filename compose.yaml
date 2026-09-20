@@ -1,4 +1,4 @@
-name: rabbit-learning
+name: rabbit
 services:
   api:
     build:
@@ -21,9 +21,9 @@ services:
       api:
         condition: service_healthy
     ports:
-      - "127.0.0.1:${RABBIT_PORT:-8080}:8080"
+      - "127.0.0.1:${RABBIT_PORT:-8090}:8080"
     security_opt: ["no-new-privileges:true"]
     networks: [rabbit_internal]
 networks:
   rabbit_internal:
-    name: rabbit-learning-internal
+    name: rabbit-internal

@@ -30,8 +30,9 @@ docker compose up --build -d
 docker compose ps
 ```
 
-Open <http://localhost:8080>. API documentation is proxied at
-<http://localhost:8080/api/docs>.
+Open <http://localhost:8090>. API documentation is proxied at
+<http://localhost:8090/api/docs>. The API listens on port `8000` only inside
+Rabbit's Compose network; it has no host port mapping.
 
 Follow startup logs if either service is not healthy:
 
@@ -43,10 +44,10 @@ To use another loopback port, set `RABBIT_PORT` for both startup and later
 commands:
 
 ```bash
-RABBIT_PORT=8090 docker compose up --build -d
+RABBIT_PORT=8091 docker compose up --build -d
 ```
 
-Then open <http://localhost:8090>. To rebuild after source or dependency changes:
+Then open <http://localhost:8091>. To rebuild after source or dependency changes:
 
 ```bash
 docker compose up --build -d --remove-orphans
@@ -59,9 +60,16 @@ projects:
 docker compose down
 ```
 
-The stack uses the explicit `rabbit-learning` Compose project, an internal named
+The stack uses the explicit `rabbit` Compose project, an internal named
 network, and loopback port binding so it does not stop or expose unrelated local
 projects.
+
+If you previously started Rabbit under the `rabbit-learning` project name, stop
+that old stack before starting the renamed one. With Docker Desktop running, use
+`docker compose -p rabbit-learning down` from the Rabbit repository, then
+`docker compose up --build -d`. Confirm with `docker compose ls` and
+`docker compose ps`. The old named network may remain and can be inspected with
+`docker network ls`; it does not affect the new project.
 
 ## Run in development mode
 
@@ -109,15 +117,29 @@ listens carefully in class.
 ## Production deployment
 
 The GitHub Actions workflow tests both applications, publishes separate immutable
-GHCR images, and deploys only the `rabbit-learning` Compose project to a dedicated
-Hostinger path. Configure the protected `production` environment secrets:
+GHCR images, and deploys only the `rabbit` Compose project to `~/rabbit` on
+Hostinger (the SSH user's home directory). Configure the protected `production`
+environment secrets:
 
 - `HOSTINGER_HOST`
 - `HOSTINGER_USER`
 - `HOSTINGER_SSH_PORT`
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
-- `HOSTINGER_DEPLOY_PATH`
 
-The optional `RABBIT_PORT` environment variable defaults to `8080`; the service
-binds to `127.0.0.1` for an existing TLS reverse proxy.
+The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
+and port, then passes it to Compose. The optional `RABBIT_PORT` environment
+variable defaults to `8090`; the service
+binds to `127.0.0.1` for an existing TLS reverse proxy. Point Rabbit's reverse
+proxy upstream at `127.0.0.1:8090` unless `RABBIT_PORT` is overridden. The API
+remains private on the Compose network at `api:8000`.
+
+Before the first deployment with the new project name, stop the old
+`rabbit-learning` stack on Hostinger from its deployment directory using
+`docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml down`
+(use the old deployment's existing env-file name for this one-time command).
+Then deploy the new workflow. If the reverse proxy currently points at port
+`8080`, update its upstream to `127.0.0.1:8090`. A configured GitHub Actions
+`RABBIT_PORT` variable overrides the default; set it to `8090` or remove it.
+For later checks on the VPS, run `cd ~/rabbit` and use
+`docker compose -p rabbit --env-file .env.prod -f compose.prod.yml ps`.

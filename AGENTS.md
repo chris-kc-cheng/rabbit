@@ -105,6 +105,9 @@ times”), never diagnose a child.
 
 ## Engineering rules
 
+- Before every commit and push, review the files and diffs being sent for
+  secrets, private keys, credentials, tokens, and production `.env` values.
+  Remove any such data from Git history or the pending changes before proceeding.
 - Update documentation and the requirements checklist in the same change as a
   capability, limitation, content contract, or operational change.
 - Validate JSON content against its schema and property-test generated choices.

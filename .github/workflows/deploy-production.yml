@@ -54,14 +54,13 @@ jobs:
           HOST: "${{ secrets.HOSTINGER_HOST }}"
           PORT: "${{ secrets.HOSTINGER_SSH_PORT }}"
           USER: "${{ secrets.HOSTINGER_USER }}"
-          PATH_ON_HOST: "${{ secrets.HOSTINGER_DEPLOY_PATH }}"
           GHCR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           API_IMAGE: "${{ steps.images.outputs.api }}"
           WEB_IMAGE: "${{ steps.images.outputs.web }}"
-          RABBIT_PORT: "${{ vars.RABBIT_PORT || '8080' }}"
+          RABBIT_PORT: "${{ vars.RABBIT_PORT || '8090' }}"
         run: |
-          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "mkdir -p '$PATH_ON_HOST'"
-          scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:$PATH_ON_HOST/compose.prod.yml"
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'mkdir -p ~/rabbit'
+          scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:~/rabbit/compose.prod.yml"
           printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
-          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_PORT=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_PORT" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "umask 077; cat > '$PATH_ON_HOST/.env.production'"
-          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "cd '$PATH_ON_HOST' && docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml pull && docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml up -d --remove-orphans"
+          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_PORT=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_PORT" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'cd ~/rabbit && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml pull && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml up -d --remove-orphans'
