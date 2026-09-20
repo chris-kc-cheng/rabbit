@@ -1,0 +1,121 @@
+{
+  "schemaVersion": 1,
+  "subject": "math.elementary",
+  "locale": "en-CA",
+  "templates": [
+    {
+      "id": "math.order-of-operations.multiply-before-add", "version": 1, "type": "single-select", "skill": "math.order-of-operations", "difficulty": 3,
+      "parameters": { "a": {"type":"integer","min":3,"max":9}, "b": {"type":"integer","min":2,"max":7}, "c": {"type":"integer","min":3,"max":8} },
+      "prompt": [{"type":"text","value":"Solve the expression."},{"type":"math","value":"{{a}} + {{b}} \\times {{c}}"}],
+      "answer": {"expression":"a + b * c","format":"number"},
+      "distractors": [
+        {"id":"left-to-right","misconception":"math.precedence.left-to-right","expression":"(a + b) * c","feedback":"Multiplication comes before addition. Multiply {{b}} by {{c}} first."},
+        {"id":"multiply-as-addition","misconception":"math.operation.multiply-as-addition","expression":"a + b + c","feedback":"The multiplication sign combines equal groups; it does not mean add."},
+        {"id":"wrong-pair","misconception":"math.precedence.wrong-pair","expression":"a * b + c","feedback":"Check which values the multiplication sign joins: {{b}} and {{c}}."}
+      ],
+      "hint":"Multiplication and division happen before addition and subtraction.",
+      "explanation":"First, {{b}} × {{c}} = {{b * c}}. Then {{a}} + {{b * c}} = {{a + b * c}}.",
+      "accessibility":{"screenReaderText":"Solve a plus b times c, applying multiplication before addition."}
+    },
+    {
+      "id":"math.addition.place-value","version":1,"type":"single-select","skill":"math.addition.multi-digit","difficulty":2,
+      "parameters":{"a":{"type":"integer","min":320,"max":760,"step":10},"b":{"type":"integer","min":120,"max":280,"step":10}},
+      "prompt":[{"type":"text","value":"What is {{a}} + {{b}}?"}],"answer":{"expression":"a + b","format":"number"},
+      "distractors":[
+        {"id":"missed-hundred","misconception":"math.place-value.missed-hundred","expression":"a + b - 100","feedback":"Line up the hundreds, tens, and ones before adding."},
+        {"id":"missed-ten","misconception":"math.place-value.missed-ten","expression":"a + b - 10","feedback":"Recheck the tens column and include every place value."},
+        {"id":"extra-ten","misconception":"math.addition.extra-regroup","expression":"a + b + 10","feedback":"Only regroup when a column total reaches ten or more."}
+      ],"hint":"Line up digits with the same place value.","explanation":"Adding the matching place-value columns gives {{a + b}}.",
+      "accessibility":{"screenReaderText":"Add two three-digit numbers."}
+    },
+    {
+      "id":"math.subtraction.regrouping","version":1,"type":"single-select","skill":"math.subtraction.regrouping","difficulty":2,
+      "parameters":{"tens":{"type":"integer","min":5,"max":9},"ones":{"type":"integer","min":1,"max":4},"sub":{"type":"integer","min":6,"max":9}},
+      "prompt":[{"type":"text","value":"Find the difference: {{tens * 10 + ones}} − {{sub}}"}],"answer":{"expression":"tens * 10 + ones - sub","format":"number"},
+      "distractors":[
+        {"id":"absolute-digits","misconception":"math.subtraction.no-regroup","expression":"tens * 10 + sub - ones","feedback":"The top ones digit is smaller, so regroup one ten before subtracting."},
+        {"id":"added-instead","misconception":"math.operation.added-instead-of-subtracted","expression":"tens * 10 + ones + sub","feedback":"A difference asks how much remains, so subtraction is needed."},
+        {"id":"lost-ten","misconception":"math.subtraction.lost-ten","expression":"tens * 10 + ones - sub - 10","feedback":"After regrouping, reduce the tens digit once—not twice."}
+      ],"hint":"Regroup one ten into ten ones.","explanation":"Regroup a ten, then subtract the ones. The difference is {{tens * 10 + ones - sub}}.",
+      "accessibility":{"screenReaderText":"Subtract a one-digit number from a two-digit number with regrouping."}
+    },
+    {
+      "id":"math.multiplication.equal-groups","version":1,"type":"single-select","skill":"math.multiplication.facts","difficulty":2,
+      "parameters":{"groups":{"type":"integer","min":3,"max":8},"each":{"type":"integer","min":4,"max":9}},
+      "prompt":[{"type":"text","value":"There are {{groups}} bags with {{each}} marbles in each. How many marbles are there?"}],"answer":{"expression":"groups * each","format":"number"},
+      "distractors":[
+        {"id":"added-factors","misconception":"math.multiplication.added-factors","expression":"groups + each","feedback":"Equal groups are combined with multiplication, not by adding the two factors once."},
+        {"id":"one-group-short","misconception":"math.multiplication.missed-group","expression":"groups * each - each","feedback":"Count all {{groups}} equal groups, including the last bag."},
+        {"id":"one-group-extra","misconception":"math.multiplication.extra-group","expression":"groups * each + each","feedback":"There are {{groups}} groups, so do not include an extra bag."}
+      ],"hint":"Multiply the number of bags by the number in each bag.","explanation":"{{groups}} equal groups of {{each}} make {{groups * each}} marbles.",
+      "accessibility":{"screenReaderText":"Find the total in several equal groups."}
+    },
+    {
+      "id":"math.division.equal-sharing","version":1,"type":"single-select","skill":"math.division.equal-groups","difficulty":2,
+      "parameters":{"groups":{"type":"integer","min":3,"max":8},"each":{"type":"integer","min":4,"max":10}},
+      "prompt":[{"type":"text","value":"Share {{groups * each}} markers equally among {{groups}} students. How many does each student get?"}],"answer":{"expression":"each","format":"number"},
+      "distractors":[
+        {"id":"reversed-division","misconception":"math.division.reversed","expression":"groups","feedback":"Divide the total by the number of students, not the other way around."},
+        {"id":"subtracted-groups","misconception":"math.division.subtracted-groups","expression":"groups * each - groups","feedback":"Equal sharing requires division, not subtracting the number of groups once."},
+        {"id":"used-total","misconception":"math.division.used-total","expression":"groups * each","feedback":"The total must be split into {{groups}} equal shares."}
+      ],"hint":"Think: {{groups}} times what number equals {{groups * each}}?","explanation":"{{groups * each}} ÷ {{groups}} = {{each}}, so each student gets {{each}}.",
+      "accessibility":{"screenReaderText":"Divide a total into equal shares."}
+    },
+    {
+      "id":"math.fractions.fraction-of-set","version":1,"type":"single-select","skill":"math.fractions.of-a-set","difficulty":3,
+      "parameters":{"denominator":{"type":"integer","min":3,"max":6},"each":{"type":"integer","min":3,"max":8}},
+      "prompt":[{"type":"text","value":"What is 1/{{denominator}} of {{denominator * each}}?"}],"answer":{"expression":"each","format":"number"},
+      "distractors":[
+        {"id":"used-denominator","misconception":"math.fractions.used-denominator","expression":"denominator","feedback":"The denominator tells how many equal groups to make; it is not the answer by itself."},
+        {"id":"used-whole","misconception":"math.fractions.used-whole","expression":"denominator * each","feedback":"That is the whole amount. Divide it into {{denominator}} equal parts."},
+        {"id":"added-instead","misconception":"math.fractions.added-instead-of-divided","expression":"each + denominator","feedback":"To find one equal part, divide the whole by the denominator."}
+      ],"hint":"Divide the whole amount into {{denominator}} equal groups.","explanation":"{{denominator * each}} ÷ {{denominator}} = {{each}}.",
+      "visual":{"type":"fraction-bar","numerator":"1","denominator":"denominator","alt":"One of several equal parts is highlighted."},
+      "accessibility":{"screenReaderText":"Find one equal fractional part of a set."}
+    },
+    {
+      "id":"math.measurement.perimeter","version":1,"type":"single-select","skill":"math.measurement.perimeter","difficulty":2,
+      "parameters":{"width":{"type":"integer","min":3,"max":9},"height":{"type":"integer","min":2,"max":7}},
+      "prompt":[{"type":"text","value":"A rectangle is {{width}} m long and {{height}} m wide. What is its perimeter?"}],"answer":{"expression":"2 * width + 2 * height","format":"number"},
+      "distractors":[
+        {"id":"calculated-area","misconception":"math.measurement.perimeter-vs-area","expression":"width * height","feedback":"Area covers the inside. Perimeter is the distance around all four sides."},
+        {"id":"only-two-sides","misconception":"math.perimeter.only-two-sides","expression":"width + height","feedback":"A rectangle has two lengths and two widths, so include all four sides."},
+        {"id":"missed-one-side","misconception":"math.perimeter.missed-side","expression":"2 * width + height","feedback":"Include both width sides as well as both length sides."}
+      ],"hint":"Add all four outside edges.","explanation":"{{width}} + {{height}} + {{width}} + {{height}} = {{2 * width + 2 * height}} metres.",
+      "accessibility":{"screenReaderText":"Find the perimeter of a rectangle from its length and width."}
+    },
+    {
+      "id":"math.measurement.area","version":1,"type":"single-select","skill":"math.measurement.area","difficulty":2,
+      "parameters":{"width":{"type":"integer","min":4,"max":10},"height":{"type":"integer","min":3,"max":8}},
+      "prompt":[{"type":"text","value":"A rectangular floor is {{width}} m by {{height}} m. What is its area?"}],"answer":{"expression":"width * height","format":"number"},
+      "distractors":[
+        {"id":"calculated-perimeter","misconception":"math.measurement.area-vs-perimeter","expression":"2 * width + 2 * height","feedback":"Perimeter goes around the edge. Area counts square units covering the floor."},
+        {"id":"added-sides","misconception":"math.area.added-dimensions","expression":"width + height","feedback":"To count rows of square units, multiply length by width."},
+        {"id":"missed-row","misconception":"math.area.missed-row","expression":"width * height - width","feedback":"Include all {{height}} rows of {{width}} square metres."}
+      ],"hint":"Multiply the number of rows by the number of squares in each row.","explanation":"{{width}} × {{height}} = {{width * height}} square metres.",
+      "accessibility":{"screenReaderText":"Find the area of a rectangle from its dimensions."}
+    },
+    {
+      "id":"math.algebra.missing-addend","version":1,"type":"single-select","skill":"math.algebra.missing-value","difficulty":2,
+      "parameters":{"start":{"type":"integer","min":12,"max":35},"added":{"type":"integer","min":6,"max":18}},
+      "prompt":[{"type":"text","value":"Find the missing number: {{start}} + □ = {{start + added}}"}],"answer":{"expression":"added","format":"number"},
+      "distractors":[
+        {"id":"used-start","misconception":"math.algebra.used-known-addend","expression":"start","feedback":"The box is the amount added to {{start}}, not the starting number."},
+        {"id":"used-total","misconception":"math.algebra.used-total","expression":"start + added","feedback":"That is the total. Subtract the known addend to find the missing one."},
+        {"id":"off-by-one","misconception":"math.calculation.off-by-one","expression":"added + 1","feedback":"Count the increase once more carefully from {{start}} to {{start + added}}."}
+      ],"hint":"Subtract {{start}} from {{start + added}}.","explanation":"{{start + added}} − {{start}} = {{added}}, so the missing number is {{added}}.",
+      "accessibility":{"screenReaderText":"Find the missing addend in an addition equation."}
+    },
+    {
+      "id":"math.word-problems.remaining","version":1,"type":"single-select","skill":"math.word-problems.subtraction","difficulty":2,
+      "parameters":{"start":{"type":"integer","min":50,"max":90},"used":{"type":"integer","min":12,"max":35}},
+      "prompt":[{"type":"text","value":"Mina collected {{start}} stickers and used {{used}} in a project. How many are left?"}],"answer":{"expression":"start - used","format":"number"},
+      "distractors":[
+        {"id":"added-instead","misconception":"math.word-problems.wrong-operation","expression":"start + used","feedback":"Using stickers makes the collection smaller, so subtract rather than add."},
+        {"id":"used-amount","misconception":"math.word-problems.reported-change","expression":"used","feedback":"{{used}} is how many were used; the question asks how many remain."},
+        {"id":"unchanged-total","misconception":"math.word-problems.ignored-change","expression":"start","feedback":"Some stickers were used, so the starting amount must decrease."}
+      ],"hint":"The word “left” signals that the starting amount gets smaller.","explanation":"Subtract the amount used: {{start}} − {{used}} = {{start - used}}.",
+      "accessibility":{"screenReaderText":"Solve a subtraction story about stickers remaining."}
+    }
+  ]
+}

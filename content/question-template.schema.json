@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rabbit-learning.example/schemas/question-bank-v1.json",
+  "title": "Rabbit question bank v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "subject", "locale", "templates"],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "subject": { "$ref": "#/$defs/stableId" },
+    "locale": { "type": "string", "pattern": "^[a-z]{2}-[A-Z]{2}$" },
+    "templates": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/template" }
+    }
+  },
+  "$defs": {
+    "stableId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$" },
+    "expression": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "parameter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "min", "max"],
+      "properties": {
+        "type": { "const": "integer" },
+        "min": { "type": "integer" },
+        "max": { "type": "integer" },
+        "step": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "block": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value"],
+      "properties": {
+        "type": { "enum": ["text", "math"] },
+        "value": { "type": "string", "minLength": 1, "maxLength": 500 }
+      }
+    },
+    "distractor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "misconception", "expression", "feedback"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "misconception": { "$ref": "#/$defs/stableId" },
+        "expression": { "$ref": "#/$defs/expression" },
+        "feedback": { "type": "string", "minLength": 10, "maxLength": 300 }
+      }
+    },
+    "template": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "version", "type", "skill", "difficulty", "parameters", "prompt", "answer", "distractors", "hint", "explanation", "accessibility"],
+      "properties": {
+        "id": { "$ref": "#/$defs/stableId" },
+        "version": { "type": "integer", "minimum": 1 },
+        "type": { "const": "single-select" },
+        "skill": { "$ref": "#/$defs/stableId" },
+        "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "parameters": {
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
+          "additionalProperties": { "$ref": "#/$defs/parameter" }
+        },
+        "prompt": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/block" } },
+        "answer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["expression", "format"],
+          "properties": {
+            "expression": { "$ref": "#/$defs/expression" },
+            "format": { "enum": ["number", "decimal", "money"] }
+          }
+        },
+        "distractors": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/distractor" } },
+        "hint": { "type": "string", "minLength": 5, "maxLength": 250 },
+        "explanation": { "type": "string", "minLength": 10, "maxLength": 500 },
+        "visual": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "numerator", "denominator", "alt"],
+          "properties": {
+            "type": { "const": "fraction-bar" },
+            "numerator": { "$ref": "#/$defs/expression" },
+            "denominator": { "$ref": "#/$defs/expression" },
+            "alt": { "type": "string", "minLength": 5, "maxLength": 200 }
+          }
+        },
+        "accessibility": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["screenReaderText"],
+          "properties": { "screenReaderText": { "type": "string", "minLength": 5, "maxLength": 500 } }
+        }
+      }
+    }
+  }
+}

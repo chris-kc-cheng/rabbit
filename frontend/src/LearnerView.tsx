@@ -1,0 +1,64 @@
+import { useEffect, useState } from "react";
+import { api } from "./api";
+import { FractionBar } from "./FractionBar";
+import { MathBlock } from "./MathBlock";
+import type { AttemptResult, Session } from "./types";
+
+export function LearnerView({ onAttemptsChanged }: { onAttemptsChanged: () => void }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [index, setIndex] = useState(0);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [result, setResult] = useState<AttemptResult | null>(null);
+  const [hintVisible, setHintVisible] = useState(false);
+  const [points, setPoints] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const start = async () => {
+    setLoading(true); setError(""); setIndex(0); setSelected(null); setResult(null); setPoints(0);
+    try { setSession(await api.createSession()); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
+    finally { setLoading(false); }
+  };
+  useEffect(() => { void start(); }, []);
+
+  if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
+  if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
+  if (index >= session.questions.length) return (
+    <main className="card finish"><span className="celebration">★</span><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
+      <p>You explored ten different math skills and earned <strong>{points} points</strong>.</p>
+      <button className="primary" onClick={start}>Practice a new trail</button>
+    </main>
+  );
+
+  const question = session.questions[index];
+  const submit = async () => {
+    if (!selected) return;
+    try {
+      const answer = await api.submitAttempt(session.id, question.id, selected);
+      setResult(answer); setPoints((value) => value + answer.points_earned); onAttemptsChanged();
+    } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not check answer"); }
+  };
+  const next = () => { setIndex((value) => value + 1); setSelected(null); setResult(null); setHintVisible(false); };
+
+  return <main className="learner-column">
+    <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
+    <article className="card question-card">
+      <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 points</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">Math explorer</span></header>
+      <section className="prompt">{question.prompt.map((block, blockIndex) => block.type === "math" ? <MathBlock key={blockIndex} value={block.value} /> : <p key={blockIndex}>{block.value}</p>)}</section>
+      {question.visual && <FractionBar {...question.visual} />}
+      <div className="choices" role="radiogroup" aria-label="Answer choices">
+        {question.choices.map((choice, choiceIndex) => {
+          const correct = result && choice.id === result.correct_choice_id;
+          const wrong = result && choice.id === selected && !result.correct;
+          return <button key={choice.id} role="radio" aria-checked={selected === choice.id} disabled={Boolean(result)}
+            className={`choice ${selected === choice.id ? "selected" : ""} ${correct ? "correct" : ""} ${wrong ? "wrong" : ""}`}
+            onClick={() => setSelected(choice.id)}><span>{correct ? "✓" : wrong ? "×" : String.fromCharCode(65 + choiceIndex)}</span>{choice.value}</button>;
+        })}
+      </div>
+      {hintVisible && !result && <aside className="hint">💡 <span><strong>A little nudge</strong>{question.hint}</span></aside>}
+      {result && <aside className={`feedback ${result.correct ? "positive" : "coaching"}`} role="status"><b>{result.correct ? "✓" : "↗"}</b><span><strong>{result.correct ? "Brilliant thinking!" : "Good try — this is how we grow."}</strong>{result.feedback}</span></aside>}
+    </article>
+    <footer className="actions"><button className="quiet" disabled={Boolean(result)} onClick={() => setHintVisible(!hintVisible)}>💡 {hintVisible ? "Hide hint" : "Need a hint?"}</button>
+      {result ? <button className="primary" onClick={next}>Next question →</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer →</button>}</footer>
+  </main>;
+}
