@@ -129,7 +129,8 @@ refresh-token rotation, and rate limiting remain production requirements.
 Visitors see a public product overview and can use **Try the free demo**. Demo
 attempts are process-local and are not attached to an account or family report.
 Only the fixed prototype demo pack is available without authentication;
-new published question types are private by default until explicitly added to it.
+it includes Math, Trivia, English, and Discover Canada samples. New published
+question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke
