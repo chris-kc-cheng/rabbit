@@ -11,6 +11,8 @@ COPY backend/app ./app
 COPY backend/alembic.ini ./alembic.ini
 COPY backend/migrations ./migrations
 COPY content ./content
+# The demo PDF embeds the same reviewed image served by the kid-view frontend.
+COPY frontend/public/trivia-animals.png ./frontend/public/trivia-animals.png
 USER rabbit
 EXPOSE 8000
 CMD ["sh", "-c", "alembic upgrade head && python -m app.bootstrap && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers"]
