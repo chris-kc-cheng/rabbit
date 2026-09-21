@@ -56,8 +56,10 @@ working in this repository, not production-ready at population scale.
   for production until migrated to durable OIDC-backed identity and audited storage.
 - [~] **Rewards:** parents can enable a target and name a present/experience, but
   data is kept only in backend memory and resets on restart.
-- [~] **Progress and exact results:** recent server-side attempts are visible, but
-  the report does not yet preserve/display the complete rendered question snapshot.
+- [~] **Progress and exact results:** each attempt preserves the resolved question
+  snapshot, chosen and correct answers, timing, and hint evidence. Learners and
+  their parent can review the complete history, but the prototype memory store is
+  not durable.
 - [~] **Question templates:** v2 supports bounded-integer computed questions and
   scalar historical-event fact collections; authoring UI, automated publishing,
   richer parameter/fact types, and immutable database versions are absent.
@@ -84,8 +86,8 @@ working in this repository, not production-ready at population scale.
   append-only attempts, transactional outbox, Redis jobs, or object storage.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced
   repetition, exploration, or known-weakness distractor weighting.
-- [ ] Parent charts, diagnostic summaries, complete exact-question/answer history,
-  export, retention, deletion, and audit-log interfaces.
+- [ ] Parent charts, diagnostic summaries, history export, retention, deletion,
+  and audit-log interfaces.
 - [ ] General diagram scene specification and sanitized SVG compiler.
 - [ ] Published English grammar, fill-in-the-blank, error spotting, multi-select,
   composition, rubric/manual grading, broader trivia/Canadian citizenship, or

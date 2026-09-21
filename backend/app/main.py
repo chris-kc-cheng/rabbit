@@ -226,11 +226,17 @@ def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("le
         "variant_id": question.public.variant_id,
         "skill": question.public.skill,
         "selected_value": choice["value"],
+        "selected_choice_id": request.choice_id,
+        "correct_value": question.choices[question.correct_choice_id]["value"],
+        # Keep the resolved public payload with the append-only attempt so a
+        # later template change cannot rewrite what the learner actually saw.
+        "question": question.public.model_dump(),
         "correct": correct,
         "misconception_id": choice["misconception"],
         "hint_used": request.hint_used,
         "points_earned": 10 if correct else 0,
         "answered_at": store.now(),
+        "time_spent_ms": request.time_spent_ms,
     }
     with store.lock:
         session.attempts[request.question_id] = attempt
@@ -276,6 +282,12 @@ def parent_reset_password(learner_id: str, request: PasswordRequest, parent: dic
 def learner_progress(learner_id: str, parent: dict = Depends(require_role("parent"))) -> dict:
     _parent_learner(parent, learner_id)
     return store.progress(learner_id)
+
+
+@app.get("/api/v1/learners/me/progress", response_model=ProgressResponse)
+def own_progress(learner: dict = Depends(require_role("learner"))) -> dict:
+    """Let a learner review their own evidence without exposing another family."""
+    return store.progress(learner["id"])
 
 
 @app.get("/api/v1/parents/families/{family_id}/progress")

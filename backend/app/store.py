@@ -62,7 +62,7 @@ class MemoryStore:
             attempt["misconception_id"] for attempt in attempts if attempt["misconception_id"]
         )
         correct = sum(attempt["correct"] for attempt in attempts)
-        recent = sorted(attempts, key=lambda item: item["answered_at"], reverse=True)[:10]
+        history = sorted(attempts, key=lambda item: item["answered_at"], reverse=True)
         return {
             "learner_id": learner_id,
             "attempts": len(attempts),
@@ -71,7 +71,8 @@ class MemoryStore:
             "accuracy": round(correct / len(attempts), 3) if attempts else 0,
             "hints_used": sum(attempt.get("hint_used", False) for attempt in attempts),
             "misconceptions": dict(misconceptions),
-            "recent_attempts": recent,
+            "recent_attempts": history[:10],
+            "attempt_history": history,
             "reward": self.rewards.get(learner_id, RewardSettings()),
         }
 

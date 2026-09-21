@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Reward, Session, Subject, User, WorksheetTopic } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -42,11 +42,12 @@ export const api = {
     headers: JSON_HEADERS,
     body: JSON.stringify({ learner_id: learnerId, subject, seed, count: subject === "canadian-citizenship" ? 6 : 10 }),
   }),
-  submitAttempt: (sessionId: string, questionId: string, choiceId: string, hintUsed: boolean) => request<AttemptResult>("/api/v1/attempts", {
+  submitAttempt: (sessionId: string, questionId: string, choiceId: string, hintUsed: boolean, timeSpentMs: number) => request<AttemptResult>("/api/v1/attempts", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ session_id: sessionId, question_id: questionId, choice_id: choiceId, hint_used: hintUsed }),
+    body: JSON.stringify({ session_id: sessionId, question_id: questionId, choice_id: choiceId, hint_used: hintUsed, time_spent_ms: timeSpentMs }),
   }),
+  getOwnProgress: () => request<Progress>("/api/v1/learners/me/progress"),
   getLearners: () => request<FamilyLearner[]>("/api/v1/parents/learners"),
   createLearner: (display_name: string, username: string, password: string) => request<User>("/api/v1/parents/learners", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   resetLearner: (id: string, password: string) => request<void>(`/api/v1/parents/learners/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),

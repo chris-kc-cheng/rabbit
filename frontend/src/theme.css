@@ -121,3 +121,5 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
   .theme-toggle { width: 42px; padding: 0; justify-content: center; }
   .theme-toggle span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
+[data-theme="dark"] .demo-feedback.success { background: var(--green-soft); }
+[data-theme="dark"] .demo-feedback.try-again { background: var(--red-soft); }
