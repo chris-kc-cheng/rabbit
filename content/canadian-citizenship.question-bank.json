@@ -1,0 +1,47 @@
+{
+  "schemaVersion": 2,
+  "generatorVersion": "2.0.0",
+  "publicationStatus": "draft",
+  "subject": "canadian-citizenship",
+  "title": "Canadian Citizenship",
+  "locale": "en-CA",
+  "templates": [
+    {
+      "id": "canada.history.milestones",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "canada.history.milestones",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          { "id": "responsible-government", "year": 1849, "event": "Sir Louis-Hippolyte La Fontaine became the first head of a responsible government in Canada" },
+          { "id": "confederation", "year": 1867, "event": "the Dominion of Canada was officially born" },
+          { "id": "manitoba-entry", "year": 1870, "event": "Manitoba joined Canada" },
+          { "id": "british-columbia-entry", "year": 1871, "event": "British Columbia joined Canada" },
+          { "id": "prince-edward-island-entry", "year": 1873, "event": "Prince Edward Island joined Canada" },
+          { "id": "newfoundland-labrador-entry", "year": 1949, "event": "Newfoundland and Labrador joined Canada" }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 2,
+          "prompt": [{ "type": "text", "value": "Which year matches this event: {{fact.event}}?" }],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "canada.history.timeline-confusion",
+          "feedback": "That year belongs to another event in Canada's history. Try placing the event on the timeline.",
+          "hint": "Think about where this event belongs on Canada's historical timeline.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": { "screenReaderText": "Choose the year for the stated event in Canadian history." }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The History of Canada",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Responsible Government; A Country in 10 Provinces",
+        "reviewStatus": "draft"
+      }
+    }
+  ]
+}

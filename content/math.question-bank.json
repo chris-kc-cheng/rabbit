@@ -1,6 +1,9 @@
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
+  "generatorVersion": "2.0.0",
+  "publicationStatus": "published",
   "subject": "math.elementary",
+  "title": "Elementary Math",
   "locale": "en-CA",
   "templates": [
     {

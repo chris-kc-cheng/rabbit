@@ -4,10 +4,14 @@
 
 - `content/question-template.schema.json` is the JSON Schema Draft 2020-12
   contract for a complete bank.
-- `content/math.question-bank.json` is the executable ten-template elementary
+- `content/math.question-bank.json` is the published ten-template elementary
   math bank loaded by FastAPI.
+- `content/canadian-citizenship.question-bank.json` is a draft, executable
+  example of a reusable historical-event collection based on *Discover Canada*.
+  Draft banks are deliberately omitted from the public subject catalogue.
 
-The current v1 type is `single-select`. Each template has bounded parameters,
+Schema v2 supports computed `single-select` templates and reusable
+`fact-collection-single-select` templates. Each computed template has bounded parameters,
 structured prompt blocks, a server-side answer expression, and at least three
 wrong-answer routes. Each wrong route has a stable misconception ID and feedback.
 The expression language permits numeric constants, declared variables,
@@ -61,9 +65,36 @@ JavaScript.
 }
 ```
 
-A bank wraps templates with `schemaVersion`, `subject`, and `locale`. Validate the
+A bank wraps templates with `schemaVersion`, `generatorVersion`,
+`publicationStatus`, `subject`, `title`, and `locale`. Validate the
 whole file, then property-test many seeds because JSON Schema cannot prove that
 computed options remain distinct.
+
+## Reusable fact collections
+
+A fact collection stores related knowledge once and defines one or more question
+variants over it. The Canadian history example contains a `knowledge.facts` list
+of historical events. Its `identify-year` variant selects one fact from the list,
+renders `{{fact.event}}`, uses `fact.year` as the server-side answer, and draws
+three distinct years from the other facts as diagnostic options. One object can
+therefore produce many questions without copying the source facts.
+
+Every fact and variant has a stable ID. Generated questions retain the template
+version, variant ID, and selected fact ID internally. The public session payload
+contains the variant ID but never the selected fact ID, correct choice, or
+misconception metadata.
+
+Double braces are Rabbit's own deliberately small interpolation convention, not
+an embedded Mustache, Handlebars, or Jinja runtime. Computed math templates accept
+only the arithmetic DSL inside braces. Fact templates accept only a declared
+dotted value path such as `{{fact.event}}`; calls, indexing, filters, and arbitrary
+code are rejected.
+
+Fact collections currently require at least four facts and support text or
+integer scalar fields. A variant identifies one answer field and one distractor
+pool field. All distractors currently share one timeline-confusion route;
+future content versions may add per-fact misconception mappings and other fact
+types. Selection and option shuffling use the session's seeded random generator.
 
 ## Publishing rules
 
@@ -72,3 +103,7 @@ parameter extremes, all misconception mappings, accessibility, and supportive
 language before publication. Version published templates rather than editing them
 in place. The current prototype reads Git-managed JSON at startup; database
 publishing and immutable snapshots remain to be implemented.
+
+The Canadian history bank remains `draft` because its source facts still require
+human curriculum review. Changing it to `published` makes it discoverable by the
+API and must happen only after that review.
