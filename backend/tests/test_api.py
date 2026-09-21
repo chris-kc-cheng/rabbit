@@ -211,3 +211,8 @@ def test_public_demo_can_generate_a_real_worksheet_without_login():
     assert b"Build the sentence" in first.content
     assert b"Confederation milestone" in first.content
     assert b"/Subtype /Image" in first.content
+
+
+def test_backend_image_contains_the_demo_pdf_asset():
+    dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(encoding="utf-8")
+    assert "COPY frontend/public/trivia-animals.png ./frontend/public/trivia-animals.png" in dockerfile
