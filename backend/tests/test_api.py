@@ -17,6 +17,11 @@ def test_health_and_subject_catalogue():
     assert subjects == [{"id": "math.elementary", "title": "Elementary Math", "template_count": 10}]
 
 
+def test_unknown_subject_is_rejected():
+    response = client.post("/api/v1/sessions", json={"subject": "unknown.subject"})
+    assert response.status_code == 400
+
+
 def test_session_hides_answers_and_attempt_updates_parent_progress():
     response = client.post("/api/v1/sessions", json={"learner_id": "mina", "seed": 42, "count": 10})
     assert response.status_code == 201

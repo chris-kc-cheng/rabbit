@@ -11,9 +11,13 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def test_question_bank_matches_schema():
     schema = json.loads((ROOT / "content/question-template.schema.json").read_text())
-    bank = load_bank()
-    jsonschema.Draft202012Validator(schema).validate(bank)
-    assert len(bank["templates"]) == 10
+    validator = jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker())
+    paths = sorted((ROOT / "content").glob("*.question-bank.json"))
+    assert {path.name for path in paths} == {
+        "canadian-citizenship.question-bank.json", "math.question-bank.json"
+    }
+    for path in paths:
+        validator.validate(load_bank(path))
 
 
 def test_safe_expression_evaluator():
@@ -45,3 +49,20 @@ def test_generation_is_deterministic_for_same_seed():
     first = [item.public.model_dump() for item in generate_session(12345, 10)]
     second = [item.public.model_dump() for item in generate_session(12345, 10)]
     assert first == second
+
+
+def test_fact_collection_selects_a_fact_and_hides_answer_metadata():
+    bank = load_bank(ROOT / "content" / "canadian-citizenship.question-bank.json")
+    first = generate_session(8675309, 6, bank)
+    second = generate_session(8675309, 6, bank)
+    assert [item.public.model_dump() for item in first] == [item.public.model_dump() for item in second]
+    assert len({item.generation["factId"] for item in first}) == 6
+    for question in first:
+        assert question.public.variant_id == "identify-year"
+        assert len(question.public.choices) == 4
+        assert len({choice.value for choice in question.public.choices}) == 4
+        payload = question.public.model_dump()
+        assert "correct_choice_id" not in payload
+        assert "generation" not in payload
+        assert question.generation["generatorVersion"] == "2.0.0"
+        assert question.generation["seed"] == 8675309
