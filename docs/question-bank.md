@@ -44,10 +44,13 @@ parameterized, adaptive, or part of the published v2 banks. The published math
 bank remains the source of truth for regular learner sessions. The examples still
 need curriculum review before any production publication.
 
-The unauthenticated demo worksheet endpoint generates 1–20 questions from the
-published math bank with a fixed seed. It returns the same printable PDF and
-answer key for the same requested count and does not create a learner session or
-retain attempt data.
+The unauthenticated demo PDF endpoint prints all eleven activities shown in the
+Explore packs kid view, in the same order. It includes the triangle and prism
+diagrams, readable formulas, the authored animal image and alt text, every
+choice or response area, and a separate answer key. The endpoint does not create
+a learner session or retain attempt data. The backend image packages the shared
+bitmap and locates it through `RABBIT_DEMO_ASSET_DIRECTORY`, because container
+module paths differ from the source-repository layout.
 
 ## Required template example
 

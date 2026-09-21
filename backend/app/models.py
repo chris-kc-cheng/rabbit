@@ -105,9 +105,3 @@ class WorksheetCreate(BaseModel):
     topic: str = Field(min_length=1, max_length=120)
     count: int = Field(default=10, ge=1, le=50)
     seed: int | None = None
-
-
-class DemoWorksheetCreate(BaseModel):
-    """Narrow public request used by the non-persistent product demo."""
-
-    count: int = Field(default=8, ge=1, le=20)

@@ -14,15 +14,14 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from .auth import bearer, decode_token, issue_token, require_role, verify_password
-from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
+from .demo_pack import DemoAttempt, create_demo_session, demo_questions, grade_demo_attempt
 from .database import get_db
 from .db_models import User
-from .engine import BANK_DIRECTORY, generate_session, load_bank, load_banks
+from .engine import BANK_DIRECTORY, generate_session, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
     ContentSettings,
-    DemoWorksheetCreate,
     LearnerCreate,
     LoginRequest,
     ParentCreate,
@@ -36,7 +35,7 @@ from .models import (
 )
 from .store import SessionRecord, store
 from .repositories import IdentityRepository, public_user, user_record
-from .worksheet import build_worksheet_pdf, topic_title
+from .worksheet import build_demo_pack_pdf, build_worksheet_pdf, topic_title
 
 app = FastAPI(title="Rabbit Learning API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.add_middleware(
@@ -64,13 +63,10 @@ def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
 
 
 @app.post("/api/v1/demo-pack/worksheet", status_code=200, response_class=StreamingResponse)
-def create_demo_worksheet(request: DemoWorksheetCreate) -> StreamingResponse:
-    """Build the public demo's deterministic worksheet without retaining data."""
-    seed = 20260921
-    bank = load_bank()
-    generated = generate_session(seed, request.count, bank)
-    pdf = build_worksheet_pdf(bank["title"], "mixed-practice", generated, seed)
-    filename = f"rabbit-demo-{request.count}-questions.pdf"
+def create_demo_worksheet() -> StreamingResponse:
+    """Print every reviewed activity currently presented in the kid demo."""
+    pdf = build_demo_pack_pdf(demo_questions())
+    filename = "rabbit-demo-all-questions.pdf"
     return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
         "Content-Disposition": f'attachment; filename="{filename}"',
         "Content-Length": str(len(pdf)),
