@@ -24,7 +24,7 @@ working in this repository, not production-ready at population scale.
 - [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the published v2 banks and does not yet feed parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
-- [x] JSON schema documentation, required-format example, and reusable AI
+- [x] In-app and written JSON schema documentation, per-type examples, and reusable AI
   structured-output prompt.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
   The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for

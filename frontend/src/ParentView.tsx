@@ -10,7 +10,7 @@ export function ParentView({ refreshKey }: { refreshKey: number }) {
   const save = async () => { setReward(await api.saveReward(reward)); setSaved(true); window.setTimeout(() => setSaved(false), 1800); };
 
   return <main className="parent-page">
-    <header className="parent-heading"><div><p className="eyebrow">Parent preview</p><h1>Mina&apos;s learning snapshot</h1><p>This prototype report uses this server process only. Authentication and durable family accounts are not implemented yet.</p></div><span className="preview-badge">Demo data</span></header>
+    <header className="parent-heading"><div><p className="eyebrow">Parent preview</p><h1>Chloe&apos;s learning snapshot</h1><p>This prototype report uses this server process only. Authentication and durable family accounts are not implemented yet.</p></div><span className="preview-badge">Demo data</span></header>
     <section className="metric-grid">
       <article><span>Questions tried</span><strong>{progress?.attempts ?? 0}</strong><small>this demo session</small></article>
       <article><span>Correct answers</span><strong>{progress?.correct ?? 0}</strong><small>{Math.round((progress?.accuracy ?? 0) * 100)}% accuracy</small></article>

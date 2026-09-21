@@ -317,7 +317,7 @@ const factories: QuestionFactory[] = [
       id: `word-problem-${index}`,
       skill: "Subtraction word problems",
       eyebrow: "Problem solving · Level 2",
-      prompt: `Mina collected ${start} stickers and used ${used} in a project. How many stickers are left?`,
+      prompt: `Chloe collected ${start} stickers and used ${used} in a project. How many stickers are left?`,
       ...numericChoices(correct, [[start + used, misconceptions.inverseOperation], [used - correct, misconceptions.inverseOperation], [start, misconceptions.inverseOperation]], random),
       hint: "The collection gets smaller when some stickers are used.",
       explanation: `“Left” tells us to subtract: ${start} − ${used} = ${correct}.`,
