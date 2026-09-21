@@ -188,21 +188,26 @@ def test_public_demo_can_generate_a_real_worksheet_without_login():
         None,
     )
     assert route is not None and "POST" in route.methods
-    with patch.object(main_module, "build_worksheet_pdf", wraps=main_module.build_worksheet_pdf) as pdf_builder:
-        first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-        second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-    pdf_questions = pdf_builder.call_args.args[2]
-    preview = client.post("/api/v1/demo-pack/worksheet-preview", json={"count": 4})
+    with patch.object(main_module, "build_demo_pack_pdf", wraps=main_module.build_demo_pack_pdf) as pdf_builder:
+        first = client.post("/api/v1/demo-pack/worksheet", json={})
+        second = client.post("/api/v1/demo-pack/worksheet", json={})
+    pdf_questions = pdf_builder.call_args.args[0]
+    kid_questions = client.post("/api/v1/demo-pack/sessions").json()["questions"]
     assert first.status_code == 200, first.text
     assert first.headers["content-type"] == "application/pdf"
-    assert "rabbit-demo-4-questions.pdf" in first.headers["content-disposition"]
+    assert "rabbit-demo-all-questions.pdf" in first.headers["content-disposition"]
     assert first.content.startswith(b"%PDF-") and first.content == second.content
     assert b"Answer key" in first.content
-    assert preview.status_code == 200
-    questions = preview.json()["questions"]
-    assert len(questions) == 4
-    assert all("correct_choice_id" not in question for question in questions)
-    assert all(question["template_id"].startswith("math.") for question in questions)
-    assert questions == [question.public.model_dump(mode="json") for question in pdf_questions]
-    assert client.post("/api/v1/demo-pack/worksheet", json={"count": 21}).status_code == 422
-    assert client.post("/api/v1/demo-pack/worksheet-preview", json={"count": 21}).status_code == 422
+    assert len(pdf_questions) == 11
+    assert [question["id"] for question in pdf_questions] == [question["id"] for question in kid_questions]
+    assert {question["subject"] for question in pdf_questions} == {
+        "math", "trivia", "english", "canadian-citizenship"
+    }
+    assert {question["kind"] for question in pdf_questions} == {
+        "single-select", "multi-select", "fill-blank", "reorder", "correction"
+    }
+    assert b"Find the missing side" in first.content
+    assert b"Animal expert" in first.content
+    assert b"Build the sentence" in first.content
+    assert b"Confederation milestone" in first.content
+    assert b"/Subtype /Image" in first.content

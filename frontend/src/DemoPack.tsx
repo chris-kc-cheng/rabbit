@@ -95,7 +95,6 @@ export function DemoPack() {
 function DemoParentView() {
   const [rewardEnabled, setRewardEnabled] = useState(true);
   const [reward, setReward] = useState("Choose Friday's family movie");
-  const [count, setCount] = useState(8);
   const [generating, setGenerating] = useState(false);
   const [notice, setNotice] = useState("");
   const [preview, setPreview] = useState<DemoWorksheetPreview | null>(null);
@@ -112,9 +111,9 @@ function DemoParentView() {
   const downloadWorksheet = async () => {
     setGenerating(true); setNotice("");
     try {
-      const blob = await api.createDemoWorksheet(count);
+      const blob = await api.createDemoWorksheet();
       const url = URL.createObjectURL(blob); const link = document.createElement("a");
-      link.href = url; link.download = `rabbit-demo-${count}-questions.pdf`;
+      link.href = url; link.download = "rabbit-demo-all-questions.pdf";
       document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
       setNotice("Worksheet and answer key downloaded.");
     } catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not make the worksheet"); }
@@ -127,7 +126,7 @@ function DemoParentView() {
       <article className="card demo-progress-panel"><div className="panel-title"><div><p className="eyebrow">Progress by skill</p><h2>Growing steadily</h2></div><span>Last 30 days</span></div><div className="skill-progress"><div><p><strong>Fractions</strong><span>88%</span></p><i><b style={{width:"88%"}} /></i><small>Ready for a little more challenge</small></div><div><p><strong>Multiplication</strong><span>76%</span></p><i><b style={{width:"76%"}} /></i><small>Building confidence</small></div><div><p><strong>Place value</strong><span>64%</span></p><i><b style={{width:"64%"}} /></i><small>Keep practicing this week</small></div></div></article>
       <article className="card demo-reward-panel"><p className="eyebrow">Optional encouragement</p><h2>Family reward</h2><label className="demo-toggle"><span><strong>Use a reward goal</strong><small>Celebrate effort together</small></span><input type="checkbox" checked={rewardEnabled} onChange={event => setRewardEnabled(event.target.checked)} /></label><label>Present or experience<input value={reward} disabled={!rewardEnabled} maxLength={80} onChange={event => setReward(event.target.value)} /></label><div className="reward-preview"><p><span>340 points</span><strong>400 goal</strong></p><i><b /></i><small>{rewardEnabled ? reward : "Reward goal is paused"}</small></div></article>
       <article className="card demo-evidence-panel"><div className="panel-title"><div><p className="eyebrow">Learning evidence</p><h2>Recent answers</h2></div><span>Latest 3</span></div><div className="evidence-list"><div><i className="pass">✓</i><span><strong>Equivalent fractions</strong><small>Answered 3/4 · No hint</small></span><time>Today</time></div><div><i className="practice">↗</i><span><strong>Two-digit multiplication</strong><small>Answered 245 · Used a hint</small></span><time>Today</time></div><div><i className="pass">✓</i><span><strong>Place value</strong><small>Answered 7,000 · No hint</small></span><time>Yesterday</time></div></div><div className="practice-signal"><span>◎</span><p><strong>A useful practice signal</strong>Malik chose the “multiply only the ones” route twice. Rabbit will offer another supportive example.</p></div></article>
-      <article className="card demo-pdf-panel"><p className="eyebrow">Practice away from the screen</p><h2>Make a real PDF worksheet</h2><p>Every question comes from Rabbit&apos;s reviewed question templates. The preview below is exactly what the PDF will use, followed by a separate answer key with explanations.</p><label>Number of questions<input type="number" min="1" max="20" value={count} onChange={event => setCount(Math.max(1, Math.min(20, Number(event.target.value) || 1)))} /></label>{previewError && <small className="demo-error" role="alert">{previewError}</small>}{preview && <div className="worksheet-preview" aria-live="polite"><strong>Questions in this PDF</strong><ol>{preview.questions.map(item => <li key={item.id}><div>{item.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <span key={index}>{block.value} </span>)}</div><small>{item.skill.split(".").slice(1).join(" ")}</small></li>)}</ol></div>}<button className="primary" disabled={generating || !preview || preview.questions.length !== count} onClick={downloadWorksheet}>{generating ? "Building your PDF…" : "↓ Generate & download PDF"}</button>{notice && <small className="download-notice" role="status">✓ {notice}</small>}</article>
+      <article className="card demo-pdf-panel"><p className="eyebrow">Practice away from the screen</p><h2>Make a real PDF activity pack</h2><p>Download all 11 activities shown in the kid view: illustrated math, formulas, picture trivia, English, and Discover Canada questions, followed by an answer key.</p><button className="primary" disabled={generating} onClick={downloadWorksheet}>{generating ? "Building your PDF…" : "↓ Download all kid-view questions"}</button>{notice && <small className="download-notice" role="status">✓ {notice}</small>}</article>
     </div>
   </section>;
 }

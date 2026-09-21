@@ -44,11 +44,11 @@ parameterized, adaptive, or part of the published v2 banks. The published math
 bank remains the source of truth for regular learner sessions. The examples still
 need curriculum review before any production publication.
 
-The unauthenticated demo worksheet preview and PDF endpoints generate the same
-1–20 questions from the published math bank with a fixed seed. The parent demo
-shows the exact template-backed prompts before download; the PDF contains only
-that previewed set, followed by its answer key. The endpoints do not create a
-learner session or retain attempt data.
+The unauthenticated demo PDF endpoint prints all eleven activities shown in the
+Explore packs kid view, in the same order. It includes the triangle and prism
+diagrams, readable formulas, the authored animal image and alt text, every
+choice or response area, and a separate answer key. The endpoint does not create
+a learner session or retain attempt data.
 
 ## Required template example
 
