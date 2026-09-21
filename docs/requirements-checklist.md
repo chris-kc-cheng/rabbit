@@ -23,22 +23,22 @@ working in this repository, not production-ready at population scale.
 - [x] Reader-comfort typography and a responsive, persistent light/dark theme
   control that defaults to the learner's operating-system preference.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
-- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the published v2 banks and does not yet feed parent reports or adaptation.
+- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. The demo also includes a clearly labeled, illustrative parent dashboard with learner tracking, reward progress, misconception evidence, and a working deterministic PDF worksheet download. Demo activity remains non-persistent and does not feed real parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] In-app and written JSON schema documentation, per-type examples, and reusable AI
   structured-output prompt, with a public schema and generation validator that
   remains available from signed-in workspaces.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
-  The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for
-  Compose image tags and host port.
+  The workflow deploys to `~/rabbit`, preserves server-managed `.env.prod` settings,
+  and writes image tags separately to `.env.deploy` for Compose.
 - [x] Public product landing page with an illustrative product preview and a
   prominent, non-persistent reviewed-demo entry point.
 - [x] Prototype password login/logout with expiring signed JWT access tokens,
   automatic return to login after a 401, and admin/parent/learner role guards.
 - [x] Production Compose refuses to start the prototype identity service without
-  configured admin-password and JWT-signing secrets; local Compose keeps the
-  development-only admin login.
+  configured admin-password and JWT-signing secrets; local Compose also requires
+  an explicitly configured admin password.
 - [x] Authenticated administrator UI for creating parents, resetting parent or
   learner passwords, and importing question banks with JSON-path schema errors
   plus a generation smoke test. Administrators can also enable draft-bank

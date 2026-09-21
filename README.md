@@ -172,7 +172,7 @@ Before the first deployment with the new project name, stop the old
 `docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml down`
 (use the old deployment's existing env-file name for this one-time command).
 Then deploy the new workflow. If the reverse proxy currently points at port
-`8080`, update its upstream to `127.0.0.1:8090`. A configured GitHub Actions
-`RABBIT_PORT` variable overrides the default; set it to `8090` or remove it.
+`8080`, update its upstream to `127.0.0.1:8090`. Set `RABBIT_PORT` in
+`~/rabbit/.env.prod` if the proxy uses a different port.
 For later checks on the VPS, run `cd ~/rabbit` and use
-`docker compose -p rabbit --env-file .env.prod -f compose.prod.yml ps`.
+`docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml ps`.

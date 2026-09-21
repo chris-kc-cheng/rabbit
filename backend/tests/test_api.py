@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -14,7 +15,9 @@ def setup_function():
     store.include_drafts = False
 
 
-def login(username="admin", password="rabbit-admin"):
+def login(username="admin", password=None):
+    if password is None:
+        password = os.environ["RABBIT_ADMIN_PASSWORD"]
     response = client.post("/api/v1/auth/login", json={"username": username, "password": password})
     assert response.status_code == 200
     return {"Authorization": f"Bearer {response.json()['access_token']}"}, response.json()["user"]
@@ -156,3 +159,14 @@ def test_parent_can_generate_topic_worksheet_with_answer_key():
                        json={**request, "topic": "not.a.topic"}).status_code == 400
     assert client.post("/api/v1/parents/worksheets", headers=parent_headers,
                        json={**request, "count": 51}).status_code == 422
+
+
+def test_public_demo_can_generate_a_real_worksheet_without_login():
+    first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
+    second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
+    assert first.status_code == 200
+    assert first.headers["content-type"] == "application/pdf"
+    assert "rabbit-demo-4-questions.pdf" in first.headers["content-disposition"]
+    assert first.content.startswith(b"%PDF-") and first.content == second.content
+    assert b"Answer key" in first.content
+    assert client.post("/api/v1/demo-pack/worksheet", json={"count": 21}).status_code == 422
