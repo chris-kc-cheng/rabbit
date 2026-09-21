@@ -69,3 +69,4 @@ export type DemoQuestion = {
 };
 export type DemoSession = { id: string; questions: DemoQuestion[] };
 export type DemoResult = { correct: boolean; feedback: string; points_earned: number };
+export type DemoWorksheetPreview = { subject_title: string; seed: number; questions: Question[] };
