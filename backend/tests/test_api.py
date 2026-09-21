@@ -1,9 +1,11 @@
 import json
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from app import main as main_module
 from app.main import app
 from app.store import store
 
@@ -186,8 +188,10 @@ def test_public_demo_can_generate_a_real_worksheet_without_login():
         None,
     )
     assert route is not None and "POST" in route.methods
-    first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-    second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
+    with patch.object(main_module, "build_worksheet_pdf", wraps=main_module.build_worksheet_pdf) as pdf_builder:
+        first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
+        second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
+    pdf_questions = pdf_builder.call_args.args[2]
     preview = client.post("/api/v1/demo-pack/worksheet-preview", json={"count": 4})
     assert first.status_code == 200, first.text
     assert first.headers["content-type"] == "application/pdf"
@@ -199,6 +203,6 @@ def test_public_demo_can_generate_a_real_worksheet_without_login():
     assert len(questions) == 4
     assert all("correct_choice_id" not in question for question in questions)
     assert all(question["template_id"].startswith("math.") for question in questions)
-    assert all(any(block["value"].encode() in first.content for block in question["prompt"]) for question in questions)
+    assert questions == [question.public.model_dump(mode="json") for question in pdf_questions]
     assert client.post("/api/v1/demo-pack/worksheet", json={"count": 21}).status_code == 422
     assert client.post("/api/v1/demo-pack/worksheet-preview", json={"count": 21}).status_code == 422
