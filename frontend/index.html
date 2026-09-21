@@ -6,6 +6,16 @@
     <meta name="theme-color" content="#fff8f2" />
     <meta name="description" content="Rabbit — positive, thoughtful math practice." />
     <title>Rabbit Learning</title>
+    <script>
+      (() => {
+        const saved = localStorage.getItem("rabbit-color-theme");
+        const theme = saved === "light" || saved === "dark"
+          ? saved
+          : matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.dataset.theme = theme;
+        document.documentElement.style.colorScheme = theme;
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
