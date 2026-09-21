@@ -32,11 +32,12 @@ JavaScript.
 
 ## Fixed subject-pack prototype
 
-`content/demo-pack.json` contains eight fixed prototype examples for the
+`content/demo-pack.json` contains eleven fixed prototype examples for the
 Explore packs screen. Its separate contract is `content/demo-pack.schema.json`.
 The pack covers a labeled trigonometry triangle, a rotatable rectangular prism,
 a KaTeX formula question, image-backed quiz and multi-select trivia, fill-in-the-blank,
-word reordering, and grammar correction. The bitmap is stored at
+word reordering, grammar correction, and three Canadian history questions based
+on the draft *Discover Canada* fact collection. The bitmap is stored at
 `frontend/public/trivia-animals.png`. The API removes `answer` and `feedback`
 before an attempt and grades each kind on the server. These examples are not
 parameterized, adaptive, or part of the published v2 banks. The published math

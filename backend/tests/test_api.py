@@ -25,11 +25,24 @@ def login(username="admin", password=None):
 
 def family():
     admin, _ = login()
-    parent = client.post("/api/v1/admin/parents", headers=admin, json={"username":"parent.one","password":"welcome12","display_name":"A Parent"}).json()
+    parent_response = client.post("/api/v1/admin/parents", headers=admin, json={"username":"parent.one","password":"welcome12","display_name":"A Parent"})
+    assert parent_response.status_code == 201, parent_response.text
+    parent = parent_response.json()
     parent_headers, _ = login("parent.one", "welcome12")
-    learner = client.post("/api/v1/parents/learners", headers=parent_headers, json={"username":"learner.one","password":"practice12","display_name":"Mina"}).json()
+    learner_response = client.post("/api/v1/parents/learners", headers=parent_headers, json={"username":"learner.one","password":"practice12","display_name":"Mina"})
+    assert learner_response.status_code == 201, learner_response.text
+    learner = learner_response.json()
     learner_headers, _ = login("learner.one", "practice12")
     return parent_headers, learner_headers, learner
+
+
+def test_password_hash_round_trip_is_stable_for_created_accounts():
+    from app.auth import hash_password, verify_password
+
+    for password in ("rabbit-admin", "welcome12", "practice12"):
+        encoded = hash_password(password)
+        assert verify_password(password, encoded)
+        assert not verify_password(f"{password}-different", encoded)
 
 
 def test_health_demo_and_protected_catalogue():
