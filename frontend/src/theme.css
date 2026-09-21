@@ -10,46 +10,114 @@
   --amber: #df9d37;
   --paper: #fffdfa;
   --bg: #fff8f2;
+  --topbar: rgba(255, 253, 250, .96);
+  --nav-bg: #f5e9e1;
+  --subtle: #f7eee7;
+  --choice-bg: #fffdfa;
+  --selected-bg: #fff1e9;
+  --focus: #147a78;
+  --shadow: #704d3b12;
   font-family: "Trebuchet MS", "Avenir Next", ui-rounded, system-ui, sans-serif;
+  font-size: 17px;
+  line-height: 1.55;
 }
 
-body { background: var(--bg); }
+body { background: var(--bg); color: var(--ink); }
 button, input { font-family: inherit; }
-button:focus-visible, input:focus-visible { outline: 3px solid #147a78; outline-offset: 3px; }
-.topbar { background: rgba(255, 253, 250, .96); }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+.topbar { background: var(--topbar); }
 .brand { color: var(--ink); font-size: 28px; letter-spacing: -.055em; font-weight: 900; gap: 5px; }
 .brand-logo { width: 51px; height: 51px; object-fit: contain; }
-.topbar nav { background: #f5e9e1; }
-.topbar nav button { font-size: 13px; }
+.topbar nav { background: var(--nav-bg); }
+.topbar nav button { font-size: 14px; }
 .topbar nav button.active { color: var(--purple); }
-.points { color: var(--purple); font-size: 13px; }
-.eyebrow { color: var(--purple); font-size: 11px; letter-spacing: .09em; }
+.header-tools { justify-self: end; display: flex; align-items: center; gap: 14px; }
+.points { color: var(--purple); font-size: 14px; }
+.theme-toggle { min-height: 42px; border: 1px solid var(--line); border-radius: 999px; padding: 0 13px; background: var(--paper); color: var(--ink); display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px var(--shadow); }
+.theme-toggle:hover { border-color: var(--purple); }
+.theme-toggle span:first-child { color: var(--purple); font-size: 18px; line-height: 1; }
+.eyebrow { color: var(--purple); font-size: 12px; letter-spacing: .09em; }
 .trail h2 { font-size: 20px; letter-spacing: -.035em; }
 .trail .active { color: var(--purple); }
 .lesson-progress b { background: linear-gradient(90deg, var(--purple), #ee9374); }
 .lesson-progress i { background: #f0e5dd; }
-.card { box-shadow: 0 18px 48px #704d3b12; }
+.card { box-shadow: 0 18px 48px var(--shadow); }
 .question-header h1, .finish h1, .parent-heading h1,
 .prompt, .panel h2, .metric-grid strong { font-family: "Trebuchet MS", "Avenir Next", ui-rounded, system-ui, sans-serif; letter-spacing: -.04em; }
 .question-header h1, .finish h1, .parent-heading h1 { font-weight: 800; }
 .prompt { font-weight: 800; }
-.skill { background: #f7eee7; }
+.skill { background: var(--subtle); }
 .choice { border-radius: 17px; }
-.choice>span { background: #f7eee7; }
+.choice, .panel input { background: var(--choice-bg); }
+.choice>span { background: var(--subtle); }
 .choice:hover:not(:disabled) { border-color: #df9a87; }
-.choice.selected { background: #fff1e9; }
+.choice.selected { background: var(--selected-bg); }
 .primary { border-radius: 14px; font-size: 14px; }
 .quiet { font-size: 13px; }
 .mascot { width: 142px; height: 142px; padding: 0; }
 .mascot img { width: 100%; height: 100%; object-fit: contain; }
-.coach>div { background: #fffdfa; box-shadow: 0 8px 25px #704d3b0d; }
-.coach p { font-size: 12px; }
+.coach>div { background: var(--paper); box-shadow: 0 8px 25px var(--shadow); }
+.coach p { font-size: 13px; }
 .metric-grid article, .panel { background: var(--paper); box-shadow: 0 10px 30px #704d3b0b; }
 .metric-grid strong { color: var(--purple); font-weight: 800; }
-.attempt-list>div { background: #fbf3ec; }
+.attempt-list>div { background: var(--subtle); }
 .toast { background: var(--ink); }
+
+/* Keep supporting copy comfortably legible without crowding compact controls. */
+.trail li { font-size: 13px; }
+.trail li small, .skill, .preview-badge, .metric-grid span, .metric-grid small,
+.panel label, .attempt-list small { font-size: 11px; }
+.lesson-progress > div, .panel-copy, .empty, .attempt-list strong { font-size: 13px; }
+.hint, .feedback, .parent-heading > div > p:last-child { font-size: 14px; }
+.question-card, .panel, .docs-page, .demo-page { line-height: 1.55; }
+
+[data-theme="dark"] {
+  --ink: #f3eee8;
+  --muted: #c5bdb5;
+  --purple: #ff9b87;
+  --purple-dark: #bd6658;
+  --soft: #3b2927;
+  --line: #554842;
+  --green: #72d5b5;
+  --green-soft: #173c34;
+  --amber: #f4bd63;
+  --paper: #282321;
+  --bg: #1b1817;
+  --topbar: rgba(31, 27, 25, .96);
+  --nav-bg: #3a322e;
+  --subtle: #3a312d;
+  --choice-bg: #2d2825;
+  --selected-bg: #452e2a;
+  --focus: #78d8d3;
+  --shadow: #00000038;
+}
+
+[data-theme="dark"] .topbar nav button.active { background: #4a3e39; }
+[data-theme="dark"] .lesson-progress i { background: #4b423e; }
+[data-theme="dark"] .choice:hover:not(:disabled) { border-color: #d47e6d; }
+[data-theme="dark"] .hint { background: #42351f; }
+[data-theme="dark"] .choice.wrong { background: #492a29; }
+[data-theme="dark"] .preview-badge { background: #493b20; color: #f2cb7f; }
+[data-theme="dark"] .toast { background: #39312e; }
+[data-theme="dark"] .demo-page { --pack-soft: #432e29; }
+[data-theme="dark"] .demo-trivia { --pack-soft: #34304c; }
+[data-theme="dark"] .demo-english { --pack-soft: #203d37; }
+[data-theme="dark"] .demo-choices button,
+[data-theme="dark"] .word-tile,
+[data-theme="dark"] .docs-version,
+[data-theme="dark"] .docs-example-card { background: var(--choice-bg); }
+[data-theme="dark"] .demo-question-list span { background: var(--subtle); }
+[data-theme="dark"] .demo-feedback { background: #42351f; }
+[data-theme="dark"] .docs-jump { background: rgba(27, 24, 23, .94); }
+[data-theme="dark"] .docs-type-list button:hover { background: var(--subtle); }
+[data-theme="dark"] .docs-example-head .prototype { background: #493b20; color: #f2cb7f; }
+[data-theme="dark"] .docs-callout { background: #42351f; }
+[data-theme="dark"] .docs-callout span { color: #ddc794; }
 
 @media(max-width:760px) {
   .brand { font-size: 0; }
   .brand-logo { width: 45px; height: 45px; }
+  .header-tools { gap: 6px; }
+  .theme-toggle { width: 42px; padding: 0; justify-content: center; }
+  .theme-toggle span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
