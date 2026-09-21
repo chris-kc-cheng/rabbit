@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from html import escape
 from io import BytesIO
 from pathlib import Path
@@ -16,6 +17,7 @@ from reportlab.platypus import Image, KeepTogether, PageBreak, Paragraph, Simple
 from .engine import GeneratedQuestion
 
 ROOT = Path(__file__).resolve().parents[2]
+DEMO_ASSET_DIRECTORY = Path(os.environ.get("RABBIT_DEMO_ASSET_DIRECTORY", ROOT / "frontend" / "public"))
 
 
 def topic_title(topic: str) -> str:
@@ -162,7 +164,7 @@ def build_demo_pack_pdf(questions: list[dict]) -> bytes:
         if question.get("visual"):
             elements.append(_demo_visual(question["visual"]))
         if question.get("image"):
-            image_path = ROOT / "frontend" / "public" / question["image"].lstrip("/")
+            image_path = DEMO_ASSET_DIRECTORY / question["image"].lstrip("/")
             preview = Image(str(image_path), width=3.6 * inch, height=2.4 * inch, kind="proportional")
             preview.hAlign = "CENTER"
             elements.extend([preview, Paragraph(escape(question.get("image_alt", "")), choice_style)])

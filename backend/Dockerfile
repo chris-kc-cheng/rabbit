@@ -2,7 +2,8 @@ FROM python:3.13-slim
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     RABBIT_QUESTION_BANK=/app/content/math.question-bank.json \
-    RABBIT_QUESTION_BANK_DIRECTORY=/app/content
+    RABBIT_QUESTION_BANK_DIRECTORY=/app/content \
+    RABBIT_DEMO_ASSET_DIRECTORY=/app/frontend/public
 WORKDIR /app
 RUN addgroup --system rabbit && adduser --system --ingroup rabbit rabbit
 COPY backend/requirements.txt ./requirements.txt

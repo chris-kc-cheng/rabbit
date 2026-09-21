@@ -215,4 +215,5 @@ def test_public_demo_can_generate_a_real_worksheet_without_login():
 
 def test_backend_image_contains_the_demo_pdf_asset():
     dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(encoding="utf-8")
+    assert "RABBIT_DEMO_ASSET_DIRECTORY=/app/frontend/public" in dockerfile
     assert "COPY frontend/public/trivia-animals.png ./frontend/public/trivia-animals.png" in dockerfile
