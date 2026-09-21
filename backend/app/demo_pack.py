@@ -29,13 +29,18 @@ _sessions: dict[str, dict[str, dict]] = {}
 _lock = Lock()
 
 
+def demo_questions() -> list[dict]:
+    """Return the reviewed questions in the same order used by the kid view."""
+    return list(_questions.values())
+
+
 def create_demo_session() -> dict:
     session_id = secrets.token_urlsafe(18)
     with _lock:
         _sessions[session_id] = {}
     return {"id": session_id, "questions": [
         {key: value for key, value in question.items() if key not in {"answer", "feedback"}}
-        for question in _questions.values()
+        for question in demo_questions()
     ]}
 
 
