@@ -34,9 +34,10 @@ working in this repository, not production-ready at population scale.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
-- [~] **Parent experience:** a clearly labelled demo view shows attempts, accuracy,
-  misconception IDs, points, and reward settings. It has no secure parent account.
-- [~] **Rewards:** parents can enable a target and name a present/experience, but
+- [~] **Parent experience:** a clearly labelled family demo shows every child and
+  their attempts, accuracy, hint use, misconception IDs, points, and individual
+  reward settings. It has no secure parent account.
+- [~] **Rewards:** parents can enable an accuracy target and name a present/experience, but
   data is kept only in backend memory and resets on restart.
 - [~] **Progress and exact results:** recent server-side attempts are visible, but
   the report does not yet preserve/display the complete rendered question snapshot.
