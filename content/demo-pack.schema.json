@@ -7,7 +7,7 @@
   "required": ["version", "questions"],
   "properties": {
     "version": { "const": 1 },
-    "questions": { "type": "array", "minItems": 8, "items": { "$ref": "#/$defs/question" } }
+    "questions": { "type": "array", "minItems": 11, "items": { "$ref": "#/$defs/question" } }
   },
   "$defs": {
     "choice": {
@@ -19,7 +19,7 @@
       "required": ["id", "subject", "kind", "title", "instruction", "answer", "feedback"],
       "properties": {
         "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
-        "subject": { "enum": ["math", "trivia", "english"] },
+        "subject": { "enum": ["math", "trivia", "english", "canadian-citizenship"] },
         "kind": { "enum": ["single-select", "multi-select", "fill-blank", "reorder", "correction"] },
         "title": { "type": "string", "minLength": 1 },
         "instruction": { "type": "string", "minLength": 1 },
