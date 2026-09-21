@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
 import { MathBlock } from "./MathBlock";
-import type { DemoQuestion, DemoResult, DemoSession, DemoSubject } from "./types";
+import type { DemoQuestion, DemoResult, DemoSession, DemoSubject, DemoWorksheetPreview } from "./types";
 
 const subjects: Array<{ id: DemoSubject; name: string; subtitle: string }> = [
   { id: "math", name: "Math Lab", subtitle: "See it, turn it, solve it" },
@@ -97,6 +97,17 @@ function DemoParentView() {
   const [reward, setReward] = useState("Choose Friday's family movie");
   const [generating, setGenerating] = useState(false);
   const [notice, setNotice] = useState("");
+  const [preview, setPreview] = useState<DemoWorksheetPreview | null>(null);
+  const [previewError, setPreviewError] = useState("");
+  useEffect(() => {
+    let active = true;
+    setPreview(null);
+    setPreviewError("");
+    api.previewDemoWorksheet(count)
+      .then(value => { if (active) setPreview(value); })
+      .catch(caught => { if (active) setPreviewError(caught instanceof Error ? caught.message : "Could not preview the worksheet"); });
+    return () => { active = false; };
+  }, [count]);
   const downloadWorksheet = async () => {
     setGenerating(true); setNotice("");
     try {

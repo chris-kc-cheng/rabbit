@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, DemoWorksheetPreview, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
