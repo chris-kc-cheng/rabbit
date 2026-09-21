@@ -8,7 +8,9 @@
   math bank loaded by FastAPI.
 - `content/canadian-citizenship.question-bank.json` is a draft, executable
   example of a reusable historical-event collection based on *Discover Canada*.
-  Draft banks are deliberately omitted from the public subject catalogue.
+  Draft banks appear in the prototype learner subject catalogue when an admin
+  enables **Draft questions**. They are labelled Draft in the UI and can be
+  hidden immediately; published banks remain available.
 
 The frontend **Docs** page gives authors an approachable overview of the bank
 envelope, an example for every current published or prototype question type,
@@ -123,5 +125,6 @@ in place. The current prototype reads Git-managed JSON at startup; database
 publishing and immutable snapshots remain to be implemented.
 
 The Canadian history bank remains `draft` because its source facts still require
-human curriculum review. Changing it to `published` makes it discoverable by the
-API and must happen only after that review.
+human curriculum review. Prototype admins may expose it for review without
+changing its publication status; production use still requires formal review and
+a new immutable published version.
