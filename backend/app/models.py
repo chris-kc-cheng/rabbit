@@ -96,3 +96,10 @@ class QuestionImport(BaseModel):
 
 class ContentSettings(BaseModel):
     include_drafts: bool = False
+
+
+class WorksheetCreate(BaseModel):
+    subject: str = Field(min_length=1, max_length=80)
+    topic: str = Field(min_length=1, max_length=120)
+    count: int = Field(default=10, ge=1, le=50)
+    seed: int | None = None

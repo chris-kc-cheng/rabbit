@@ -103,3 +103,23 @@ def test_logout_revokes_the_presented_token():
     headers, _ = login()
     assert client.post("/api/v1/auth/logout", headers=headers).status_code == 204
     assert client.get("/api/v1/auth/me", headers=headers).status_code == 401
+
+
+def test_parent_can_generate_topic_worksheet_with_answer_key():
+    parent_headers, learner_headers, _ = family()
+    topics = client.get("/api/v1/parents/worksheet-topics", headers=parent_headers)
+    assert topics.status_code == 200
+    topic = topics.json()[0]
+    request = {"subject": topic["subject"], "topic": topic["id"], "count": 3, "seed": 4242}
+    first = client.post("/api/v1/parents/worksheets", headers=parent_headers, json=request)
+    second = client.post("/api/v1/parents/worksheets", headers=parent_headers, json=request)
+    assert first.status_code == 200
+    assert first.headers["content-type"] == "application/pdf"
+    assert "3-questions.pdf" in first.headers["content-disposition"]
+    assert first.content.startswith(b"%PDF-") and first.content == second.content
+    assert b"Answer key" in first.content
+    assert client.post("/api/v1/parents/worksheets", headers=learner_headers, json=request).status_code == 403
+    assert client.post("/api/v1/parents/worksheets", headers=parent_headers,
+                       json={**request, "topic": "not.a.topic"}).status_code == 400
+    assert client.post("/api/v1/parents/worksheets", headers=parent_headers,
+                       json={**request, "count": 51}).status_code == 422

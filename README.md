@@ -9,7 +9,8 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 - Ten parameterized elementary-math templates with deterministic generation.
 - Misconception-based choices, server-side grading, hints, and feedback.
 - JWT login/logout with role-protected learner, parent, and administrator areas.
-- Parent-managed learners, progress evidence, password resets, and reward goals.
+- Parent-managed learners, progress evidence, password resets, reward goals, and
+  downloadable topic-based PDF worksheets with answer keys.
 - Administrator parent management and schema-validated JSON question import.
 - KaTeX formulas, an accessible SVG fraction visual, and the Rabbit easter egg.
 

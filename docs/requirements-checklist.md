@@ -46,6 +46,8 @@ working in this repository, not production-ready at population scale.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.
+- [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
+  questions, with a separate answer key and worked explanations.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
@@ -84,7 +86,6 @@ working in this repository, not production-ready at population scale.
   repetition, exploration, or known-weakness distractor weighting.
 - [ ] Parent charts, diagnostic summaries, complete exact-question/answer history,
   export, retention, deletion, and audit-log interfaces.
-- [ ] Offline worksheet and answer-key PDF generation.
 - [ ] General diagram scene specification and sanitized SVG compiler.
 - [ ] Published English grammar, fill-in-the-blank, error spotting, multi-select,
   composition, rubric/manual grading, broader trivia/Canadian citizenship, or

@@ -3,8 +3,10 @@ from __future__ import annotations
 import json
 import secrets
 import time
+from io import BytesIO
 
 from fastapi import Depends, FastAPI, HTTPException
+from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials
 from jsonschema import Draft202012Validator
@@ -25,8 +27,10 @@ from .models import (
     RewardSettings,
     SessionCreate,
     SessionResponse,
+    WorksheetCreate,
 )
 from .store import SessionRecord, store
+from .worksheet import build_worksheet_pdf, topic_title
 
 app = FastAPI(title="Rabbit Learning API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.add_middleware(
@@ -270,6 +274,40 @@ def update_reward(learner_id: str, reward: RewardSettings, parent: dict = Depend
     _parent_learner(parent, learner_id)
     store.rewards[learner_id] = reward
     return reward
+
+
+def _visible_banks() -> dict[str, dict]:
+    return {**load_banks(store.include_drafts), **store.imported_banks}
+
+
+@app.get("/api/v1/parents/worksheet-topics")
+def worksheet_topics(_: dict = Depends(require_role("parent"))) -> list[dict]:
+    topics = []
+    for bank in _visible_banks().values():
+        if bank["publicationStatus"] != "published" and not store.include_drafts:
+            continue
+        for skill in dict.fromkeys(template["skill"] for template in bank["templates"]):
+            topics.append({"subject": bank["subject"], "subject_title": bank["title"],
+                           "id": skill, "title": topic_title(skill)})
+    return topics
+
+
+@app.post("/api/v1/parents/worksheets")
+def create_worksheet(request: WorksheetCreate, _: dict = Depends(require_role("parent"))) -> StreamingResponse:
+    bank = _visible_banks().get(request.subject)
+    if bank is None or (bank["publicationStatus"] != "published" and not store.include_drafts):
+        raise HTTPException(400, "Unknown subject")
+    templates = [template for template in bank["templates"] if template["skill"] == request.topic]
+    if not templates:
+        raise HTTPException(400, "Topic is not available for this subject")
+    seed = request.seed if request.seed is not None else time.time_ns()
+    generated = generate_session(seed, request.count, {**bank, "templates": templates})
+    pdf = build_worksheet_pdf(bank["title"], request.topic, generated, seed)
+    filename = f"rabbit-{request.topic.replace('.', '-')}-{request.count}-questions.pdf"
+    return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Content-Length": str(len(pdf)),
+    })
 
 
 @app.get("/api/v1/admin/content", response_model=ContentSettings)
