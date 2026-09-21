@@ -48,12 +48,14 @@ working in this repository, not production-ready at population scale.
   individual accuracy reward goals, with family-boundary authorization tests.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
+- [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
+  Alembic migrations for families, guardians, users, and learner profiles.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
 - [~] **Identity and parent experience:** working prototype accounts are role- and
-  family-protected, but identity and passwords are process-local and not suitable
-  for production until migrated to durable OIDC-backed identity and audited storage.
+  family-protected and persisted in PostgreSQL, but password login is temporary;
+  OIDC-backed identity, audited storage access, and child login handoff are absent.
 - [~] **Rewards:** parents can enable a target and name a present/experience, but
   data is kept only in backend memory and resets on restart.
 - [~] **Progress and exact results:** each attempt preserves the resolved question
@@ -70,8 +72,10 @@ working in this repository, not production-ready at population scale.
 - [~] **Infrastructure:** local/production Compose and CI deployment definitions
   exist, but no actual Hostinger credentials, domain, TLS proxy, or live deployment
   can be verified from this repository.
-- [~] **Persistence:** API boundaries and target entities are planned, but the
-  prototype uses a process-local memory store rather than PostgreSQL/Redis/S3.
+- [~] **Persistence:** PostgreSQL now stores family and account records through
+  SQLAlchemy and Alembic. Practice sessions, attempts, rewards, imported content,
+  token revocations, and content settings remain process-local; Redis/S3 and
+  production backup/restore automation are absent.
 - [~] **Accessibility:** semantic controls, keyboard focus, MathML, SVG alt text,
   reduced motion, and responsive UI are present; a formal WCAG audit is not.
 
@@ -80,9 +84,10 @@ working in this repository, not production-ready at population scale.
 - [ ] Free parent sign-up, OIDC login, Google/Apple federation, magic links, or
   passkeys. Prototype username/password login is not the chosen production identity solution.
 - [ ] Join code/PIN, QR handoff, immediate session/device revocation, multiple
-  guardians, durable audit logs, and forced temporary-password change. Basic
-  parent-created learner accounts and role/family authorization are implemented in memory.
-- [ ] PostgreSQL schema/migrations, family tenant isolation, row-level security,
+  guardians within one family, durable audit logs, and forced temporary-password
+  change. Basic parent-created learner accounts and role/family authorization are
+  implemented in PostgreSQL; a learner must not belong to multiple families.
+- [ ] PostgreSQL migrations for practice and reward records, row-level security,
   append-only attempts, transactional outbox, Redis jobs, or object storage.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced
   repetition, exploration, or known-weakness distractor weighting.
@@ -93,17 +98,28 @@ working in this repository, not production-ready at population scale.
   composition, rubric/manual grading, broader trivia/Canadian citizenship, or
   Ontario driving content beyond the fixed Explore packs examples. The included
   Canadian history collection is draft-only.
-- [ ] Rewards ledger, anti-tampering rules, notifications, or fulfillment tracking.
-- [ ] Full offline/PWA learner sessions and conflict-safe synchronization.
-- [ ] Production legal/privacy review, parental consent flow, abuse/rate controls,
-  monitoring/tracing, backups/restore tests, load tests, and disaster recovery.
+- [ ] Per-child lifetime rewards ledger, enabled-by-default point deductions,
+  anti-tampering rules, notifications, or fulfillment tracking. Scoring and reward
+  design should prioritize accuracy over answer quantity.
+- [ ] Production Canadian legal/privacy review for learners aged 10 and above,
+  parental consent flow, abuse/rate controls, monitoring/tracing, backups/restore
+  tests, load tests, and disaster recovery.
 
-## Decisions that still need product clarification
+## Confirmed product decisions
 
-- Whether a child may belong to more than one family/guardian group.
-- Minimum supported jurisdictions and ages at launch, which determine consent and
-  retention rules.
-- Whether reward points are lifetime, seasonal, per-child, or redeemable and then
-  deducted. The prototype assumes cumulative points that are never removed.
-- Initial curriculum/grade mapping and authoritative Canadian curriculum source.
-- Whether offline means PDF only or also offline interactive practice.
+- Each child belongs to exactly one family/guardian group. A family may still have
+  multiple guardians.
+- The launch jurisdiction is Canada and the minimum learner age is 10. Consent,
+  retention, and legal review must be designed for that launch scope rather than
+  treated as globally uniform.
+- Reward points are a lifetime, per-child balance. Point deductions are supported
+  when enabled and are enabled by default, so rewards can emphasize accuracy over
+  answer quantity. The current prototype's non-deducting counter is not the final
+  ledger behavior.
+- Initial curriculum alignment uses the [York Region District School Board
+  curriculum documents](https://www2.yrdsb.ca/about-us/departments/curriculum-instructional-services/curriculum-documents)
+  as the authoritative Canadian curriculum entry point. Specific grade mappings
+  must be recorded as content is aligned and reviewed.
+- Offline support means printable question-and-answer PDFs only. Offline
+  interactive practice, answer checking, PWA sessions, and synchronization are
+  out of scope.
