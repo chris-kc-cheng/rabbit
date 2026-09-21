@@ -12,6 +12,11 @@
   enables **Draft questions**. They are labelled Draft in the UI and can be
   hidden immediately; published banks remain available.
 
+The frontend **Docs** page gives authors an approachable overview of the bank
+envelope, an example for every current published or prototype question type,
+and a copyable AI-drafting prompt. The files above remain the authoritative
+contracts whenever the page and source schema differ.
+
 Schema v2 supports computed `single-select` templates and reusable
 `fact-collection-single-select` templates. Each computed template has bounded parameters,
 structured prompt blocks, a server-side answer expression, and at least three
