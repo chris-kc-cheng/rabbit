@@ -8,6 +8,7 @@ from threading import Lock
 from .engine import GeneratedQuestion
 from .models import RewardSettings
 from .auth import hash_password
+import os
 
 
 @dataclass
@@ -28,7 +29,10 @@ class MemoryStore:
         self.usernames: dict[str, str] = {}
         self.imported_banks: dict[str, dict] = {}
         self.revoked_tokens: set[str] = set()
-        self.create_user("admin", "admin", __import__("os").environ.get("RABBIT_ADMIN_PASSWORD", "rabbit-admin"), "Rabbit administrator")
+        self.include_drafts = False
+        if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_ADMIN_PASSWORD"):
+            raise RuntimeError("RABBIT_ADMIN_PASSWORD is required in production")
+        self.create_user("admin", "admin", os.environ.get("RABBIT_ADMIN_PASSWORD", "rabbit-admin"), "Rabbit administrator")
 
     def create_user(self, role: str, username: str, password: str, display_name: str, parent_id: str | None = None) -> dict:
         normalized = username.strip().casefold()
@@ -62,11 +66,22 @@ class MemoryStore:
             "learner_id": learner_id,
             "attempts": len(attempts),
             "correct": correct,
-            "points": correct * 10,
+            "points": sum(attempt.get("points_earned", 10 if attempt["correct"] else 0) for attempt in attempts),
             "accuracy": round(correct / len(attempts), 3) if attempts else 0,
+            "hints_used": sum(attempt.get("hint_used", False) for attempt in attempts),
             "misconceptions": dict(misconceptions),
             "recent_attempts": recent,
             "reward": self.rewards.get(learner_id, RewardSettings()),
+        }
+
+    def family_progress(self, parent_id: str) -> dict:
+        return {
+            "family_id": parent_id,
+            "learners": [
+                {"id": learner["id"], "name": learner["display_name"], "progress": self.progress(learner["id"])}
+                for learner in self.users.values()
+                if learner["role"] == "learner" and learner["parent_id"] == parent_id
+            ],
         }
 
     @staticmethod

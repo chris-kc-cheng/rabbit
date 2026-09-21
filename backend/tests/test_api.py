@@ -11,6 +11,7 @@ client = TestClient(app)
 
 def setup_function():
     store.sessions.clear(); store.rewards.clear(); store.imported_banks.clear(); store.revoked_tokens.clear()
+    store.include_drafts = False
     for user_id, user in list(store.users.items()):
         if user["role"] != "admin":
             store.usernames.pop(user["username"], None); store.users.pop(user_id)
@@ -36,7 +37,11 @@ def test_health_demo_and_protected_catalogue():
     assert client.post("/api/v1/demo-pack/sessions").status_code == 201
     assert client.get("/api/v1/subjects").status_code == 401
     headers, _ = login()
-    assert client.get("/api/v1/subjects", headers=headers).json()[0]["id"] == "math.elementary"
+    subjects = client.get("/api/v1/subjects", headers=headers).json()
+    assert [item["id"] for item in subjects] == ["math.elementary"]
+    assert client.get("/api/v1/admin/content").status_code == 401
+    assert client.put("/api/v1/admin/content", headers=headers, json={"include_drafts": True}).json() == {"include_drafts": True}
+    assert {item["id"] for item in client.get("/api/v1/subjects", headers=headers).json()} == {"math.elementary", "canadian-citizenship"}
 
 
 def test_role_login_family_isolation_password_reset_and_progress():
@@ -48,6 +53,11 @@ def test_role_login_family_isolation_password_reset_and_progress():
     assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct}).status_code == 200
     progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
     assert progress["attempts"] == 1 and progress["points"] == 10
+    parent_id = client.get("/api/v1/auth/me", headers=parent_headers).json()["id"]
+    family_report = client.get(f"/api/v1/parents/families/{parent_id}/progress", headers=parent_headers).json()
+    assert [child["name"] for child in family_report["learners"]] == ["Mina"]
+    assert client.get("/api/v1/parents/families/another-family/progress", headers=parent_headers).status_code == 403
+    assert client.get(f"/api/v1/parents/families/{parent_id}/progress", headers=learner_headers).status_code == 403
     admin, _ = login(); assert client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=admin).status_code == 403
     assert client.put(f"/api/v1/parents/learners/{learner['id']}/password",headers=parent_headers,json={"password":"new-password"}).status_code == 204
     assert client.post("/api/v1/auth/login",json={"username":"learner.one","password":"practice12"}).status_code == 401

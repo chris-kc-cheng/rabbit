@@ -2,6 +2,10 @@ name: rabbit
 services:
   api:
     image: ${RABBIT_API_IMAGE:?Set RABBIT_API_IMAGE}
+    environment:
+      RABBIT_ENV: production
+      RABBIT_ADMIN_PASSWORD: ${RABBIT_ADMIN_PASSWORD:?Set RABBIT_ADMIN_PASSWORD}
+      RABBIT_JWT_SECRET: ${RABBIT_JWT_SECRET:?Set RABBIT_JWT_SECRET}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]

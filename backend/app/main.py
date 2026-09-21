@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 import secrets
 import time
-from pathlib import Path
 
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -12,10 +11,11 @@ from jsonschema import Draft202012Validator
 
 from .auth import bearer, decode_token, hash_password, issue_token, require_role, verify_password
 from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
-from .engine import generate_session, load_banks
+from .engine import BANK_DIRECTORY, generate_session, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
+    ContentSettings,
     LearnerCreate,
     LoginRequest,
     ParentCreate,
@@ -99,7 +99,7 @@ def admin_reset_password(user_id: str, request: PasswordRequest, _: dict = Depen
     user["token_version"] += 1
 
 
-SCHEMA_PATH = Path(__file__).resolve().parents[2] / "content" / "question-template.schema.json"
+SCHEMA_PATH = BANK_DIRECTORY / "question-template.schema.json"
 QUESTION_VALIDATOR = Draft202012Validator(json.loads(SCHEMA_PATH.read_text(encoding="utf-8")))
 
 
@@ -144,8 +144,10 @@ def import_questions(request: QuestionImport, _: dict = Depends(require_role("ad
 @app.get("/api/v1/subjects")
 def subjects(_: dict = Depends(require_role("learner", "parent", "admin"))) -> list[dict]:
     return [
-        {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"])}
-        for bank in {**load_banks(), **store.imported_banks}.values()
+        {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"]),
+         "publication_status": bank["publicationStatus"]}
+        for bank in {**load_banks(store.include_drafts), **store.imported_banks}.values()
+        if store.include_drafts or bank["publicationStatus"] == "published"
     ]
 
 
@@ -153,9 +155,11 @@ def subjects(_: dict = Depends(require_role("learner", "parent", "admin"))) -> l
 def create_session(request: SessionCreate, user: dict = Depends(require_role("learner"))) -> SessionResponse:
     if request.learner_id != user["id"]:
         raise HTTPException(403, "Learners can only start their own sessions")
-    bank = {**load_banks(), **store.imported_banks}.get(request.subject)
+    bank = {**load_banks(store.include_drafts), **store.imported_banks}.get(request.subject)
     if bank is None:
         raise HTTPException(status_code=400, detail="Unknown subject")
+    if bank["publicationStatus"] != "published" and not store.include_drafts:
+        raise HTTPException(status_code=400, detail="Subject is not currently visible")
     session_id = secrets.token_urlsafe(12)
     generated = generate_session(request.seed if request.seed is not None else time.time_ns(), request.count, bank)
     store.sessions[session_id] = SessionRecord(
@@ -190,6 +194,8 @@ def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("le
         "selected_value": choice["value"],
         "correct": correct,
         "misconception_id": choice["misconception"],
+        "hint_used": request.hint_used,
+        "points_earned": 10 if correct else 0,
         "answered_at": store.now(),
     }
     with store.lock:
@@ -238,8 +244,26 @@ def learner_progress(learner_id: str, parent: dict = Depends(require_role("paren
     return store.progress(learner_id)
 
 
+@app.get("/api/v1/parents/families/{family_id}/progress")
+def family_progress(family_id: str, parent: dict = Depends(require_role("parent"))) -> dict:
+    if family_id != parent["id"]:
+        raise HTTPException(403, "This family belongs to another parent")
+    return store.family_progress(parent["id"])
+
+
 @app.put("/api/v1/parents/learners/{learner_id}/reward", response_model=RewardSettings)
 def update_reward(learner_id: str, reward: RewardSettings, parent: dict = Depends(require_role("parent"))) -> RewardSettings:
     _parent_learner(parent, learner_id)
     store.rewards[learner_id] = reward
     return reward
+
+
+@app.get("/api/v1/admin/content", response_model=ContentSettings)
+def content_settings(_: dict = Depends(require_role("admin"))) -> ContentSettings:
+    return ContentSettings(include_drafts=store.include_drafts)
+
+
+@app.put("/api/v1/admin/content", response_model=ContentSettings)
+def update_content_settings(settings: ContentSettings, _: dict = Depends(require_role("admin"))) -> ContentSettings:
+    store.include_drafts = settings.include_drafts
+    return settings

@@ -18,6 +18,8 @@ from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 
 
+if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_JWT_SECRET"):
+    raise RuntimeError("RABBIT_JWT_SECRET is required in production")
 JWT_SECRET = os.environ.get("RABBIT_JWT_SECRET", secrets.token_urlsafe(48))
 JWT_TTL_SECONDS = int(os.environ.get("RABBIT_JWT_TTL_SECONDS", "3600"))
 bearer = HTTPBearer(auto_error=False)

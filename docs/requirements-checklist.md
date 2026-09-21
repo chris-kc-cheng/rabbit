@@ -20,6 +20,8 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Reader-comfort typography and a responsive, persistent light/dark theme
+  control that defaults to the learner's operating-system preference.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
 - [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the published v2 banks and does not yet feed parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
@@ -33,12 +35,16 @@ working in this repository, not production-ready at population scale.
   prominent, non-persistent reviewed-demo entry point.
 - [x] Prototype password login/logout with expiring signed JWT access tokens,
   automatic return to login after a 401, and admin/parent/learner role guards.
+- [x] Production Compose refuses to start the prototype identity service without
+  configured admin-password and JWT-signing secrets; local Compose keeps the
+  development-only admin login.
 - [x] Authenticated administrator UI for creating parents, resetting parent or
   learner passwords, and importing question banks with JSON-path schema errors
-  plus a generation smoke test.
+  plus a generation smoke test. Administrators can also enable draft-bank
+  visibility for signed-in learners; drafts are hidden by default.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
-  individual reward goals, with family-boundary authorization tests.
+  individual accuracy reward goals, with family-boundary authorization tests.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 

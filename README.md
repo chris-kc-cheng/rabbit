@@ -112,6 +112,9 @@ cd frontend && npm run build
 The memory-backed prototype creates an `admin` account on process startup. Its
 development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`
 and a long random `RABBIT_JWT_SECRET` in every shared or deployed environment.
+The production Compose project requires both values and refuses to start without
+them. Set both as URL-safe, single-line secrets in the protected GitHub Actions
+`production` environment before deploying.
 The administrator creates parent accounts, and each parent creates their learner
 accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
 web app returns to login on a rejected/expired token. Logout revokes the token in
@@ -121,7 +124,7 @@ rotation, rate limiting, and OIDC remain production requirements.
 
 Visitors see a public product overview and can use **Try the free demo**. Demo
 attempts are process-local and are not attached to an account or family report.
-Only the separately reviewed demo pack is available without authentication;
+Only the fixed prototype demo pack is available without authentication;
 new published question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
@@ -141,6 +144,8 @@ environment secrets:
 - `HOSTINGER_HOST`
 - `HOSTINGER_USER`
 - `HOSTINGER_SSH_PORT`
+- `RABBIT_ADMIN_PASSWORD`
+- `RABBIT_JWT_SECRET`
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 

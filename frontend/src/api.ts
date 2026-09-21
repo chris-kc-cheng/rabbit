@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, ImportError, Reward, Session, User } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Reward, Session, Subject, User } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -24,19 +24,21 @@ export const api = {
   submitDemoAttempt: (sessionId: string, questionId: string, response: string | string[]) => request<DemoResult>("/api/v1/demo-pack/attempts", {
     method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ session_id: sessionId, question_id: questionId, response }),
   }),
-  createSession: (learnerId: string, seed = Date.now()) => request<Session>("/api/v1/sessions", {
+  getSubjects: () => request<Subject[]>("/api/v1/subjects"),
+  createSession: (learnerId: string, subject = "math.elementary", seed = Date.now()) => request<Session>("/api/v1/sessions", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ learner_id: learnerId, seed, count: 10 }),
+    body: JSON.stringify({ learner_id: learnerId, subject, seed, count: subject === "canadian-citizenship" ? 6 : 10 }),
   }),
-  submitAttempt: (sessionId: string, questionId: string, choiceId: string) => request<AttemptResult>("/api/v1/attempts", {
+  submitAttempt: (sessionId: string, questionId: string, choiceId: string, hintUsed: boolean) => request<AttemptResult>("/api/v1/attempts", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ session_id: sessionId, question_id: questionId, choice_id: choiceId }),
+    body: JSON.stringify({ session_id: sessionId, question_id: questionId, choice_id: choiceId, hint_used: hintUsed }),
   }),
   getLearners: () => request<FamilyLearner[]>("/api/v1/parents/learners"),
   createLearner: (display_name: string, username: string, password: string) => request<User>("/api/v1/parents/learners", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   resetLearner: (id: string, password: string) => request<void>(`/api/v1/parents/learners/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
+  getFamilyProgress: (parentId: string) => request<FamilyProgress>(`/api/v1/parents/families/${parentId}/progress`),
   saveReward: (learnerId: string, reward: Reward) => request<Reward>(`/api/v1/parents/learners/${learnerId}/reward`, {
     method: "PUT",
     headers: JSON_HEADERS,
@@ -46,4 +48,8 @@ export const api = {
   createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
+  getContentSettings: () => request<{ include_drafts: boolean }>("/api/v1/admin/content"),
+  saveContentSettings: (includeDrafts: boolean) => request<{ include_drafts: boolean }>("/api/v1/admin/content", {
+    method: "PUT", body: JSON.stringify({ include_drafts: includeDrafts }),
+  }),
 };
