@@ -66,15 +66,31 @@ def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
 @app.post("/api/v1/demo-pack/worksheet", status_code=200, response_class=StreamingResponse)
 def create_demo_worksheet(request: DemoWorksheetCreate) -> StreamingResponse:
     """Build the public demo's deterministic worksheet without retaining data."""
-    seed = 20260921
-    bank = load_bank()
-    generated = generate_session(seed, request.count, bank)
+    bank, generated, seed = _demo_worksheet_questions(request.count)
     pdf = build_worksheet_pdf(bank["title"], "mixed-practice", generated, seed)
     filename = f"rabbit-demo-{request.count}-questions.pdf"
     return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
         "Content-Disposition": f'attachment; filename="{filename}"',
         "Content-Length": str(len(pdf)),
     })
+
+
+def _demo_worksheet_questions(count: int):
+    """Resolve the single template-backed question set shared by preview and PDF."""
+    seed = 20260921
+    bank = load_bank()
+    return bank, generate_session(seed, count, bank), seed
+
+
+@app.post("/api/v1/demo-pack/worksheet-preview")
+def preview_demo_worksheet(request: DemoWorksheetCreate) -> dict:
+    """Show the exact safe, public questions that the demo PDF will contain."""
+    bank, generated, seed = _demo_worksheet_questions(request.count)
+    return {
+        "subject_title": bank["title"],
+        "seed": seed,
+        "questions": [question.public for question in generated],
+    }
 
 
 @app.post("/api/v1/auth/login")

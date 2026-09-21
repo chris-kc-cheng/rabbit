@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, DemoWorksheetPreview, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -36,6 +36,7 @@ export const api = {
     method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ session_id: sessionId, question_id: questionId, response }),
   }),
   createDemoWorksheet: (count: number) => download("/api/v1/demo-pack/worksheet", { count }),
+  previewDemoWorksheet: (count: number) => request<DemoWorksheetPreview>("/api/v1/demo-pack/worksheet-preview", { method: "POST", body: JSON.stringify({ count }) }),
   getSubjects: () => request<Subject[]>("/api/v1/subjects"),
   createSession: (learnerId: string, subject = "math.elementary", seed = Date.now()) => request<Session>("/api/v1/sessions", {
     method: "POST",
