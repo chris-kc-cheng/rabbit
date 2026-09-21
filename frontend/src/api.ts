@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Reward, Session, Subject, User } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Reward, Session, Subject, User, WorksheetTopic } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -14,6 +14,17 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   }
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+async function download(url: string, body: object): Promise<Blob> {
+  const token = sessionStorage.getItem("rabbit_token");
+  const response = await fetch(url, { method: "POST", headers: { ...JSON_HEADERS, ...(token ? { Authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body) });
+  if (!response.ok) {
+    if (response.status === 401 && token) { sessionStorage.removeItem("rabbit_token"); window.dispatchEvent(new Event("rabbit:unauthorized")); }
+    const message = await response.json().catch(() => ({ detail: "Could not generate the PDF" }));
+    throw new Error(typeof message.detail === "string" ? message.detail : "Could not generate the PDF");
+  }
+  return response.blob();
 }
 
 export const api = {
@@ -44,6 +55,8 @@ export const api = {
     headers: JSON_HEADERS,
     body: JSON.stringify(reward),
   }),
+  getWorksheetTopics: () => request<WorksheetTopic[]>("/api/v1/parents/worksheet-topics"),
+  createWorksheet: (subject: string, topic: string, count: number) => download("/api/v1/parents/worksheets", { subject, topic, count }),
   getManagedUsers: () => request<User[]>("/api/v1/admin/users"),
   createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),

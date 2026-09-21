@@ -37,6 +37,7 @@ export type FamilyLearner = User & { progress: Progress };
 export type ImportError = { path: string; message: string; suggestion: string };
 export type FamilyProgress = { family_id: string; learners: Array<{ id: string; name: string; progress: Progress }> };
 export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published" };
+export type WorksheetTopic = { subject: string; subject_title: string; id: string; title: string };
 
 export type DemoSubject = "math" | "trivia" | "english";
 export type DemoQuestion = {
