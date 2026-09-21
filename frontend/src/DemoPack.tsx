@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { DemoParentView } from "./DemoParentView";
 import { MathBlock } from "./MathBlock";
-import type { DemoQuestion, DemoResult, DemoSession, DemoSubject } from "./types";
+import type { DemoQuestion, DemoResult, DemoSession, DemoSubject, DemoWorksheetPreview } from "./types";
 
 const subjects: Array<{ id: DemoSubject; name: string; subtitle: string }> = [
   { id: "math", name: "Math Lab", subtitle: "See it, turn it, solve it" },
