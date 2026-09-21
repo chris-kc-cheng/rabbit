@@ -42,6 +42,7 @@ class AttemptCreate(BaseModel):
     session_id: str
     question_id: str
     choice_id: str
+    hint_used: bool = False
 
 
 class AttemptResult(BaseModel):
@@ -55,7 +56,7 @@ class AttemptResult(BaseModel):
 
 class RewardSettings(BaseModel):
     enabled: bool = False
-    target_points: int = Field(default=200, ge=50, le=10_000, multiple_of=10)
+    target_accuracy: int = Field(default=80, ge=50, le=100)
     reward: str = Field(default="A trip to the bookshop", min_length=1, max_length=80)
 
 
@@ -65,6 +66,11 @@ class ProgressResponse(BaseModel):
     correct: int
     points: int
     accuracy: float
+    hints_used: int
     misconceptions: dict[str, int]
     recent_attempts: list[dict]
     reward: RewardSettings
+
+
+class ContentSettings(BaseModel):
+    include_drafts: bool = True
