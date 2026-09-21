@@ -104,6 +104,10 @@ PYTHONPATH=backend pytest backend/tests
 cd frontend && npm run build
 ```
 
+The backend test fixtures override `RABBIT_ADMIN_PASSWORD` with the isolated,
+development-only `rabbit-admin` value, so CI tests neither require nor consume
+production environment secrets.
+
 ## Question content and AI authoring
 
 - Normative schema: [`content/question-template.schema.json`](content/question-template.schema.json)
