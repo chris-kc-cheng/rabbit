@@ -110,12 +110,13 @@ cd frontend && npm run build
 
 ## Prototype accounts and authentication
 
-The memory-backed prototype creates an `admin` account on process startup. Its
-development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`
-and a long random `RABBIT_JWT_SECRET` in every shared or deployed environment.
-The production Compose project requires both values and refuses to start without
-them. Set both as URL-safe, single-line secrets in the protected GitHub Actions
-`production` environment before deploying.
+The memory-backed prototype creates an `admin` account on process startup. Set
+`RABBIT_ADMIN_PASSWORD` before starting the backend; there is no built-in password.
+For local Compose, set it in your shell or a local, ignored `.env` file. Set a long
+random `RABBIT_JWT_SECRET` in every shared or deployed environment. The production
+Compose project requires both values and refuses to start without them. Set both
+as URL-safe, single-line secrets in `~/rabbit/.env.prod` on the production server
+before deploying.
 The administrator creates parent accounts, and each parent creates their learner
 accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
 web app returns to login on a rejected/expired token. Logout revokes the token in
@@ -147,14 +148,18 @@ environment secrets:
 - `HOSTINGER_HOST`
 - `HOSTINGER_USER`
 - `HOSTINGER_SSH_PORT`
-- `RABBIT_ADMIN_PASSWORD`
-- `RABBIT_JWT_SECRET`
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 
-The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
-and port, then passes it to Compose. The optional `RABBIT_PORT` environment
-variable defaults to `8090`; the service
+Before deploying, create `~/rabbit/.env.prod` on the VPS, owned by the deployment
+user and readable only by that user (`chmod 600 ~/rabbit/.env.prod`). Put
+`RABBIT_ADMIN_PASSWORD` and `RABBIT_JWT_SECRET` there, and optionally
+`RABBIT_PORT=8090` (or the port used by your reverse proxy). Keep this file out
+of Git. The workflow never rewrites it: each deployment atomically writes only
+image tags to `~/rabbit/.env.deploy`, then passes both files to Compose. An
+existing `.env.prod` whose values were overwritten by an earlier deployment
+must be restored once before deploying this change. The host port defaults to
+`8090`; the service
 binds to `127.0.0.1` for an existing TLS reverse proxy. Point Rabbit's reverse
 proxy upstream at `127.0.0.1:8090` unless `RABBIT_PORT` is overridden. The API
 remains private on the Compose network at `api:8000`.
@@ -164,7 +169,7 @@ Before the first deployment with the new project name, stop the old
 `docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml down`
 (use the old deployment's existing env-file name for this one-time command).
 Then deploy the new workflow. If the reverse proxy currently points at port
-`8080`, update its upstream to `127.0.0.1:8090`. A configured GitHub Actions
-`RABBIT_PORT` variable overrides the default; set it to `8090` or remove it.
+`8080`, update its upstream to `127.0.0.1:8090`. Set `RABBIT_PORT` in
+`~/rabbit/.env.prod` if the proxy uses a different port.
 For later checks on the VPS, run `cd ~/rabbit` and use
-`docker compose -p rabbit --env-file .env.prod -f compose.prod.yml ps`.
+`docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml ps`.

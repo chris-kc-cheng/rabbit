@@ -1,4 +1,5 @@
 import json
+import os
 from pathlib import Path
 
 from fastapi.testclient import TestClient
@@ -17,7 +18,9 @@ def setup_function():
             store.usernames.pop(user["username"], None); store.users.pop(user_id)
 
 
-def login(username="admin", password="rabbit-admin"):
+def login(username="admin", password=None):
+    if password is None:
+        password = os.environ["RABBIT_ADMIN_PASSWORD"]
     response = client.post("/api/v1/auth/login", json={"username": username, "password": password})
     assert response.status_code == 200
     return {"Authorization": f"Bearer {response.json()['access_token']}"}, response.json()["user"]

@@ -30,9 +30,10 @@ class MemoryStore:
         self.imported_banks: dict[str, dict] = {}
         self.revoked_tokens: set[str] = set()
         self.include_drafts = False
-        if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_ADMIN_PASSWORD"):
-            raise RuntimeError("RABBIT_ADMIN_PASSWORD is required in production")
-        self.create_user("admin", "admin", os.environ.get("RABBIT_ADMIN_PASSWORD", "rabbit-admin"), "Rabbit administrator")
+        admin_password = os.environ.get("RABBIT_ADMIN_PASSWORD")
+        if not admin_password:
+            raise RuntimeError("RABBIT_ADMIN_PASSWORD is required")
+        self.create_user("admin", "admin", admin_password, "Rabbit administrator")
 
     def create_user(self, role: str, username: str, password: str, display_name: str, parent_id: str | None = None) -> dict:
         normalized = username.strip().casefold()

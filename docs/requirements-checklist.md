@@ -30,15 +30,15 @@ working in this repository, not production-ready at population scale.
   structured-output prompt, with a public schema and generation validator that
   remains available from signed-in workspaces.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
-  The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for
-  Compose image tags and host port.
+  The workflow deploys to `~/rabbit`, preserves server-managed `.env.prod` settings,
+  and writes image tags separately to `.env.deploy` for Compose.
 - [x] Public product landing page with an illustrative product preview and a
   prominent, non-persistent reviewed-demo entry point.
 - [x] Prototype password login/logout with expiring signed JWT access tokens,
   automatic return to login after a 401, and admin/parent/learner role guards.
 - [x] Production Compose refuses to start the prototype identity service without
-  configured admin-password and JWT-signing secrets; local Compose keeps the
-  development-only admin login.
+  configured admin-password and JWT-signing secrets; local Compose also requires
+  an explicitly configured admin password.
 - [x] Authenticated administrator UI for creating parents, resetting parent or
   learner passwords, and importing question banks with JSON-path schema errors
   plus a generation smoke test. Administrators can also enable draft-bank

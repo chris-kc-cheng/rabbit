@@ -57,13 +57,9 @@ jobs:
           GHCR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           API_IMAGE: "${{ steps.images.outputs.api }}"
           WEB_IMAGE: "${{ steps.images.outputs.web }}"
-          RABBIT_PORT: "${{ vars.RABBIT_PORT || '8090' }}"
-          RABBIT_ADMIN_PASSWORD: "${{ secrets.RABBIT_ADMIN_PASSWORD }}"
-          RABBIT_JWT_SECRET: "${{ secrets.RABBIT_JWT_SECRET }}"
         run: |
-          test -n "$RABBIT_ADMIN_PASSWORD" && test -n "$RABBIT_JWT_SECRET"
-          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'mkdir -p ~/rabbit'
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'test -s ~/rabbit/.env.prod || { echo "Missing ~/rabbit/.env.prod; provision production settings before deploying" >&2; exit 1; }'
           scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:~/rabbit/compose.prod.yml"
           printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
-          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_PORT=%s\nRABBIT_ADMIN_PASSWORD=%s\nRABBIT_JWT_SECRET=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_PORT" "$RABBIT_ADMIN_PASSWORD" "$RABBIT_JWT_SECRET" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
-          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'cd ~/rabbit && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml pull && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml up -d --remove-orphans'
+          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\n' "$API_IMAGE" "$WEB_IMAGE" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; tmp=$(mktemp ~/rabbit/.env.deploy.XXXXXX) && cat > "$tmp" && mv "$tmp" ~/rabbit/.env.deploy'
+          ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'cd ~/rabbit && docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml config --quiet && docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml pull && docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml up -d --remove-orphans'
