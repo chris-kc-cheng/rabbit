@@ -7,6 +7,7 @@ const subjects: Array<{ id: DemoSubject; name: string; subtitle: string }> = [
   { id: "math", name: "Math Lab", subtitle: "See it, turn it, solve it" },
   { id: "trivia", name: "Trivia Show", subtitle: "Pick every answer that fits" },
   { id: "english", name: "Word Studio", subtitle: "Build and polish sentences" },
+  { id: "canadian-citizenship", name: "Discover Canada", subtitle: "Explore Canada's history" },
 ];
 
 function Triangle() {
@@ -67,7 +68,7 @@ export function DemoPack() {
   const canSubmit = typeof response === "string" ? response.trim().length > 0 : Array.isArray(response) && response.length > 0;
 
   return <main className={`demo-page demo-${subject}`}>
-    <header className="demo-intro"><div><p className="eyebrow">Explore the prototype</p><h1>{experience === "learner" ? "Three ways to get curious." : "See the learning behind every try."}</h1><p>{experience === "learner" ? "Try a sample from each subject. Your answers are checked by Rabbit when you press Check answer." : "Preview how a parent can follow progress, spot practice signals, celebrate effort, and make an offline worksheet."}</p></div><div className="experience-switch" role="tablist" aria-label="Demo experience"><button role="tab" aria-selected={experience === "learner"} className={experience === "learner" ? "active" : ""} onClick={() => setExperience("learner")}>Learner view</button><button role="tab" aria-selected={experience === "parent"} className={experience === "parent" ? "active" : ""} onClick={() => setExperience("parent")}>Parent view</button></div></header>
+    <header className="demo-intro"><div><p className="eyebrow">Explore the prototype</p><h1>{experience === "learner" ? "Four ways to get curious." : "See the learning behind every try."}</h1><p>{experience === "learner" ? "Try a sample from each subject. Your answers are checked by Rabbit when you press Check answer." : "Preview how a parent can follow progress, spot practice signals, celebrate effort, and make an offline worksheet."}</p></div><div className="experience-switch" role="tablist" aria-label="Demo experience"><button role="tab" aria-selected={experience === "learner"} className={experience === "learner" ? "active" : ""} onClick={() => setExperience("learner")}>Learner view</button><button role="tab" aria-selected={experience === "parent"} className={experience === "parent" ? "active" : ""} onClick={() => setExperience("parent")}>Parent view</button></div></header>
     {experience === "parent" ? <DemoParentView /> : <>
     <div className="subject-switch" role="tablist" aria-label="Demo subjects">{subjects.map(item => <button key={item.id} type="button" role="tab" aria-selected={subject === item.id} className={subject === item.id ? "active" : ""} onClick={() => selectSubject(item.id)}><strong>{item.name}</strong><small>{item.subtitle}</small></button>)}</div>
     {!session ? <div className="card demo-loading">{error || "Preparing the activities…"}</div> : question && <div className="demo-layout">

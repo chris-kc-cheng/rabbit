@@ -16,9 +16,12 @@ def test_demo_pack_matches_schema_and_hides_answers():
     validate(pack, schema)
     assert len({question["id"] for question in pack["questions"]}) == len(pack["questions"])
     session = client.post("/api/v1/demo-pack/sessions").json()
-    assert len(session["questions"]) == 8
+    assert len(session["questions"]) == 11
     assert all("answer" not in question and "feedback" not in question for question in session["questions"])
-    assert {question["subject"] for question in session["questions"]} == {"math", "trivia", "english"}
+    assert {question["subject"] for question in session["questions"]} == {
+        "math", "trivia", "english", "canadian-citizenship"
+    }
+    assert len([question for question in session["questions"] if question["subject"] == "canadian-citizenship"]) == 3
 
 
 def test_each_demo_kind_grades_and_retry_is_idempotent():
