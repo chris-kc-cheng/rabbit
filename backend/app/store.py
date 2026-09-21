@@ -7,6 +7,7 @@ from threading import Lock
 
 from .engine import GeneratedQuestion
 from .models import RewardSettings
+from .auth import hash_password
 
 
 @dataclass
@@ -23,6 +24,27 @@ class MemoryStore:
         self.sessions: dict[str, SessionRecord] = {}
         self.rewards: dict[str, RewardSettings] = {}
         self.lock = Lock()
+        self.users: dict[str, dict] = {}
+        self.usernames: dict[str, str] = {}
+        self.imported_banks: dict[str, dict] = {}
+        self.revoked_tokens: set[str] = set()
+        self.create_user("admin", "admin", __import__("os").environ.get("RABBIT_ADMIN_PASSWORD", "rabbit-admin"), "Rabbit administrator")
+
+    def create_user(self, role: str, username: str, password: str, display_name: str, parent_id: str | None = None) -> dict:
+        normalized = username.strip().casefold()
+        if normalized in self.usernames:
+            raise ValueError("That username is already in use")
+        import secrets
+        user_id = secrets.token_urlsafe(10)
+        user = {"id": user_id, "role": role, "username": normalized, "display_name": display_name.strip(),
+                "password_hash": hash_password(password), "parent_id": parent_id, "disabled": False, "token_version": 1}
+        self.users[user_id] = user
+        self.usernames[normalized] = user_id
+        return user
+
+    @staticmethod
+    def public_user(user: dict) -> dict:
+        return {key: user[key] for key in ("id", "role", "username", "display_name", "parent_id")}
 
     def progress(self, learner_id: str) -> dict:
         attempts = [

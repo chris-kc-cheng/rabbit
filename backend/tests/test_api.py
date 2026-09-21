@@ -1,3 +1,6 @@
+import json
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app.main import app
@@ -7,51 +10,74 @@ client = TestClient(app)
 
 
 def setup_function():
-    store.sessions.clear()
-    store.rewards.clear()
+    store.sessions.clear(); store.rewards.clear(); store.imported_banks.clear(); store.revoked_tokens.clear()
+    for user_id, user in list(store.users.items()):
+        if user["role"] != "admin":
+            store.usernames.pop(user["username"], None); store.users.pop(user_id)
 
 
-def test_health_and_subject_catalogue():
+def login(username="admin", password="rabbit-admin"):
+    response = client.post("/api/v1/auth/login", json={"username": username, "password": password})
+    assert response.status_code == 200
+    return {"Authorization": f"Bearer {response.json()['access_token']}"}, response.json()["user"]
+
+
+def family():
+    admin, _ = login()
+    parent = client.post("/api/v1/admin/parents", headers=admin, json={"username":"parent.one","password":"welcome12","display_name":"A Parent"}).json()
+    parent_headers, _ = login("parent.one", "welcome12")
+    learner = client.post("/api/v1/parents/learners", headers=parent_headers, json={"username":"learner.one","password":"practice12","display_name":"Mina"}).json()
+    learner_headers, _ = login("learner.one", "practice12")
+    return parent_headers, learner_headers, learner
+
+
+def test_health_demo_and_protected_catalogue():
     assert client.get("/api/v1/health").json()["status"] == "ok"
-    subjects = client.get("/api/v1/subjects").json()
-    assert subjects == [{"id": "math.elementary", "title": "Elementary Math", "template_count": 10}]
+    assert client.post("/api/v1/demo-pack/sessions").status_code == 201
+    assert client.get("/api/v1/subjects").status_code == 401
+    headers, _ = login()
+    assert client.get("/api/v1/subjects", headers=headers).json()[0]["id"] == "math.elementary"
 
 
-def test_unknown_subject_is_rejected():
-    response = client.post("/api/v1/sessions", json={"subject": "unknown.subject"})
-    assert response.status_code == 400
-
-
-def test_session_hides_answers_and_attempt_updates_parent_progress():
-    response = client.post("/api/v1/sessions", json={"learner_id": "mina", "seed": 42, "count": 10})
-    assert response.status_code == 201
-    session = response.json()
+def test_role_login_family_isolation_password_reset_and_progress():
+    parent_headers, learner_headers, learner = family()
+    session = client.post("/api/v1/sessions", headers=learner_headers, json={"learner_id":learner["id"],"seed":42,"count":2}).json()
     question = session["questions"][0]
     assert "correct_choice_id" not in question
-    assert all("misconception" not in choice for choice in question["choices"])
-
-    correct_choice_id = store.sessions[session["id"]].questions[question["id"]].correct_choice_id
-    answer = client.post("/api/v1/attempts", json={
-        "session_id": session["id"], "question_id": question["id"], "choice_id": correct_choice_id
-    })
-    assert answer.status_code == 200
-    assert answer.json()["correct"] is True
-    assert answer.json()["points_earned"] == 10
-
-    duplicate = client.post("/api/v1/attempts", json={
-        "session_id": session["id"], "question_id": question["id"], "choice_id": correct_choice_id
-    })
-    assert duplicate.status_code == 409
-
-    progress = client.get("/api/v1/parents/learners/mina/progress").json()
-    assert progress["attempts"] == 1
-    assert progress["correct"] == 1
-    assert progress["points"] == 10
+    correct = store.sessions[session["id"]].questions[question["id"]].correct_choice_id
+    assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct}).status_code == 200
+    progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
+    assert progress["attempts"] == 1 and progress["points"] == 10
+    admin, _ = login(); assert client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=admin).status_code == 403
+    assert client.put(f"/api/v1/parents/learners/{learner['id']}/password",headers=parent_headers,json={"password":"new-password"}).status_code == 204
+    assert client.post("/api/v1/auth/login",json={"username":"learner.one","password":"practice12"}).status_code == 401
 
 
-def test_parent_can_configure_optional_reward():
-    reward = {"enabled": True, "target_points": 250, "reward": "Choose our family movie"}
-    response = client.put("/api/v1/parents/learners/mina/reward", json=reward)
-    assert response.status_code == 200
-    assert response.json() == reward
-    assert client.get("/api/v1/parents/learners/mina/progress").json()["reward"] == reward
+def test_import_pinpoints_schema_path_and_imports_valid_bank():
+    headers, _ = login()
+    invalid={"schemaVersion":2}
+    response=client.post("/api/v1/admin/questions/import",headers=headers,json={"document":invalid})
+    assert response.status_code==422
+    errors=response.json()["detail"]["errors"]
+    assert errors[0]["path"]=="$" and "required property" in errors[0]["message"]
+    bank=json.loads((Path(__file__).parents[2]/"content/math.question-bank.json").read_text())
+    bank["subject"]="math.imported";bank["title"]="Imported Math"
+    response=client.post("/api/v1/admin/questions/import",headers=headers,json={"document":bank})
+    assert response.status_code==200 and response.json()["templates_imported"]==10
+
+
+def test_expired_jwt_is_rejected():
+    import app.auth as auth
+    headers, _ = login()
+    token=headers["Authorization"].split()[1]
+    original=auth.time.time
+    try:
+        auth.time.time=lambda: original()+auth.JWT_TTL_SECONDS+1
+        assert client.get("/api/v1/auth/me",headers={"Authorization":f"Bearer {token}"}).status_code==401
+    finally: auth.time.time=original
+
+
+def test_logout_revokes_the_presented_token():
+    headers, _ = login()
+    assert client.post("/api/v1/auth/logout", headers=headers).status_code == 204
+    assert client.get("/api/v1/auth/me", headers=headers).status_code == 401

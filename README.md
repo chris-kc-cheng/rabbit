@@ -8,8 +8,9 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 
 - Ten parameterized elementary-math templates with deterministic generation.
 - Misconception-based choices, server-side grading, hints, and feedback.
-- Responsive learner practice and a clearly labelled parent-report preview.
-- Optional parent-configured reward goal.
+- JWT login/logout with role-protected learner, parent, and administrator areas.
+- Parent-managed learners, progress evidence, password resets, and reward goals.
+- Administrator parent management and schema-validated JSON question import.
 - KaTeX formulas, an accessible SVG fraction visual, and the Rabbit easter egg.
 
 See [`docs/requirements-checklist.md`](docs/requirements-checklist.md) for a
@@ -106,10 +107,26 @@ cd frontend && npm run build
 - Contract and example: [`docs/question-bank.md`](docs/question-bank.md)
 - AI structured-output prompt: [`docs/ai-question-authoring-prompt.md`](docs/ai-question-authoring-prompt.md)
 
-## Parent preview and easter egg
+## Prototype accounts and authentication
 
-Select **Parent preview** in the header to inspect demo attempts and configure a
-reward. It is not authenticated and is not yet a production parent portal.
+The memory-backed prototype creates an `admin` account on process startup. Its
+development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`
+and a long random `RABBIT_JWT_SECRET` in every shared or deployed environment.
+The administrator creates parent accounts, and each parent creates their learner
+accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
+web app returns to login on a rejected/expired token. Logout revokes the token in
+this process and removes it from the browser; password resets invalidate that
+user's issued tokens. Durable identity, persisted revocation, refresh-token
+rotation, rate limiting, and OIDC remain production requirements.
+
+Visitors see a public product overview and can use **Try the free demo**. Demo
+attempts are process-local and are not attached to an account or family report.
+Only the separately reviewed demo pack is available without authentication;
+new published question types are private by default until explicitly added to it.
+
+The admin import control accepts a complete question-bank JSON document, reports
+schema failures with JSON paths and suggested checks, and runs a generation smoke
+test. Valid imports remain process-local and published banks are immutable.
 
 Click the rabbit logo or mascot to learn the name: a rabbit is “all ears,” so it
 listens carefully in class.

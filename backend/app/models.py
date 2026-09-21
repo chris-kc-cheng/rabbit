@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
@@ -68,3 +68,25 @@ class ProgressResponse(BaseModel):
     misconceptions: dict[str, int]
     recent_attempts: list[dict]
     reward: RewardSettings
+
+
+class LoginRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=80)
+    password: str = Field(min_length=8, max_length=200)
+
+
+class PasswordRequest(BaseModel):
+    password: str = Field(min_length=8, max_length=200)
+
+
+class ParentCreate(LoginRequest):
+    display_name: str = Field(min_length=1, max_length=80)
+
+
+class LearnerCreate(PasswordRequest):
+    username: str = Field(min_length=3, max_length=80)
+    display_name: str = Field(min_length=1, max_length=80)
+
+
+class QuestionImport(BaseModel):
+    document: dict[str, Any]

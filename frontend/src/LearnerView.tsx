@@ -4,7 +4,7 @@ import { FractionBar } from "./FractionBar";
 import { MathBlock } from "./MathBlock";
 import type { AttemptResult, Session } from "./types";
 
-export function LearnerView({ onAttemptsChanged }: { onAttemptsChanged: () => void }) {
+export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: string; onAttemptsChanged: () => void }) {
   const [session, setSession] = useState<Session | null>(null);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -16,7 +16,7 @@ export function LearnerView({ onAttemptsChanged }: { onAttemptsChanged: () => vo
 
   const start = async () => {
     setLoading(true); setError(""); setIndex(0); setSelected(null); setResult(null); setPoints(0);
-    try { setSession(await api.createSession()); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
+    try { setSession(await api.createSession(learnerId)); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
     finally { setLoading(false); }
   };
   useEffect(() => { void start(); }, []);

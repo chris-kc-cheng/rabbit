@@ -1,31 +1,19 @@
-import { useEffect, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { api } from "./api";
-import type { Progress, Reward } from "./types";
+import type { FamilyLearner, Reward } from "./types";
 
 export function ParentView({ refreshKey }: { refreshKey: number }) {
-  const [progress, setProgress] = useState<Progress | null>(null);
-  const [reward, setReward] = useState<Reward>({ enabled: false, target_points: 200, reward: "A trip to the bookshop" });
-  const [saved, setSaved] = useState(false);
-  useEffect(() => { api.getProgress().then((data) => { setProgress(data); setReward(data.reward); }); }, [refreshKey]);
-  const save = async () => { setReward(await api.saveReward(reward)); setSaved(true); window.setTimeout(() => setSaved(false), 1800); };
-
-  return <main className="parent-page">
-    <header className="parent-heading"><div><p className="eyebrow">Parent preview</p><h1>Chloe&apos;s learning snapshot</h1><p>This prototype report uses this server process only. Authentication and durable family accounts are not implemented yet.</p></div><span className="preview-badge">Demo data</span></header>
-    <section className="metric-grid">
-      <article><span>Questions tried</span><strong>{progress?.attempts ?? 0}</strong><small>this demo session</small></article>
-      <article><span>Correct answers</span><strong>{progress?.correct ?? 0}</strong><small>{Math.round((progress?.accuracy ?? 0) * 100)}% accuracy</small></article>
-      <article><span>Points earned</span><strong>{progress?.points ?? 0}</strong><small>effort is always celebrated</small></article>
-    </section>
-    <section className="parent-grid">
-      <article className="panel"><p className="eyebrow">Learning evidence</p><h2>Recent attempts</h2>
-        {!progress?.recent_attempts.length ? <p className="empty">Complete a learner question to see evidence here.</p> : <div className="attempt-list">{progress.recent_attempts.map((attempt) => <div key={attempt.question_id}><i className={attempt.correct ? "pass" : "miss"}>{attempt.correct ? "✓" : "↗"}</i><span><strong>{attempt.skill.split(".").slice(1).join(" ")}</strong><small>Answered {attempt.selected_value}{attempt.misconception_id ? ` · ${attempt.misconception_id}` : ""}</small></span></div>)}</div>}
-      </article>
-      <article className="panel"><p className="eyebrow">Optional encouragement</p><h2>Family reward goal</h2><p className="panel-copy">Choose a positive experience or present. Earned points are never removed.</p>
-        <label className="check"><input type="checkbox" checked={reward.enabled} onChange={(e) => setReward({...reward, enabled:e.target.checked})} /> Enable reward goal</label>
-        <label>Target points<input type="number" min="50" max="10000" step="10" disabled={!reward.enabled} value={reward.target_points} onChange={(e) => setReward({...reward,target_points:Number(e.target.value)})} /></label>
-        <label>Reward or experience<input maxLength={80} disabled={!reward.enabled} value={reward.reward} onChange={(e) => setReward({...reward,reward:e.target.value})} /></label>
-        <button className="primary full" onClick={save}>{saved ? "Saved ✓" : "Save goal"}</button>
-      </article>
-    </section>
+  const [learners,setLearners]=useState<FamilyLearner[]>([]); const [selectedId,setSelectedId]=useState(""); const [notice,setNotice]=useState("");
+  const refresh=async()=>{const data=await api.getLearners();setLearners(data);setSelectedId(id=>data.some(x=>x.id===id)?id:data[0]?.id??"")};
+  useEffect(()=>{void refresh()},[refreshKey]); const selected=learners.find(x=>x.id===selectedId); const progress=selected?.progress; const [reward,setReward]=useState<Reward>({enabled:false,target_points:200,reward:"A trip to the bookshop"});
+  useEffect(()=>{if(progress)setReward(progress.reward)},[selectedId,progress?.points]);
+  const create=async(e:FormEvent<HTMLFormElement>)=>{e.preventDefault();const f=new FormData(e.currentTarget);try{await api.createLearner(String(f.get("name")),String(f.get("username")),String(f.get("password")));e.currentTarget.reset();setNotice("Learner profile created.");await refresh()}catch(x){setNotice(x instanceof Error?x.message:"Could not create learner")}};
+  const reset=async()=>{if(!selected)return;const password=window.prompt(`New password for ${selected.display_name} (8+ characters)`);if(password){try{await api.resetLearner(selected.id,password);setNotice("Password reset successfully.")}catch(x){setNotice(x instanceof Error?x.message:"Could not reset password")}}};
+  const save=async()=>{if(selected){setReward(await api.saveReward(selected.id,reward));setNotice("Reward goal saved.");await refresh()}};
+  return <main className="portal-page"><header className="portal-hero"><div><p className="eyebrow">Family dashboard</p><h1>Learning grows here.</h1><p>Create learner profiles, notice strengths, and offer a little extra support where the evidence points.</p></div>{learners.length>0&&<label className="child-picker">Viewing<select value={selectedId} onChange={e=>setSelectedId(e.target.value)}>{learners.map(x=><option value={x.id} key={x.id}>{x.display_name}</option>)}</select></label>}</header>{notice&&<p className="notice">{notice}</p>}
+    <section className="metric-grid"><article><span>Questions tried</span><strong>{progress?.attempts??0}</strong><small>across saved practice</small></article><article><span>Accuracy</span><strong>{Math.round((progress?.accuracy??0)*100)}%</strong><small>{progress?.correct??0} correct answers</small></article><article><span>Points earned</span><strong>{progress?.points??0}</strong><small>steady effort celebrated</small></article></section>
+    <div className="portal-grid"><section className="panel"><h2>Add a learner</h2><form className="stack-form" onSubmit={create}><label>Child&apos;s display name<input name="name" required/></label><label>Login username<input name="username" minLength={3} required/></label><label>Temporary password<input name="password" type="password" minLength={8} required/></label><button className="primary">Create learner</button></form>{selected&&<button className="quiet reset-link" onClick={reset}>Reset {selected.display_name}&apos;s password</button>}</section>
+    <section className="panel"><p className="eyebrow">Learning evidence</p><h2>Recent answers</h2>{!progress?.recent_attempts.length?<p className="empty">Practice answers will appear here after this learner signs in.</p>:<div className="attempt-list">{progress.recent_attempts.map(a=><div key={a.question_id}><i className={a.correct?"pass":"miss"}>{a.correct?"✓":"↗"}</i><span><strong>{a.skill.split(".").slice(1).join(" ")}</strong><small>Answered {a.selected_value}</small></span></div>)}</div>}<h3 className="subhead">Practice signals</h3>{progress&&Object.keys(progress.misconceptions).length?<div className="signals">{Object.entries(progress.misconceptions).map(([name,count])=><span key={name}><b>{count}×</b> {name.split(".").slice(-2).join(" ")}</span>)}</div>:<p className="empty">No recurring misconception evidence yet.</p>}</section>
+    <section className="panel"><p className="eyebrow">Optional encouragement</p><h2>Reward goal</h2><label className="check"><input type="checkbox" checked={reward.enabled} onChange={e=>setReward({...reward,enabled:e.target.checked})}/> Enable a family reward</label><label>Target points<input type="number" min="50" max="10000" step="10" disabled={!reward.enabled} value={reward.target_points} onChange={e=>setReward({...reward,target_points:Number(e.target.value)})}/></label><label>Present or experience<input disabled={!reward.enabled} maxLength={80} value={reward.reward} onChange={e=>setReward({...reward,reward:e.target.value})}/></label><button className="primary full" disabled={!selected} onClick={save}>Save goal</button></section></div>
   </main>;
 }

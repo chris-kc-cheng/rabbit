@@ -29,11 +29,22 @@ working in this repository, not production-ready at population scale.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
   The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for
   Compose image tags and host port.
+- [x] Public product landing page with an illustrative product preview and a
+  prominent, non-persistent reviewed-demo entry point.
+- [x] Prototype password login/logout with expiring signed JWT access tokens,
+  automatic return to login after a 401, and admin/parent/learner role guards.
+- [x] Authenticated administrator UI for creating parents, resetting parent or
+  learner passwords, and importing question banks with JSON-path schema errors
+  plus a generation smoke test.
+- [x] Authenticated parent dashboard for creating learners, resetting their
+  passwords, reviewing progress/answer and misconception evidence, and setting
+  individual reward goals, with family-boundary authorization tests.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
-- [~] **Parent experience:** a clearly labelled demo view shows attempts, accuracy,
-  misconception IDs, points, and reward settings. It has no secure parent account.
+- [~] **Identity and parent experience:** working prototype accounts are role- and
+  family-protected, but identity and passwords are process-local and not suitable
+  for production until migrated to durable OIDC-backed identity and audited storage.
 - [~] **Rewards:** parents can enable a target and name a present/experience, but
   data is kept only in backend memory and resets on restart.
 - [~] **Progress and exact results:** recent server-side attempts are visible, but
@@ -56,9 +67,10 @@ working in this repository, not production-ready at population scale.
 ## C. Not yet implemented
 
 - [ ] Free parent sign-up, OIDC login, Google/Apple federation, magic links, or
-  passkeys.
-- [ ] Parent-created child accounts, join code/PIN, QR handoff, session/device
-  revocation, multiple guardians, and role-based authorization.
+  passkeys. Prototype username/password login is not the chosen production identity solution.
+- [ ] Join code/PIN, QR handoff, immediate session/device revocation, multiple
+  guardians, durable audit logs, and forced temporary-password change. Basic
+  parent-created learner accounts and role/family authorization are implemented in memory.
 - [ ] PostgreSQL schema/migrations, family tenant isolation, row-level security,
   append-only attempts, transactional outbox, Redis jobs, or object storage.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced

@@ -30,6 +30,10 @@ export type Progress = {
   recent_attempts: Array<{ question_id: string; skill: string; selected_value: string; correct: boolean; misconception_id?: string }>;
   reward: Reward;
 };
+export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null };
+export type AuthSession = { access_token: string; expires_at: number; user: User };
+export type FamilyLearner = User & { progress: Progress };
+export type ImportError = { path: string; message: string; suggestion: string };
 
 export type DemoSubject = "math" | "trivia" | "english";
 export type DemoQuestion = {
