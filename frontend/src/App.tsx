@@ -4,8 +4,10 @@ import { ParentView } from "./ParentView";
 import { DemoPack } from "./DemoPack";
 import { AdminView } from "./AdminView";
 
+type AppView = "learner" | "parent" | "demo" | "admin" | "docs";
+
 export default function App() {
-  const [view, setView] = useState<"learner" | "parent" | "demo" | "admin">("learner");
+  const [view, setView] = useState<AppView>("learner");
   const [refreshKey, setRefreshKey] = useState(0);
   const [secret, setSecret] = useState(false);
   const [theme, setTheme] = useState<"light" | "dark">(() => {
