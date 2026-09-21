@@ -1,6 +1,6 @@
 # Prompt for AI-assisted question authoring
 
-This prompt targets only the normative v1 parameterized single-select math bank.
+This prompt targets only computed single-select templates in the normative v2 bank.
 The fixed multi-type examples in `content/demo-pack.json` are prototypes under
 `content/demo-pack.schema.json` and still need human review; do not use this prompt to
 publish questions of those types.
@@ -31,10 +31,21 @@ Requirements:
   values must be finite and distinct. Avoid ambiguous wording, division by zero,
   unintended negative answers, stereotypes, personal data, advertising, and
   promises of rewards.
-- Do not invent fields outside the schema. If the objective cannot fit v1
+- Do not invent fields outside the schema. If the objective cannot fit a v2 computed
   single-select, state nothing outside JSON; instead produce a narrower valid
   draft skill.
 
 Before responding, re-check JSON syntax and every schema requirement. The output
 will remain an AI draft until a human curriculum reviewer validates it.
 ```
+
+## Historical-event collection prompt
+
+Attach the schema and authoritative source material. Ask the model for one
+`fact-collection-single-select` template containing at least four closely related
+events, stable IDs, scalar `year` and `event` fields, and at least one variant.
+The variant must use a declared `answerField` and `distractorPoolField`, supportive
+feedback, a stable misconception ID, and `{{fact.<field>}}` interpolation only.
+Require exact source title, URL, and section locator. Set `source.reviewStatus` to
+`draft`; only a human curriculum reviewer may change it to `reviewed` and publish
+the containing bank. Never ask the model to invent missing facts or citations.

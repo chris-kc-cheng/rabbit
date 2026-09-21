@@ -16,6 +16,7 @@ class PublicChoice(BaseModel):
 class PublicQuestion(BaseModel):
     id: str
     template_id: str
+    variant_id: str
     skill: str
     difficulty: int
     prompt: list[ContentBlock]
@@ -26,6 +27,7 @@ class PublicQuestion(BaseModel):
 
 class SessionCreate(BaseModel):
     learner_id: str = Field(default="demo-learner", min_length=1, max_length=80)
+    subject: str = Field(default="math.elementary", min_length=1, max_length=80)
     seed: int | None = None
     count: int = Field(default=10, ge=1, le=10)
 

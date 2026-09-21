@@ -10,8 +10,10 @@ working in this repository, not production-ready at population scale.
 - [x] Docker Compose orchestration under project `rabbit` for separate frontend
   and backend containers; web binds to host loopback port 8090 by default, and
   API port 8000 remains internal.
-- [x] JSON Schema and a Git-managed JSON question bank with ten elementary-math
-  single-select templates.
+- [x] JSON Schema v2 and Git-managed question banks with ten published
+  elementary-math templates plus a draft Discover Canada historical-event example.
+- [x] Reusable fact collections with stable fact/variant IDs, restricted dotted
+  interpolation, seeded selection, and other-fact distractor pools.
 - [x] Seeded parameter generation, server-side grading, answer shuffling, hints,
   explanations, and duplicate-choice rejection.
 - [x] Wrong answers mapped to stable misconception IDs and supportive feedback.
@@ -19,7 +21,7 @@ working in this repository, not production-ready at population scale.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
-- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the parameterized v1 bank and does not yet feed parent reports or adaptation.
+- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the published v2 banks and does not yet feed parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] JSON schema documentation, required-format example, and reusable AI
@@ -36,9 +38,9 @@ working in this repository, not production-ready at population scale.
   data is kept only in backend memory and resets on restart.
 - [~] **Progress and exact results:** recent server-side attempts are visible, but
   the report does not yet preserve/display the complete rendered question snapshot.
-- [~] **Question templates:** v1 supports bounded integers and single-select math;
-  authoring UI, publishing workflow, richer parameter types, and immutable database
-  versions are absent.
+- [~] **Question templates:** v2 supports bounded-integer computed questions and
+  scalar historical-event fact collections; authoring UI, automated publishing,
+  richer parameter/fact types, and immutable database versions are absent.
 - [~] **Vector rendering:** the fraction bar is real accessible SVG, but the general
   declarative geometry scene language is not implemented.
 - [~] **Adaptivity:** misconception evidence is captured for later selection, but
@@ -65,9 +67,10 @@ working in this repository, not production-ready at population scale.
   export, retention, deletion, and audit-log interfaces.
 - [ ] Offline worksheet and answer-key PDF generation.
 - [ ] General diagram scene specification and sanitized SVG compiler.
-- [ ] Production-ready English grammar, fill-in-the-blank, error spotting,
-  multi-select, composition, rubric/manual grading, trivia, Canadian citizenship,
-  or Ontario driving content beyond the fixed Explore packs examples.
+- [ ] Published English grammar, fill-in-the-blank, error spotting, multi-select,
+  composition, rubric/manual grading, broader trivia/Canadian citizenship, or
+  Ontario driving content beyond the fixed Explore packs examples. The included
+  Canadian history collection is draft-only.
 - [ ] Rewards ledger, anti-tampering rules, notifications, or fulfillment tracking.
 - [ ] Full offline/PWA learner sessions and conflict-safe synchronization.
 - [ ] Production legal/privacy review, parental consent flow, abuse/rate controls,

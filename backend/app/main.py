@@ -6,8 +6,8 @@ import time
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
-from .engine import generate_session, load_bank
 from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
+from .engine import generate_session, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
@@ -44,14 +44,19 @@ def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
 
 @app.get("/api/v1/subjects")
 def subjects() -> list[dict]:
-    bank = load_bank()
-    return [{"id": bank["subject"], "title": "Elementary Math", "template_count": len(bank["templates"])}]
+    return [
+        {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"])}
+        for bank in load_banks().values()
+    ]
 
 
 @app.post("/api/v1/sessions", response_model=SessionResponse, status_code=201)
 def create_session(request: SessionCreate) -> SessionResponse:
+    bank = load_banks().get(request.subject)
+    if bank is None:
+        raise HTTPException(status_code=400, detail="Unknown subject")
     session_id = secrets.token_urlsafe(12)
-    generated = generate_session(request.seed if request.seed is not None else time.time_ns(), request.count)
+    generated = generate_session(request.seed if request.seed is not None else time.time_ns(), request.count, bank)
     store.sessions[session_id] = SessionRecord(
         learner_id=request.learner_id,
         questions={question.public.id: question for question in generated},
@@ -77,6 +82,7 @@ def submit_attempt(request: AttemptCreate) -> AttemptResult:
     attempt = {
         "question_id": request.question_id,
         "template_id": question.public.template_id,
+        "variant_id": question.public.variant_id,
         "skill": question.public.skill,
         "selected_value": choice["value"],
         "correct": correct,
