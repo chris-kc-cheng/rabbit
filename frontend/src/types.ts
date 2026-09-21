@@ -28,8 +28,21 @@ export type Progress = {
   accuracy: number;
   hints_used: number;
   misconceptions: Record<string, number>;
-  recent_attempts: Array<{ question_id: string; skill: string; selected_value: string; correct: boolean; hint_used: boolean; misconception_id?: string }>;
+  recent_attempts: AttemptHistoryItem[];
+  attempt_history: AttemptHistoryItem[];
   reward: Reward;
+};
+export type AttemptHistoryItem = {
+  question_id: string;
+  skill: string;
+  selected_value: string;
+  correct_value: string;
+  correct: boolean;
+  hint_used: boolean;
+  misconception_id?: string;
+  answered_at: string;
+  time_spent_ms: number;
+  question: Question;
 };
 export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null };
 export type AuthSession = { access_token: string; expires_at: number; user: User };

@@ -50,9 +50,15 @@ def test_role_login_family_isolation_password_reset_and_progress():
     question = session["questions"][0]
     assert "correct_choice_id" not in question
     correct = store.sessions[session["id"]].questions[question["id"]].correct_choice_id
-    assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct}).status_code == 200
+    assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct,"time_spent_ms":12500}).status_code == 200
     progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
     assert progress["attempts"] == 1 and progress["points"] == 10
+    attempt = progress["attempt_history"][0]
+    assert attempt["question"] == question
+    assert attempt["selected_value"] == attempt["correct_value"]
+    assert attempt["time_spent_ms"] == 12500
+    assert client.get("/api/v1/learners/me/progress", headers=learner_headers).json()["attempt_history"] == progress["attempt_history"]
+    assert client.get("/api/v1/learners/me/progress", headers=parent_headers).status_code == 403
     parent_id = client.get("/api/v1/auth/me", headers=parent_headers).json()["id"]
     family_report = client.get(f"/api/v1/parents/families/{parent_id}/progress", headers=parent_headers).json()
     assert [child["name"] for child in family_report["learners"]] == ["Mina"]

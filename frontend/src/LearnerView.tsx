@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { api } from "./api";
+import { AttemptHistory } from "./AttemptHistory";
 import { FractionBar } from "./FractionBar";
 import { MathBlock } from "./MathBlock";
-import type { AttemptResult, Session, Subject } from "./types";
+import type { AttemptResult, Progress, Session, Subject } from "./types";
 
 export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: string; onAttemptsChanged: () => void }) {
   const [session, setSession] = useState<Session | null>(null);
@@ -15,21 +16,27 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   const [error, setError] = useState("");
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [subject, setSubject] = useState("math.elementary");
+  const [progress, setProgress] = useState<Progress | null>(null);
+  const questionStartedAt = useRef(Date.now());
+
+  const refreshHistory = () => api.getOwnProgress().then(setProgress);
 
   const start = async () => {
     setLoading(true); setError(""); setIndex(0); setSelected(null); setResult(null); setPoints(0);
-    try { setSession(await api.createSession(learnerId, subject)); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
+    try { setSession(await api.createSession(learnerId, subject)); questionStartedAt.current = Date.now(); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
     finally { setLoading(false); }
   };
   useEffect(() => { void api.getSubjects().then(setSubjects); }, []);
+  useEffect(() => { void refreshHistory(); }, []);
   useEffect(() => { void start(); }, [subject]);
 
   if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
   if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
   if (index >= session.questions.length) return (
-    <main className="card finish"><span className="celebration">★</span><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
+    <main className="learner-column"><section className="card finish"><span className="celebration">★</span><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
       <p>You completed this practice trail and earned <strong>{points} accuracy points</strong>.</p>
-      <button className="primary" onClick={start}>Practice a new trail</button>
+      <button className="primary" onClick={start}>Practice a new trail</button></section>
+      <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
     </main>
   );
 
@@ -37,11 +44,11 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   const submit = async () => {
     if (!selected) return;
     try {
-      const answer = await api.submitAttempt(session.id, question.id, selected, hintVisible);
-      setResult(answer); setPoints((value) => value + answer.points_earned); onAttemptsChanged();
+      const answer = await api.submitAttempt(session.id, question.id, selected, hintVisible, Date.now() - questionStartedAt.current);
+      setResult(answer); setPoints((value) => value + answer.points_earned); onAttemptsChanged(); await refreshHistory();
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not check answer"); }
   };
-  const next = () => { setIndex((value) => value + 1); setSelected(null); setResult(null); setHintVisible(false); };
+  const next = () => { setIndex((value) => value + 1); setSelected(null); setResult(null); setHintVisible(false); questionStartedAt.current = Date.now(); };
 
   return <main className="learner-column">
     <div className="subject-picker"><label htmlFor="subject">Practice subject</label><select id="subject" value={subject} onChange={event => setSubject(event.target.value)}>{subjects.map(item => <option key={item.id} value={item.id}>{item.title}{item.publication_status === "draft" ? " — Draft" : ""}</option>)}</select></div>
@@ -64,5 +71,6 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
     </article>
     <footer className="actions"><button className="quiet" disabled={Boolean(result)} onClick={() => setHintVisible(!hintVisible)}>💡 {hintVisible ? "Hide hint" : "Need a hint?"}</button>
       {result ? <button className="primary" onClick={next}>Next question →</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer →</button>}</footer>
+    <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
   </main>;
 }

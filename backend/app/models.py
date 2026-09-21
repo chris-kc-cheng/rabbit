@@ -43,6 +43,7 @@ class AttemptCreate(BaseModel):
     question_id: str
     choice_id: str
     hint_used: bool = False
+    time_spent_ms: int = Field(ge=0, le=86_400_000)
 
 
 class AttemptResult(BaseModel):
@@ -69,6 +70,7 @@ class ProgressResponse(BaseModel):
     hints_used: int
     misconceptions: dict[str, int]
     recent_attempts: list[dict]
+    attempt_history: list[dict]
     reward: RewardSettings
 
 
