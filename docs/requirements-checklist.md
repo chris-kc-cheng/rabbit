@@ -20,6 +20,8 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Password hashing uses an explicit scrypt memory allowance and round-trip tests
+  for administrator, parent, and learner credential shapes.
 - [x] Reader-comfort typography and a responsive, persistent light/dark theme
   control that defaults to the learner's operating-system preference.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.

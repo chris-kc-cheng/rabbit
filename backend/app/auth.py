@@ -26,11 +26,14 @@ if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_J
 JWT_SECRET = os.environ.get("RABBIT_JWT_SECRET", secrets.token_urlsafe(48))
 JWT_TTL_SECONDS = int(os.environ.get("RABBIT_JWT_TTL_SECONDS", "3600"))
 bearer = HTTPBearer(auto_error=False)
+SCRYPT_MAX_MEMORY = 64 * 1024 * 1024
 
 
 def hash_password(password: str) -> str:
     salt = secrets.token_bytes(16)
-    digest = hashlib.scrypt(password.encode(), salt=salt, n=2**14, r=8, p=1)
+    digest = hashlib.scrypt(
+        password.encode(), salt=salt, n=2**14, r=8, p=1, maxmem=SCRYPT_MAX_MEMORY
+    )
     return f"scrypt${_encode(salt)}${_encode(digest)}"
 
 
@@ -39,7 +42,10 @@ def verify_password(password: str, encoded: str) -> bool:
         algorithm, salt, expected = encoded.split("$")
         if algorithm != "scrypt":
             return False
-        actual = hashlib.scrypt(password.encode(), salt=_decode(salt), n=2**14, r=8, p=1)
+        actual = hashlib.scrypt(
+            password.encode(), salt=_decode(salt), n=2**14, r=8, p=1,
+            maxmem=SCRYPT_MAX_MEMORY,
+        )
         return hmac.compare_digest(actual, _decode(expected))
     except (ValueError, TypeError):
         return False
