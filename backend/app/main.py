@@ -73,6 +73,24 @@ def create_demo_worksheet() -> StreamingResponse:
     })
 
 
+def _demo_worksheet_questions(count: int):
+    """Resolve the single template-backed question set shared by preview and PDF."""
+    seed = 20260921
+    bank = load_bank()
+    return bank, generate_session(seed, count, bank), seed
+
+
+@app.post("/api/v1/demo-pack/worksheet-preview")
+def preview_demo_worksheet(request: DemoWorksheetCreate) -> dict:
+    """Show the exact safe, public questions that the demo PDF will contain."""
+    bank, generated, seed = _demo_worksheet_questions(request.count)
+    return {
+        "subject_title": bank["title"],
+        "seed": seed,
+        "questions": [question.public for question in generated],
+    }
+
+
 @app.post("/api/v1/auth/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)) -> dict:
     model = IdentityRepository(db).get_by_username(request.username)
