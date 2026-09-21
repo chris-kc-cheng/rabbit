@@ -1,4 +1,4 @@
-import type { AttemptResult, Progress, Reward, Session } from "./types";
+import type { AttemptResult, DemoResult, DemoSession, Progress, Reward, Session } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -12,6 +12,10 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
 }
 
 export const api = {
+  createDemoSession: () => request<DemoSession>("/api/v1/demo-pack/sessions", { method: "POST" }),
+  submitDemoAttempt: (sessionId: string, questionId: string, response: string | string[]) => request<DemoResult>("/api/v1/demo-pack/attempts", {
+    method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ session_id: sessionId, question_id: questionId, response }),
+  }),
   createSession: (seed = Date.now()) => request<Session>("/api/v1/sessions", {
     method: "POST",
     headers: JSON_HEADERS,

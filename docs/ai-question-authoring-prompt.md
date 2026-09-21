@@ -1,5 +1,10 @@
 # Prompt for AI-assisted question authoring
 
+This prompt targets only the normative v1 parameterized single-select math bank.
+The fixed multi-type examples in `content/demo-pack.json` are prototypes under
+`content/demo-pack.schema.json` and still need human review; do not use this prompt to
+publish questions of those types.
+
 Attach `content/question-template.schema.json`, then replace the angle-bracketed
 values and send the following prompt to a model:
 

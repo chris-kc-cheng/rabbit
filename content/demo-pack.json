@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "questions": [
+    {
+      "id": "math-triangle-1", "subject": "math", "kind": "single-select", "title": "Find the missing side", "instruction": "This right triangle has a 30° angle and a 10 cm hypotenuse. What is the side opposite 30°?", "visual": "triangle", "latex": "\\sin(30^\\circ)=\\frac{\\text{opposite}}{\\text{hypotenuse}}", "choices": [{"id":"a","label":"5 cm"},{"id":"b","label":"10 cm"},{"id":"c","label":"20 cm"},{"id":"d","label":"8.7 cm"}], "answer": "a", "feedback": "The opposite side is 10 × sin(30°) = 5 cm."
+    },
+    {
+      "id": "math-volume-1", "subject": "math", "kind": "single-select", "title": "Explore the prism", "instruction": "Rotate the rectangular prism. Its edges are 2 cm, 3 cm, and 4 cm. What is its volume?", "visual": "prism", "latex": "V=\\ell\\times w\\times h", "choices": [{"id":"a","label":"9 cm³"},{"id":"b","label":"24 cm³"},{"id":"c","label":"18 cm³"},{"id":"d","label":"12 cm³"}], "answer": "b", "feedback": "Multiply all three edge lengths: 2 × 3 × 4 = 24 cm³."
+    },
+    {
+      "id": "math-formula-1", "subject": "math", "kind": "single-select", "title": "Read the formula", "instruction": "Use the formula to find the area when the base is 6 cm and the height is 4 cm.", "latex": "A=\\frac{1}{2}bh", "choices": [{"id":"a","label":"10 cm²"},{"id":"b","label":"24 cm²"},{"id":"c","label":"12 cm²"},{"id":"d","label":"6 cm²"}], "answer": "c", "feedback": "Half of 6 × 4 is 12 cm²."
+    },
+    {
+      "id": "trivia-amphibian-1", "subject": "trivia", "kind": "single-select", "title": "Quick quiz", "instruction": "For 10 points: which animal in the picture is an amphibian?", "image": "/trivia-animals.png", "image_alt": "Illustration showing a fox, a bat, a frog, and an owl outdoors.", "choices": [{"id":"fox","label":"Fox"},{"id":"bat","label":"Bat"},{"id":"frog","label":"Frog"},{"id":"owl","label":"Owl"}], "answer": "frog", "feedback": "The frog is an amphibian. It can live in water and on land."
+    },
+    {
+      "id": "trivia-mammals-1", "subject": "trivia", "kind": "multi-select", "title": "Animal expert", "instruction": "Which TWO animals in the picture are mammals? Choose both before checking.", "image": "/trivia-animals.png", "image_alt": "Illustration showing a fox, a bat, a frog, and an owl outdoors.", "choices": [{"id":"fox","label":"Fox"},{"id":"frog","label":"Frog"},{"id":"bat","label":"Bat"},{"id":"owl","label":"Owl"}], "answer": ["fox", "bat"], "feedback": "The fox and bat are mammals. The frog is an amphibian and the owl is a bird."
+    },
+    {
+      "id": "english-blank-1", "subject": "english", "kind": "fill-blank", "title": "Fill the gap", "instruction": "Complete the sentence: We stayed inside ___ it was raining.", "placeholder": "Type the missing word", "answer": "because", "feedback": "“Because” gives the reason we stayed inside."
+    },
+    {
+      "id": "english-order-1", "subject": "english", "kind": "reorder", "title": "Build the sentence", "instruction": "Drag the word tiles into a clear sentence, or select a tile and use the arrow buttons.", "tiles": [{"id":"we","label":"We"},{"id":"outside","label":"outside"},{"id":"after","label":"After"},{"id":"played","label":"played"},{"id":"rain","label":"rain"},{"id":"stopped","label":"stopped"},{"id":"the","label":"the"}], "answer": ["after", "the", "rain", "stopped", "we", "played", "outside"], "feedback": "“After the rain stopped, we played outside” puts the time phrase first."
+    },
+    {
+      "id": "english-correction-1", "subject": "english", "kind": "correction", "title": "Be the editor", "instruction": "Correct the grammar: She don't like apples.", "placeholder": "Write the corrected sentence", "answer": "She doesn't like apples.", "feedback": "With “she,” use “doesn't”: She doesn't like apples."
+    }
+  ]
+}

@@ -19,6 +19,7 @@ working in this repository, not production-ready at population scale.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
+- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the parameterized v1 bank and does not yet feed parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] JSON schema documentation, required-format example, and reusable AI
@@ -64,8 +65,9 @@ working in this repository, not production-ready at population scale.
   export, retention, deletion, and audit-log interfaces.
 - [ ] Offline worksheet and answer-key PDF generation.
 - [ ] General diagram scene specification and sanitized SVG compiler.
-- [ ] English grammar, fill-in-the-blank, error spotting, multi-select, composition,
-  rubric/manual grading, trivia, Canadian citizenship, or Ontario driving content.
+- [ ] Production-ready English grammar, fill-in-the-blank, error spotting,
+  multi-select, composition, rubric/manual grading, trivia, Canadian citizenship,
+  or Ontario driving content beyond the fixed Explore packs examples.
 - [ ] Rewards ledger, anti-tampering rules, notifications, or fulfillment tracking.
 - [ ] Full offline/PWA learner sessions and conflict-safe synchronization.
 - [ ] Production legal/privacy review, parental consent flow, abuse/rate controls,

@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://rabbit-learning.example/schemas/demo-pack-v1.json",
+  "title": "Rabbit fixed demo pack",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "questions"],
+  "properties": {
+    "version": { "const": 1 },
+    "questions": { "type": "array", "minItems": 8, "items": { "$ref": "#/$defs/question" } }
+  },
+  "$defs": {
+    "choice": {
+      "type": "object", "additionalProperties": false, "required": ["id", "label"],
+      "properties": { "id": { "type": "string", "minLength": 1 }, "label": { "type": "string", "minLength": 1 } }
+    },
+    "question": {
+      "type": "object", "additionalProperties": false,
+      "required": ["id", "subject", "kind", "title", "instruction", "answer", "feedback"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z][a-z0-9-]+$" },
+        "subject": { "enum": ["math", "trivia", "english"] },
+        "kind": { "enum": ["single-select", "multi-select", "fill-blank", "reorder", "correction"] },
+        "title": { "type": "string", "minLength": 1 },
+        "instruction": { "type": "string", "minLength": 1 },
+        "visual": { "enum": ["triangle", "prism"] },
+        "latex": { "type": "string", "minLength": 1 },
+        "image": { "type": "string", "pattern": "^/[a-z0-9-]+\\.png$" },
+        "image_alt": { "type": "string", "minLength": 1 },
+        "placeholder": { "type": "string" },
+        "choices": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/choice" } },
+        "tiles": { "type": "array", "minItems": 2, "items": { "$ref": "#/$defs/choice" } },
+        "answer": { "oneOf": [{ "type": "string", "minLength": 1 }, { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "type": "string" } }] },
+        "feedback": { "type": "string", "minLength": 1 }
+      },
+      "allOf": [
+        { "if": { "properties": { "kind": { "const": "single-select" } } }, "then": { "required": ["choices"] } },
+        { "if": { "properties": { "kind": { "const": "multi-select" } } }, "then": { "required": ["choices", "image", "image_alt"], "properties": { "answer": { "type": "array", "minItems": 2, "uniqueItems": true } } } },
+        { "if": { "properties": { "kind": { "const": "reorder" } } }, "then": { "required": ["tiles"], "properties": { "answer": { "type": "array", "minItems": 2, "uniqueItems": true } } } }
+      ]
+    }
+  }
+}

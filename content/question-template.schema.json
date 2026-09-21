@@ -2,6 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://rabbit-learning.example/schemas/question-bank-v1.json",
   "title": "Rabbit question bank v1",
+  "$comment": "Normative parameterized single-select math contract. Fixed multi-type demonstrations live in demo-pack.schema.json and are not published v1 templates.",
   "type": "object",
   "additionalProperties": false,
   "required": ["schemaVersion", "subject", "locale", "templates"],

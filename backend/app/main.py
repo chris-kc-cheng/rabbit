@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from .engine import generate_session, load_bank
+from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
 from .models import (
     AttemptCreate,
     AttemptResult,
@@ -29,6 +30,16 @@ app.add_middleware(
 @app.get("/api/v1/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "rabbit-api"}
+
+
+@app.post("/api/v1/demo-pack/sessions", status_code=201)
+def start_demo_pack() -> dict:
+    return create_demo_session()
+
+
+@app.post("/api/v1/demo-pack/attempts")
+def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
+    return grade_demo_attempt(attempt)
 
 
 @app.get("/api/v1/subjects")
