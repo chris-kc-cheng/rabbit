@@ -27,7 +27,8 @@ working in this repository, not production-ready at population scale.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] In-app and written JSON schema documentation, per-type examples, and reusable AI
-  structured-output prompt.
+  structured-output prompt, with a public schema and generation validator that
+  remains available from signed-in workspaces.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
   The workflow deploys to `~/rabbit` and writes `.env.prod` on the VPS for
   Compose image tags and host port.

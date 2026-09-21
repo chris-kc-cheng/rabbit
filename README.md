@@ -130,6 +130,8 @@ new published question types are private by default until explicitly added to it
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke
 test. Valid imports remain process-local and published banks are immutable.
+The public **Docs** page remains available before and after login and provides a
+non-publishing validator with the same schema and generation checks.
 
 Click the rabbit logo or mascot to learn the name: a rabbit is “all ears,” so it
 listens carefully in class.

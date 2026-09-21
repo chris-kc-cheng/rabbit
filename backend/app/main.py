@@ -121,19 +121,33 @@ def error_suggestion(error) -> str:
     return suggestions.get(error.validator, "Check this value against the schema constraint shown in the message.")
 
 
+def validate_question_bank(document: dict) -> list[dict[str, str]]:
+    errors = sorted(QUESTION_VALIDATOR.iter_errors(document), key=lambda item: error_path(item))
+    if errors:
+        return [{"path": error_path(error), "message": error.message, "suggestion": error_suggestion(error)}
+                for error in errors[:25]]
+    try:
+        generate_session(7, len(document["templates"]), document)
+    except Exception as error:
+        return [{"path": "$.templates", "message": str(error),
+                 "suggestion": "Check expressions, parameter ranges, and that each template generates four distinct choices."}]
+    return []
+
+
+@app.post("/api/v1/questions/validate")
+def validate_questions(request: QuestionImport) -> dict:
+    """Validate untrusted authoring input without publishing or retaining it."""
+    errors = validate_question_bank(request.document)
+    if errors:
+        raise HTTPException(422, {"message": "Question bank is not valid", "errors": errors})
+    return {"valid": True, "templates_validated": len(request.document["templates"])}
+
+
 @app.post("/api/v1/admin/questions/import")
 def import_questions(request: QuestionImport, _: dict = Depends(require_role("admin"))) -> dict:
-    errors = sorted(QUESTION_VALIDATOR.iter_errors(request.document), key=lambda item: error_path(item))
+    errors = validate_question_bank(request.document)
     if errors:
-        details = [{"path": error_path(error), "message": error.message, "suggestion": error_suggestion(error)}
-                   for error in errors[:25]]
-        raise HTTPException(422, {"message": "Question bank does not match the v2 schema", "errors": details})
-    try:
-        generate_session(7, len(request.document["templates"]), request.document)
-    except Exception as error:
-        raise HTTPException(422, {"message": "Schema is valid, but questions could not be generated",
-                                  "errors": [{"path": "$.templates", "message": str(error),
-                                              "suggestion": "Check expressions, parameter ranges, and that each template generates four distinct choices."}]}) from None
+        raise HTTPException(422, {"message": "Question bank does not match the v2 schema", "errors": errors})
     subject = request.document["subject"]
     if subject in load_banks() or subject in store.imported_banks:
         raise HTTPException(409, "A bank with this subject is already loaded; published content is immutable")
