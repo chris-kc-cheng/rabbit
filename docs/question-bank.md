@@ -10,6 +10,11 @@
   example of a reusable historical-event collection based on *Discover Canada*.
   Draft banks are deliberately omitted from the public subject catalogue.
 
+The frontend **Docs** page gives authors an approachable overview of the bank
+envelope, an example for every current published or prototype question type,
+and a copyable AI-drafting prompt. The files above remain the authoritative
+contracts whenever the page and source schema differ.
+
 Schema v2 supports computed `single-select` templates and reusable
 `fact-collection-single-select` templates. Each computed template has bounded parameters,
 structured prompt blocks, a server-side answer expression, and at least three

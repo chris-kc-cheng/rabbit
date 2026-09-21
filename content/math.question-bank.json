@@ -112,7 +112,7 @@
     {
       "id":"math.word-problems.remaining","version":1,"type":"single-select","skill":"math.word-problems.subtraction","difficulty":2,
       "parameters":{"start":{"type":"integer","min":50,"max":90},"used":{"type":"integer","min":12,"max":35}},
-      "prompt":[{"type":"text","value":"Mina collected {{start}} stickers and used {{used}} in a project. How many are left?"}],"answer":{"expression":"start - used","format":"number"},
+      "prompt":[{"type":"text","value":"Chloe collected {{start}} stickers and used {{used}} in a project. How many are left?"}],"answer":{"expression":"start - used","format":"number"},
       "distractors":[
         {"id":"added-instead","misconception":"math.word-problems.wrong-operation","expression":"start + used","feedback":"Using stickers makes the collection smaller, so subtract rather than add."},
         {"id":"used-amount","misconception":"math.word-problems.reported-change","expression":"used","feedback":"{{used}} is how many were used; the question asks how many remain."},
