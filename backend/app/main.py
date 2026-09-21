@@ -10,9 +10,13 @@ from fastapi.responses import StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials
 from jsonschema import Draft202012Validator
+from sqlalchemy import text
+from sqlalchemy.orm import Session
 
-from .auth import bearer, decode_token, hash_password, issue_token, require_role, verify_password
+from .auth import bearer, decode_token, issue_token, require_role, verify_password
 from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
+from .database import get_db
+from .db_models import User
 from .engine import BANK_DIRECTORY, generate_session, load_banks
 from .models import (
     AttemptCreate,
@@ -31,6 +35,7 @@ from .models import (
     WorksheetCreate,
 )
 from .store import SessionRecord, store
+from .repositories import IdentityRepository, public_user, user_record
 from .worksheet import build_worksheet_pdf, topic_title
 
 app = FastAPI(title="Rabbit Learning API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
@@ -43,7 +48,8 @@ app.add_middleware(
 
 
 @app.get("/api/v1/health")
-def health() -> dict[str, str]:
+def health(db: Session = Depends(get_db)) -> dict[str, str]:
+    db.execute(text("SELECT 1"))
     return {"status": "ok", "service": "rabbit-api"}
 
 
@@ -57,29 +63,10 @@ def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
     return grade_demo_attempt(attempt)
 
 
-@app.post("/api/v1/demo-pack/worksheet")
-def create_demo_worksheet(request: DemoWorksheetCreate) -> StreamingResponse:
-    """Return a real, safe worksheet from a fixed published demo topic."""
-    bank = load_banks()["math.elementary"]
-    topic = bank["templates"][0]["skill"]
-    templates = [template for template in bank["templates"] if template["skill"] == topic]
-    seed = 20260921
-    generated = generate_session(seed, request.count, {**bank, "templates": templates})
-    pdf = build_worksheet_pdf(bank["title"], topic, generated, seed)
-    return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
-        "Content-Disposition": f'attachment; filename="rabbit-demo-{request.count}-questions.pdf"',
-        "Content-Length": str(len(pdf)),
-    })
-
-
-def public_user(user: dict) -> dict:
-    return store.public_user(user)
-
-
 @app.post("/api/v1/auth/login")
-def login(request: LoginRequest) -> dict:
-    user_id = store.usernames.get(request.username.strip().casefold())
-    user = store.users.get(user_id or "")
+def login(request: LoginRequest, db: Session = Depends(get_db)) -> dict:
+    model = IdentityRepository(db).get_by_username(request.username)
+    user = user_record(model) if model is not None else None
     if user is None or user["disabled"] or not verify_password(request.password, user["password_hash"]):
         raise HTTPException(401, "Username or password is not correct")
     token, expires_at = issue_token(user)
@@ -98,25 +85,27 @@ def logout(credentials: HTTPAuthorizationCredentials = Depends(bearer),
 
 
 @app.get("/api/v1/admin/users")
-def list_managed_users(_: dict = Depends(require_role("admin"))) -> list[dict]:
-    return [public_user(user) for user in store.users.values() if user["role"] in {"parent", "learner"}]
+def list_managed_users(_: dict = Depends(require_role("admin")), db: Session = Depends(get_db)) -> list[dict]:
+    return [public_user(user) for user in IdentityRepository(db).list_managed_users()]
 
 
 @app.post("/api/v1/admin/parents", status_code=201)
-def create_parent(request: ParentCreate, _: dict = Depends(require_role("admin"))) -> dict:
+def create_parent(request: ParentCreate, _: dict = Depends(require_role("admin")),
+                  db: Session = Depends(get_db)) -> dict:
     try:
-        return public_user(store.create_user("parent", request.username, request.password, request.display_name))
+        return public_user(IdentityRepository(db).create_parent(request.username, request.password, request.display_name))
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
 
 
 @app.put("/api/v1/admin/users/{user_id}/password", status_code=204)
-def admin_reset_password(user_id: str, request: PasswordRequest, _: dict = Depends(require_role("admin"))) -> None:
-    user = store.users.get(user_id)
-    if user is None or user["role"] not in {"parent", "learner"}:
+def admin_reset_password(user_id: str, request: PasswordRequest, _: dict = Depends(require_role("admin")),
+                         db: Session = Depends(get_db)) -> None:
+    repository = IdentityRepository(db)
+    user = repository.get_by_id(user_id)
+    if user is None or user.role not in {"parent", "learner"}:
         raise HTTPException(404, "Parent or learner not found")
-    user["password_hash"] = hash_password(request.password)
-    user["token_version"] += 1
+    repository.reset_password(user, request.password)
 
 
 SCHEMA_PATH = BANK_DIRECTORY / "question-template.schema.json"
@@ -244,50 +233,61 @@ def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("le
     )
 
 
-def _parent_learner(parent: dict, learner_id: str) -> dict:
-    learner = store.users.get(learner_id)
-    if learner is None or learner["role"] != "learner" or learner["parent_id"] != parent["id"]:
+def _parent_learner(parent: dict, learner_id: str, db: Session) -> User:
+    learner = IdentityRepository(db).get_by_id(learner_id)
+    if learner is None or learner.role != "learner" or learner.family_id != parent["family_id"]:
         raise HTTPException(404, "Learner not found in your family")
     return learner
 
 
 @app.get("/api/v1/parents/learners")
-def parent_learners(parent: dict = Depends(require_role("parent"))) -> list[dict]:
-    return [{**public_user(user), "progress": store.progress(user["id"])} for user in store.users.values()
-            if user["role"] == "learner" and user["parent_id"] == parent["id"]]
+def parent_learners(parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> list[dict]:
+    return [{**public_user(user), "progress": store.progress(user.id)}
+            for user in IdentityRepository(db).learners_for_family(parent["family_id"])]
 
 
 @app.post("/api/v1/parents/learners", status_code=201)
-def create_learner(request: LearnerCreate, parent: dict = Depends(require_role("parent"))) -> dict:
+def create_learner(request: LearnerCreate, parent: dict = Depends(require_role("parent")),
+                   db: Session = Depends(get_db)) -> dict:
     try:
-        return public_user(store.create_user("learner", request.username, request.password, request.display_name, parent["id"]))
+        return public_user(IdentityRepository(db).create_learner(
+            parent, request.username, request.password, request.display_name
+        ))
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
 
 
 @app.put("/api/v1/parents/learners/{learner_id}/password", status_code=204)
-def parent_reset_password(learner_id: str, request: PasswordRequest, parent: dict = Depends(require_role("parent"))) -> None:
-    learner = _parent_learner(parent, learner_id)
-    learner["password_hash"] = hash_password(request.password)
-    learner["token_version"] += 1
+def parent_reset_password(learner_id: str, request: PasswordRequest, parent: dict = Depends(require_role("parent")),
+                          db: Session = Depends(get_db)) -> None:
+    repository = IdentityRepository(db)
+    learner = _parent_learner(parent, learner_id, db)
+    repository.reset_password(learner, request.password)
 
 
 @app.get("/api/v1/parents/learners/{learner_id}/progress", response_model=ProgressResponse)
-def learner_progress(learner_id: str, parent: dict = Depends(require_role("parent"))) -> dict:
-    _parent_learner(parent, learner_id)
+def learner_progress(learner_id: str, parent: dict = Depends(require_role("parent")),
+                     db: Session = Depends(get_db)) -> dict:
+    _parent_learner(parent, learner_id, db)
     return store.progress(learner_id)
 
 
 @app.get("/api/v1/parents/families/{family_id}/progress")
-def family_progress(family_id: str, parent: dict = Depends(require_role("parent"))) -> dict:
-    if family_id != parent["id"]:
+def family_progress(family_id: str, parent: dict = Depends(require_role("parent")),
+                    db: Session = Depends(get_db)) -> dict:
+    if family_id != parent["family_id"]:
         raise HTTPException(403, "This family belongs to another parent")
-    return store.family_progress(parent["id"])
+    learners = IdentityRepository(db).learners_for_family(family_id)
+    return {"family_id": family_id, "learners": [
+        {"id": learner.id, "name": learner.display_name, "progress": store.progress(learner.id)}
+        for learner in learners
+    ]}
 
 
 @app.put("/api/v1/parents/learners/{learner_id}/reward", response_model=RewardSettings)
-def update_reward(learner_id: str, reward: RewardSettings, parent: dict = Depends(require_role("parent"))) -> RewardSettings:
-    _parent_learner(parent, learner_id)
+def update_reward(learner_id: str, reward: RewardSettings, parent: dict = Depends(require_role("parent")),
+                  db: Session = Depends(get_db)) -> RewardSettings:
+    _parent_learner(parent, learner_id, db)
     store.rewards[learner_id] = reward
     return reward
 
