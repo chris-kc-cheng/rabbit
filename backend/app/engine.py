@@ -101,11 +101,14 @@ def load_bank(path: Path | None = None) -> dict[str, Any]:
     return json.loads((path or BANK_PATH).read_text(encoding="utf-8"))
 
 
-def load_banks() -> dict[str, dict[str, Any]]:
+def load_banks(include_drafts: bool = False) -> dict[str, dict[str, Any]]:
     paths = sorted(BANK_DIRECTORY.glob("*.question-bank.json"))
     if BANK_PATH.exists() and BANK_PATH not in paths:
         paths.append(BANK_PATH)
-    banks = [bank for path in paths if (bank := load_bank(path))["publicationStatus"] == "published"]
+    banks = [
+        bank for path in paths
+        if (bank := load_bank(path))["publicationStatus"] == "published" or include_drafts
+    ]
     return {bank["subject"]: bank for bank in banks}
 
 

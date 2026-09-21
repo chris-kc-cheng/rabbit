@@ -20,6 +20,10 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Draft-labelled Discover Canada practice can be exposed to learners, with an
+  admin control that hides all draft banks without changing publication status.
+- [x] Hint use is submitted with each attempt and included in parent evidence;
+  accuracy remains the reward goal while hints remain a positive, separately visible signal.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
 - [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. This pack is separate from the published v2 banks and does not yet feed parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
@@ -32,9 +36,10 @@ working in this repository, not production-ready at population scale.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
-- [~] **Parent experience:** a clearly labelled demo view shows attempts, accuracy,
-  misconception IDs, points, and reward settings. It has no secure parent account.
-- [~] **Rewards:** parents can enable a target and name a present/experience, but
+- [~] **Parent experience:** a clearly labelled family demo shows every child and
+  their attempts, accuracy, hint use, misconception IDs, points, and individual
+  reward settings. It has no secure parent account.
+- [~] **Rewards:** parents can enable an accuracy target and name a present/experience, but
   data is kept only in backend memory and resets on restart.
 - [~] **Progress and exact results:** recent server-side attempts are visible, but
   the report does not yet preserve/display the complete rendered question snapshot.

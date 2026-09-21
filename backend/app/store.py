@@ -23,6 +23,11 @@ class MemoryStore:
         self.sessions: dict[str, SessionRecord] = {}
         self.rewards: dict[str, RewardSettings] = {}
         self.lock = Lock()
+        self.include_drafts = True
+        self.learners = {
+            "demo-learner": {"id": "demo-learner", "name": "Mina"},
+            "demo-learner-2": {"id": "demo-learner-2", "name": "Noah"},
+        }
 
     def progress(self, learner_id: str) -> dict:
         attempts = [
@@ -40,11 +45,21 @@ class MemoryStore:
             "learner_id": learner_id,
             "attempts": len(attempts),
             "correct": correct,
-            "points": correct * 10,
+            "points": sum(attempt.get("points_earned", 10 if attempt["correct"] else 0) for attempt in attempts),
             "accuracy": round(correct / len(attempts), 3) if attempts else 0,
+            "hints_used": sum(attempt.get("hint_used", False) for attempt in attempts),
             "misconceptions": dict(misconceptions),
             "recent_attempts": recent,
             "reward": self.rewards.get(learner_id, RewardSettings()),
+        }
+
+    def family_progress(self) -> dict:
+        return {
+            "family_id": "demo-family",
+            "learners": [
+                {**learner, "progress": self.progress(learner_id)}
+                for learner_id, learner in self.learners.items()
+            ],
         }
 
     @staticmethod

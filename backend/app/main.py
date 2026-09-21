@@ -11,6 +11,7 @@ from .engine import generate_session, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
+    ContentSettings,
     ProgressResponse,
     RewardSettings,
     SessionCreate,
@@ -45,14 +46,15 @@ def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
 @app.get("/api/v1/subjects")
 def subjects() -> list[dict]:
     return [
-        {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"])}
-        for bank in load_banks().values()
+        {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"]),
+         "publication_status": bank["publicationStatus"]}
+        for bank in load_banks(store.include_drafts).values()
     ]
 
 
 @app.post("/api/v1/sessions", response_model=SessionResponse, status_code=201)
 def create_session(request: SessionCreate) -> SessionResponse:
-    bank = load_banks().get(request.subject)
+    bank = load_banks(store.include_drafts).get(request.subject)
     if bank is None:
         raise HTTPException(status_code=400, detail="Unknown subject")
     session_id = secrets.token_urlsafe(12)
@@ -87,6 +89,8 @@ def submit_attempt(request: AttemptCreate) -> AttemptResult:
         "selected_value": choice["value"],
         "correct": correct,
         "misconception_id": choice["misconception"],
+        "hint_used": request.hint_used,
+        "points_earned": 10 if correct else 0,
         "answered_at": store.now(),
     }
     with store.lock:
@@ -106,7 +110,23 @@ def learner_progress(learner_id: str) -> dict:
     return store.progress(learner_id)
 
 
+@app.get("/api/v1/parents/families/demo-family/progress")
+def family_progress() -> dict:
+    return store.family_progress()
+
+
 @app.put("/api/v1/parents/learners/{learner_id}/reward", response_model=RewardSettings)
 def update_reward(learner_id: str, reward: RewardSettings) -> RewardSettings:
     store.rewards[learner_id] = reward
     return reward
+
+
+@app.get("/api/v1/admin/content", response_model=ContentSettings)
+def content_settings() -> ContentSettings:
+    return ContentSettings(include_drafts=store.include_drafts)
+
+
+@app.put("/api/v1/admin/content", response_model=ContentSettings)
+def update_content_settings(settings: ContentSettings) -> ContentSettings:
+    store.include_drafts = settings.include_drafts
+    return settings
