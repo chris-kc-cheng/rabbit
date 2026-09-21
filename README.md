@@ -104,6 +104,12 @@ PYTHONPATH=backend pytest backend/tests
 cd frontend && npm run build
 ```
 
+The backend test fixtures use an isolated in-memory database and override
+`RABBIT_ADMIN_PASSWORD` with the development-only `rabbit-admin` value, so CI
+tests neither require nor consume production environment secrets. The CI workflow
+separately applies every migration to a fresh PostgreSQL service before running
+the test suite.
+
 ## Question content and AI authoring
 
 - Normative schema: [`content/question-template.schema.json`](content/question-template.schema.json)
@@ -129,7 +135,8 @@ refresh-token rotation, and rate limiting remain production requirements.
 Visitors see a public product overview and can use **Try the free demo**. Demo
 attempts are process-local and are not attached to an account or family report.
 Only the fixed prototype demo pack is available without authentication;
-new published question types are private by default until explicitly added to it.
+it includes Math, Trivia, English, and Discover Canada samples. New published
+question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke

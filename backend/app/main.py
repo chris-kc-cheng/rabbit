@@ -17,7 +17,7 @@ from .auth import bearer, decode_token, issue_token, require_role, verify_passwo
 from .demo_pack import DemoAttempt, create_demo_session, grade_demo_attempt
 from .database import get_db
 from .db_models import User
-from .engine import BANK_DIRECTORY, generate_session, load_banks
+from .engine import BANK_DIRECTORY, generate_session, load_bank, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
@@ -61,6 +61,20 @@ def start_demo_pack() -> dict:
 @app.post("/api/v1/demo-pack/attempts")
 def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
     return grade_demo_attempt(attempt)
+
+
+@app.post("/api/v1/demo-pack/worksheet", status_code=200, response_class=StreamingResponse)
+def create_demo_worksheet(request: DemoWorksheetCreate) -> StreamingResponse:
+    """Build the public demo's deterministic worksheet without retaining data."""
+    seed = 20260921
+    bank = load_bank()
+    generated = generate_session(seed, request.count, bank)
+    pdf = build_worksheet_pdf(bank["title"], "mixed-practice", generated, seed)
+    filename = f"rabbit-demo-{request.count}-questions.pdf"
+    return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="{filename}"',
+        "Content-Length": str(len(pdf)),
+    })
 
 
 @app.post("/api/v1/auth/login")
