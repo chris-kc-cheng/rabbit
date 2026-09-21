@@ -181,9 +181,14 @@ def test_parent_can_generate_topic_worksheet_with_answer_key():
 
 
 def test_public_demo_can_generate_a_real_worksheet_without_login():
+    route = next(
+        (route for route in app.routes if getattr(route, "path", None) == "/api/v1/demo-pack/worksheet"),
+        None,
+    )
+    assert route is not None and "POST" in route.methods
     first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
     second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-    assert first.status_code == 200
+    assert first.status_code == 200, first.text
     assert first.headers["content-type"] == "application/pdf"
     assert "rabbit-demo-4-questions.pdf" in first.headers["content-disposition"]
     assert first.content.startswith(b"%PDF-") and first.content == second.content

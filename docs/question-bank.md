@@ -44,6 +44,11 @@ parameterized, adaptive, or part of the published v2 banks. The published math
 bank remains the source of truth for regular learner sessions. The examples still
 need curriculum review before any production publication.
 
+The unauthenticated demo worksheet endpoint generates 1–20 questions from the
+published math bank with a fixed seed. It returns the same printable PDF and
+answer key for the same requested count and does not create a learner session or
+retain attempt data.
+
 ## Required template example
 
 ```json
