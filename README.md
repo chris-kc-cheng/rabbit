@@ -8,7 +8,8 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 
 - Ten parameterized elementary-math templates with deterministic generation.
 - Misconception-based choices, server-side grading, hints, and feedback.
-- JWT login/logout with role-protected learner, parent, and administrator areas.
+- PostgreSQL-backed family and account records with JWT login/logout and
+  role-protected learner, parent, and administrator areas.
 - Parent-managed learners, progress evidence, password resets, reward goals, and
   downloadable topic-based PDF worksheets with answer keys.
 - Administrator parent management and schema-validated JSON question import.
@@ -75,12 +76,14 @@ that old stack before starting the renamed one. With Docker Desktop running, use
 
 ## Run in development mode
 
-Backend:
+Backend (start PostgreSQL first with `docker compose up -d db`):
 
 ```bash
 python -m venv .venv
 . .venv/bin/activate
 pip install -r backend/requirements-dev.txt
+alembic -c backend/alembic.ini upgrade head
+PYTHONPATH=backend python -m app.bootstrap
 PYTHONPATH=backend uvicorn app.main:app --reload
 ```
 
@@ -110,18 +113,18 @@ cd frontend && npm run build
 
 ## Prototype accounts and authentication
 
-The memory-backed prototype creates an `admin` account on process startup. Its
-development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`
-and a long random `RABBIT_JWT_SECRET` in every shared or deployed environment.
-The production Compose project requires both values and refuses to start without
-them. Set both as URL-safe, single-line secrets in the protected GitHub Actions
-`production` environment before deploying.
+The database bootstrap creates an `admin` account after Alembic migrations. Its
+development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`,
+`RABBIT_DATABASE_PASSWORD`, and a long random `RABBIT_JWT_SECRET` in every shared
+or deployed environment. The production Compose project requires all three values
+and refuses to start without them. Set them as URL-safe, single-line secrets in
+the protected GitHub Actions `production` environment before deploying.
 The administrator creates parent accounts, and each parent creates their learner
 accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
 web app returns to login on a rejected/expired token. Logout revokes the token in
-this process and removes it from the browser; password resets invalidate that
-user's issued tokens. Durable identity, persisted revocation, refresh-token
-rotation, rate limiting, and OIDC remain production requirements.
+this process and removes it from the browser; password resets persist in
+PostgreSQL and invalidate that user's issued tokens. OIDC, persisted revocation,
+refresh-token rotation, and rate limiting remain production requirements.
 
 Visitors see a public product overview and can use **Try the free demo**. Demo
 attempts are process-local and are not attached to an account or family report.
@@ -148,16 +151,21 @@ environment secrets:
 - `HOSTINGER_USER`
 - `HOSTINGER_SSH_PORT`
 - `RABBIT_ADMIN_PASSWORD`
+- `RABBIT_DATABASE_PASSWORD`
 - `RABBIT_JWT_SECRET`
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 
-The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
-and port, then passes it to Compose. The optional `RABBIT_PORT` environment
-variable defaults to `8090`; the service
+The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags,
+database password, and port, then passes it to Compose. The optional `RABBIT_PORT`
+environment variable defaults to `8090`; the service
 binds to `127.0.0.1` for an existing TLS reverse proxy. Point Rabbit's reverse
 proxy upstream at `127.0.0.1:8090` unless `RABBIT_PORT` is overridden. The API
 remains private on the Compose network at `api:8000`.
+
+Production Compose stores PostgreSQL data in the `rabbit_postgres` named volume.
+This supplies persistence, not a backup strategy: configure encrypted off-host
+backups and regularly test restoration before storing real family data.
 
 Before the first deployment with the new project name, stop the old
 `rabbit-learning` stack on Hostinger from its deployment directory using

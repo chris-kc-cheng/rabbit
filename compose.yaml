@@ -1,10 +1,35 @@
 name: rabbit
 services:
+  db:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: rabbit
+      POSTGRES_USER: rabbit
+      POSTGRES_PASSWORD: rabbit-local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U rabbit -d rabbit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - rabbit_postgres:/var/lib/postgresql/data
+    ports:
+      - "127.0.0.1:${RABBIT_DATABASE_PORT:-5432}:5432"
+    networks: [rabbit_internal]
   api:
     build:
       context: .
       dockerfile: backend/Dockerfile
     restart: unless-stopped
+    environment:
+      RABBIT_DATABASE_HOST: db
+      RABBIT_DATABASE_NAME: rabbit
+      RABBIT_DATABASE_USER: rabbit
+      RABBIT_DATABASE_PASSWORD: rabbit-local
+    depends_on:
+      db:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/v1/health')"]
       interval: 15s
@@ -27,3 +52,5 @@ services:
 networks:
   rabbit_internal:
     name: rabbit-internal
+volumes:
+  rabbit_postgres:

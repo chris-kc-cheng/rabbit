@@ -16,6 +16,9 @@ from typing import Any
 
 from fastapi import Depends, HTTPException
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.orm import Session
+
+from .database import get_db
 
 
 if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_JWT_SECRET"):
@@ -76,12 +79,15 @@ def decode_token(token: str) -> dict[str, Any]:
         raise HTTPException(401, "Invalid login session") from None
 
 
-def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer)) -> dict:
+def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bearer),
+                 db: Session = Depends(get_db)) -> dict:
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(401, "Please log in")
+    from .repositories import IdentityRepository, user_record
     from .store import store
     claims = decode_token(credentials.credentials)
-    user = store.users.get(claims["sub"])
+    model = IdentityRepository(db).get_by_id(claims["sub"])
+    user = user_record(model) if model is not None else None
     if (user is None or user.get("disabled") or user["role"] != claims["role"]
             or user["token_version"] != claims.get("ver") or claims.get("jti") in store.revoked_tokens):
         raise HTTPException(401, "This login is no longer active")

@@ -12,9 +12,6 @@ client = TestClient(app)
 def setup_function():
     store.sessions.clear(); store.rewards.clear(); store.imported_banks.clear(); store.revoked_tokens.clear()
     store.include_drafts = False
-    for user_id, user in list(store.users.items()):
-        if user["role"] != "admin":
-            store.usernames.pop(user["username"], None); store.users.pop(user_id)
 
 
 def login(username="admin", password="rabbit-admin"):
@@ -61,6 +58,42 @@ def test_role_login_family_isolation_password_reset_and_progress():
     admin, _ = login(); assert client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=admin).status_code == 403
     assert client.put(f"/api/v1/parents/learners/{learner['id']}/password",headers=parent_headers,json={"password":"new-password"}).status_code == 204
     assert client.post("/api/v1/auth/login",json={"username":"learner.one","password":"practice12"}).status_code == 401
+
+
+def test_identity_records_are_relational_and_learner_has_one_family():
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+
+    from app.database import engine
+    from app.db_models import FamilyGuardian, LearnerProfile, User
+
+    parent_headers, _, learner = family()
+    parent = client.get("/api/v1/auth/me", headers=parent_headers).json()
+    with Session(engine) as session:
+        learner_model = session.get(User, learner["id"])
+        profile = session.get(LearnerProfile, learner["id"])
+        guardian = session.scalar(select(FamilyGuardian).where(
+            FamilyGuardian.guardian_user_id == parent["id"]
+        ))
+        assert learner_model is not None and learner_model.family_id == parent["id"]
+        assert profile is not None and profile.family_id == parent["id"]
+        assert guardian is not None and guardian.family_id == parent["id"]
+
+
+def test_duplicate_username_rolls_back_parent_family_creation():
+    from sqlalchemy import func, select
+    from sqlalchemy.orm import Session
+
+    from app.database import engine
+    from app.db_models import Family
+
+    admin, _ = login()
+    request = {"username":"same.parent","password":"welcome12","display_name":"First Parent"}
+    assert client.post("/api/v1/admin/parents", headers=admin, json=request).status_code == 201
+    assert client.post("/api/v1/admin/parents", headers=admin,
+                       json={**request, "display_name":"Second Parent"}).status_code == 409
+    with Session(engine) as session:
+        assert session.scalar(select(func.count()).select_from(Family)) == 1
 
 
 def test_import_pinpoints_schema_path_and_imports_valid_bank():
