@@ -104,9 +104,11 @@ PYTHONPATH=backend pytest backend/tests
 cd frontend && npm run build
 ```
 
-The backend test fixtures override `RABBIT_ADMIN_PASSWORD` with the isolated,
-development-only `rabbit-admin` value, so CI tests neither require nor consume
-production environment secrets.
+The backend test fixtures use an isolated in-memory database and override
+`RABBIT_ADMIN_PASSWORD` with the development-only `rabbit-admin` value, so CI
+tests neither require nor consume production environment secrets. The CI workflow
+separately applies every migration to a fresh PostgreSQL service before running
+the test suite.
 
 ## Question content and AI authoring
 
