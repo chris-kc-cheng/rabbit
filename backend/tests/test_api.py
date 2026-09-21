@@ -76,6 +76,18 @@ def test_import_pinpoints_schema_path_and_imports_valid_bank():
     assert response.status_code==200 and response.json()["templates_imported"]==10
 
 
+def test_public_question_validation_checks_schema_and_generation_without_importing():
+    invalid = client.post("/api/v1/questions/validate", json={"document": {"schemaVersion": 2}})
+    assert invalid.status_code == 422
+    assert invalid.json()["detail"]["errors"][0]["path"] == "$"
+
+    bank = json.loads((Path(__file__).parents[2] / "content/math.question-bank.json").read_text())
+    response = client.post("/api/v1/questions/validate", json={"document": bank})
+    assert response.status_code == 200
+    assert response.json() == {"valid": True, "templates_validated": 10}
+    assert store.imported_banks == {}
+
+
 def test_expired_jwt_is_rejected():
     import app.auth as auth
     headers, _ = login()

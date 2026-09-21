@@ -17,6 +17,11 @@ envelope, an example for every current published or prototype question type,
 and a copyable AI-drafting prompt. The files above remain the authoritative
 contracts whenever the page and source schema differ.
 
+The page also has a public validator for a complete question-bank v2 JSON
+document. It reports JSON paths and suggested fixes for schema failures and runs
+a seeded generation smoke test without importing or retaining the submitted
+document. Signed-in users can always return to Docs from the main navigation.
+
 Schema v2 supports computed `single-select` templates and reusable
 `fact-collection-single-select` templates. Each computed template has bounded parameters,
 structured prompt blocks, a server-side answer expression, and at least three

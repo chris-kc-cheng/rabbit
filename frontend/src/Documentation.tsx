@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { api } from "./api";
+import type { ImportError } from "./types";
 import "./documentation.css";
 
 type Example = { id: string; label: string; status: string; description: string; json: object };
@@ -55,16 +57,42 @@ function CodeBlock({ value, label }: { value: string; label: string }) {
 
 export function Documentation() {
   const [selected, setSelected] = useState(examples[0].id);
+  const [jsonInput, setJsonInput] = useState("");
+  const [validation, setValidation] = useState<{ state: "idle" | "checking" | "valid" | "invalid"; message?: string; errors?: ImportError[] }>({ state: "idle" });
   const example = examples.find(item => item.id === selected) ?? examples[0];
+  const validate = async () => {
+    setValidation({ state: "checking" });
+    let document: object;
+    try {
+      document = JSON.parse(jsonInput);
+    } catch {
+      setValidation({ state: "invalid", message: "This is not valid JSON yet.", errors: [{ path: "$", message: "The JSON could not be parsed.", suggestion: "Check commas, quotation marks, and brackets." }] });
+      return;
+    }
+    try {
+      const result = await api.validateQuestions(document);
+      setValidation({ state: "valid", message: `Valid question bank. ${result.templates_validated} template${result.templates_validated === 1 ? "" : "s"} passed the schema and generation checks.` });
+    } catch (caught) {
+      const error = caught as Error & { details?: ImportError[] };
+      setValidation({ state: "invalid", message: error.message, errors: error.details });
+    }
+  };
+  const loadFile = async (file?: File) => {
+    if (!file) return;
+    setJsonInput(await file.text());
+    setValidation({ state: "idle" });
+  };
   return <main className="docs-page">
     <header className="docs-hero"><div><p className="eyebrow">Question authoring guide</p><h1>Build a question.<br/><em>Keep curiosity safe.</em></h1><p>Use Rabbit’s JSON contracts to create reproducible, accessible questions. Answers and grading metadata always stay on the server.</p></div><div className="docs-version"><span>Current contract</span><strong>Question bank v2</strong><small>JSON Schema 2020-12</small></div></header>
 
-    <nav className="docs-jump" aria-label="Documentation sections"><a href="#definition">Definition</a><a href="#examples">Examples</a><a href="#ai-prompt">AI prompt</a></nav>
+    <nav className="docs-jump" aria-label="Documentation sections"><a href="#definition">Definition</a><a href="#examples">Examples</a><a href="#validator">Validator</a><a href="#ai-prompt">AI prompt</a></nav>
 
     <section className="docs-section" id="definition"><div className="docs-section-copy"><p className="docs-kicker">01 · Definition</p><h2>A small, explicit JSON contract</h2><p>A bank is a versioned envelope around immutable templates. The normative contract supports computed and fact-collection single-select questions. Experimental interaction types use the separate demo-pack contract.</p><ul><li><strong>Reproducible</strong><span>Template version, generator version, and seed identify a generated question.</span></li><li><strong>Private by design</strong><span>Public sessions omit answers and misconception metadata until grading.</span></li><li><strong>Safe to evaluate</strong><span>Expressions use Rabbit’s arithmetic DSL—never <code>eval</code> or authored scripts.</span></li></ul></div><CodeBlock label="Bank envelope · JSON" value={JSON.stringify(schemaDefinition, null, 2)} /></section>
 
     <section className="docs-examples" id="examples"><div className="docs-title-row"><div><p className="docs-kicker">02 · Examples</p><h2>One example for every question type</h2></div><p>Published types follow the normative v2 schema. Prototype types demonstrate the planned interaction contract and still require review before publication.</p></div><div className="docs-example-layout"><div className="docs-type-list" role="tablist" aria-label="Question types">{examples.map(item => <button key={item.id} type="button" role="tab" aria-selected={selected === item.id} className={selected === item.id ? "active" : ""} onClick={() => setSelected(item.id)}><span>{item.label}</span><small>{item.status}</small></button>)}</div><article className="docs-example-card"><div className="docs-example-head"><div><span className={example.status === "Prototype" ? "prototype" : "published"}>{example.status}</span><h3>{example.label}</h3><p>{example.description}</p></div><span className="json-mark" aria-hidden="true">{'{ }'}</span></div><CodeBlock label={`${example.id}.json`} value={JSON.stringify(example.json, null, 2)} /></article></div></section>
 
-    <section className="docs-ai" id="ai-prompt"><div className="docs-ai-copy"><p className="docs-kicker">03 · AI-assisted draft</p><h2>Start with a careful prompt</h2><p>Attach the complete normative schema before sending this prompt. Treat every response as an untrusted draft: validate the JSON, property-test generated choices, and require human curriculum review.</p><div className="docs-callout"><strong>Human review is required</strong><span>Check correctness, age fit, parameter extremes, accessibility, source quality, and supportive feedback before publishing.</span></div></div><CodeBlock label="Sample authoring prompt · text" value={aiPrompt} /></section>
+    <section className="docs-validator" id="validator"><div className="docs-validator-copy"><p className="docs-kicker">03 · Validate your JSON</p><h2>Test before you publish</h2><p>Paste or upload a complete question-bank v2 document. Rabbit checks it against the normative JSON Schema and runs a seeded generation test. The document is tested only—it is not imported or retained.</p><label className="docs-file">Upload a JSON file<input type="file" accept="application/json,.json" onChange={event => loadFile(event.target.files?.[0])} /></label></div><div className="docs-validator-tool"><label htmlFor="question-json">Question-bank JSON</label><textarea id="question-json" value={jsonInput} onChange={event => { setJsonInput(event.target.value); setValidation({ state: "idle" }); }} placeholder={'{\n  "schemaVersion": 2,\n  ...\n}'} spellCheck={false} /><button className="primary" type="button" onClick={validate} disabled={!jsonInput.trim() || validation.state === "checking"}>{validation.state === "checking" ? "Checking…" : "Test JSON"}</button><div className={`docs-validation-result ${validation.state}`} aria-live="polite">{validation.message && <strong>{validation.message}</strong>}{validation.errors?.map((error, index) => <div key={`${error.path}-${index}`}><code>{error.path}</code><span>{error.message}</span><small>{error.suggestion}</small></div>)}</div></div></section>
+
+    <section className="docs-ai" id="ai-prompt"><div className="docs-ai-copy"><p className="docs-kicker">04 · AI-assisted draft</p><h2>Start with a careful prompt</h2><p>Attach the complete normative schema before sending this prompt. Treat every response as an untrusted draft: validate the JSON, property-test generated choices, and require human curriculum review.</p><div className="docs-callout"><strong>Human review is required</strong><span>Check correctness, age fit, parameter extremes, accessibility, source quality, and supportive feedback before publishing.</span></div></div><CodeBlock label="Sample authoring prompt · text" value={aiPrompt} /></section>
   </main>;
 }
