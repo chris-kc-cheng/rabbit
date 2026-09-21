@@ -18,6 +18,7 @@ from .models import (
     AttemptCreate,
     AttemptResult,
     ContentSettings,
+    DemoWorksheetCreate,
     LearnerCreate,
     LoginRequest,
     ParentCreate,
@@ -54,6 +55,21 @@ def start_demo_pack() -> dict:
 @app.post("/api/v1/demo-pack/attempts")
 def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
     return grade_demo_attempt(attempt)
+
+
+@app.post("/api/v1/demo-pack/worksheet")
+def create_demo_worksheet(request: DemoWorksheetCreate) -> StreamingResponse:
+    """Return a real, safe worksheet from a fixed published demo topic."""
+    bank = load_banks()["math.elementary"]
+    topic = bank["templates"][0]["skill"]
+    templates = [template for template in bank["templates"] if template["skill"] == topic]
+    seed = 20260921
+    generated = generate_session(seed, request.count, {**bank, "templates": templates})
+    pdf = build_worksheet_pdf(bank["title"], topic, generated, seed)
+    return StreamingResponse(BytesIO(pdf), media_type="application/pdf", headers={
+        "Content-Disposition": f'attachment; filename="rabbit-demo-{request.count}-questions.pdf"',
+        "Content-Length": str(len(pdf)),
+    })
 
 
 def public_user(user: dict) -> dict:
