@@ -102,6 +102,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 [data-theme="dark"] .demo-page { --pack-soft: #432e29; }
 [data-theme="dark"] .demo-trivia { --pack-soft: #34304c; }
 [data-theme="dark"] .demo-english { --pack-soft: #203d37; }
+[data-theme="dark"] .demo-canadian-citizenship { --pack-soft: #472b30; }
 [data-theme="dark"] .demo-choices button,
 [data-theme="dark"] .word-tile,
 [data-theme="dark"] .docs-version,

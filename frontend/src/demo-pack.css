@@ -1,6 +1,7 @@
 .demo-page { --pack-accent: #ad493d; --pack-soft: #fff0e9; max-width: 1170px; margin: auto; padding: 42px 24px 80px; }
 .demo-trivia { --pack-accent: #584c9e; --pack-soft: #f0edff; }
 .demo-english { --pack-accent: #237a68; --pack-soft: #e7f5ec; }
+.demo-canadian-citizenship { --pack-accent: #a13b45; --pack-soft: #fcebed; }
 .demo-intro { display: flex; align-items: end; justify-content: space-between; gap: 30px; }
 .demo-intro h1 { margin: 0; font-size: clamp(30px, 4vw, 48px); letter-spacing: -.055em; line-height: 1.1; }
 .demo-intro>p:last-child { color: var(--muted); max-width: 620px; line-height: 1.55; }
@@ -8,7 +9,7 @@
 .experience-switch { flex: none; display: flex; padding: 5px; border-radius: 14px; background: var(--nav-bg); }
 .experience-switch button { border: 0; border-radius: 10px; padding: 10px 15px; color: var(--muted); background: transparent; font-weight: 800; cursor: pointer; }
 .experience-switch button.active { color: var(--purple); background: var(--paper); box-shadow: 0 3px 12px var(--shadow); }
-.subject-switch { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 30px 0; }
+.subject-switch { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 30px 0; }
 .subject-switch button { text-align: left; border: 2px solid var(--line); background: var(--paper); border-radius: 18px; padding: 18px 20px; cursor: pointer; display: grid; gap: 5px; }
 .subject-switch button.active { border-color: var(--pack-accent); background: var(--pack-soft); }
 .subject-switch strong { font-size: 18px; letter-spacing: -.03em; }
