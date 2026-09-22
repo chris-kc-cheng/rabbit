@@ -182,3 +182,18 @@ segments. v2 does not accept raw SVG, arbitrary shapes, scripts, coordinates, or
 colours. The Docs page includes sliders that update this example immediately.
 The exact schema accepted by the validator can also be downloaded from
 `GET /api/v1/questions/schema` as `application/schema+json`.
+
+
+## Self-documenting field guides
+
+The Docs page shows a responsive tree-table immediately below both visible JSON
+examples. The bank table explains each top-level path, whether it is required,
+its accepted values, and its product meaning. The question table changes with
+the selected type: computed templates, fact collections, and fixed-pack
+prototypes each receive the relevant field definitions. On narrow screens each
+row becomes a labelled card rather than requiring horizontal scrolling.
+
+The Discover Canada prompt is also self-contained. The page fetches the exact
+live schema from `GET /api/v1/questions/schema`, appends it inside the prompt,
+and enables Copy only after that succeeds. Authors paste official excerpts into
+the marked block; they do not need to manage a separate schema attachment.

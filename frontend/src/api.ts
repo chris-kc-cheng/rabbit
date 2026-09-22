@@ -69,6 +69,7 @@ export const api = {
   createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
+  getQuestionSchema: () => request<object>("/api/v1/questions/schema"),
   validateQuestions: (document: object) => request<{ valid: true; templates_validated: number }>("/api/v1/questions/validate", { method: "POST", body: JSON.stringify({ document }) }),
   getContentSettings: () => request<{ include_drafts: boolean }>("/api/v1/admin/content"),
   saveContentSettings: (includeDrafts: boolean) => request<{ include_drafts: boolean }>("/api/v1/admin/content", {

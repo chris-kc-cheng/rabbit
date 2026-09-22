@@ -52,18 +52,19 @@ the containing bank. Never ask the model to invent missing facts or citations.
 
 ## Complete Discover Canada prompt
 
-Attach `content/question-template.schema.json` and the exact relevant excerpts
-from the Government of Canada publication before using this prompt. Replace the
-angle-bracketed inputs. This asks for a complete bank document, so the JSON can
-be pasted directly into Rabbit's public validator.
+The in-app Docs page automatically appends the complete live JSON Schema to this
+prompt, so no attachment is required. Paste the exact relevant Discover Canada
+excerpts into the marked block and replace the angle-bracketed inputs. This asks
+for a complete bank document, so the response can be pasted directly into
+Rabbit's public validator.
 
 ```text
 You are a careful curriculum-content researcher drafting a Canadian citizenship
 question bank for Rabbit, for independent learners aged 10 and above.
 
 INPUTS
-1. The attached rabbit-question-bank-v2.schema.json (the sole structural contract).
-2. Excerpts supplied by me from the Government of Canada publication Discover Canada.
+1. The Rabbit JSON Schema pasted at the end of this prompt (the sole structural contract).
+2. Discover Canada excerpts pasted after <DISCOVER_CANADA_EXCERPTS>.
 
 TASK
 Create one COMPLETE question-bank v2 JSON document, not a lone template. Set
@@ -95,7 +96,16 @@ QUESTION RULES
 OUTPUT RULES
 Return strict JSON only: no Markdown fences, comments, trailing commas,
 citations outside the source object, or extra prose. Do not invent fields outside
-the attached schema. Before responding, verify every required field, stable-ID
+the pasted schema. Before responding, verify every required field, stable-ID
 pattern, length constraint, distinct year, and interpolation path. This remains
 an unreviewed draft; only a human may mark it reviewed or published.
+
+<DISCOVER_CANADA_EXCERPTS>
+Paste the exact official excerpts here.
+</DISCOVER_CANADA_EXCERPTS>
+
+<RABBIT_QUESTION_BANK_V2_SCHEMA>
+Paste the complete content/question-template.schema.json here. The in-app Copy
+button inserts the live schema automatically.
+</RABBIT_QUESTION_BANK_V2_SCHEMA>
 ```
