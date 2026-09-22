@@ -28,13 +28,29 @@ export function AdminView() {
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]; if (!file) return;
     setErrors([]);
+    setNotice("");
+    let document: object;
     try {
-      const document = JSON.parse(await file.text());
+      const parsed: unknown = JSON.parse(await file.text());
+      if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") {
+        setErrors([{ path: "$", message: "The top-level JSON value must be an object.", suggestion: "Upload a complete question-bank object containing schemaVersion, subject, and templates." }]);
+        event.target.value = "";
+        return;
+      }
+      document = parsed;
+    } catch {
+      setErrors([{ path: "$", message: "The file is not valid JSON.", suggestion: "Check commas, quotes, and brackets, then try again." }]);
+      event.target.value = "";
+      return;
+    }
+    try {
       const result = await api.importQuestions(document);
       setNotice(`Imported ${result.templates_imported} templates for ${result.subject}.`);
     } catch (caught) {
-      setNotice(caught instanceof Error ? caught.message : "Import failed");
-      setErrors((caught as Error & { details?: ImportError[] }).details ?? [{ path: "$", message: "The file is not valid JSON.", suggestion: "Check commas, quotes, and brackets, then try again." }]);
+      const error = caught as Error & { details?: ImportError[] };
+      const message = caught instanceof Error ? caught.message : "Import failed";
+      setNotice(message);
+      setErrors(error.details ?? [{ path: "$", message, suggestion: "Resolve the server-reported import conflict or validation problem, then upload the bank again." }]);
     }
     event.target.value = "";
   };
