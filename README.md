@@ -174,7 +174,9 @@ The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
 and database credentials, then passes it to Compose. Production Compose attaches
 the web container to the external `proxy` network with the `rabbit-web` alias; use
 `reverse_proxy rabbit-web:8080` in Caddy. No Rabbit port is published on the
-host. The API remains private on Rabbit's internal Compose network at `api:8000`.
+host. Nginx passes Caddy's original `X-Forwarded-Proto` value to the API so an
+HTTPS request remains identifiable as HTTPS across both proxy hops. The API
+remains private on Rabbit's internal Compose network at `api:8000`.
 
 Production Compose stores PostgreSQL data in the `rabbit_postgres` named volume.
 This supplies persistence, not a backup strategy: configure encrypted off-host
