@@ -44,12 +44,21 @@ export type AttemptHistoryItem = {
   time_spent_ms: number;
   question: Question;
 };
-export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null };
+export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean };
 export type AuthSession = { access_token: string; expires_at: number; user: User };
 export type FamilyLearner = User & { progress: Progress };
 export type ImportError = { path: string; message: string; suggestion: string };
 export type FamilyProgress = { family_id: string; learners: Array<{ id: string; name: string; progress: Progress }> };
 export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published" };
+export type QuestionBankAdmin = {
+  subject: string;
+  title: string;
+  template_count: number;
+  publication_status: "draft" | "published";
+  source: "built-in" | "imported";
+  replaces_builtin: boolean;
+  document: { generatorVersion: string; templates: Array<{ id: string; skill: string; difficulty: number; type: string }> } & Record<string, unknown>;
+};
 export type WorksheetTopic = { subject: string; subject_title: string; id: string; title: string };
 
 export type DemoSubject = "math" | "trivia" | "english" | "canadian-citizenship";

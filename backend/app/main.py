@@ -25,6 +25,7 @@ from .models import (
     LearnerCreate,
     LoginRequest,
     ParentCreate,
+    ManagedUserUpdate,
     PasswordRequest,
     ProgressResponse,
     QuestionImport,
@@ -119,6 +120,21 @@ def list_managed_users(_: dict = Depends(require_role("admin")), db: Session = D
     return [public_user(user) for user in IdentityRepository(db).list_managed_users()]
 
 
+@app.put("/api/v1/admin/users/{user_id}")
+def update_managed_user(user_id: str, request: ManagedUserUpdate, _: dict = Depends(require_role("admin")),
+                        db: Session = Depends(get_db)) -> dict:
+    repository = IdentityRepository(db)
+    user = repository.get_by_id(user_id)
+    if user is None or user.role not in {"parent", "learner"}:
+        raise HTTPException(404, "Parent or learner not found")
+    try:
+        return public_user(repository.update_managed_user(
+            user, request.username, request.display_name, request.disabled
+        ))
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from None
+
+
 @app.post("/api/v1/admin/parents", status_code=201)
 def create_parent(request: ParentCreate, _: dict = Depends(require_role("admin")),
                   db: Session = Depends(get_db)) -> dict:
@@ -204,13 +220,57 @@ def import_questions(request: QuestionImport, admin: dict = Depends(require_role
         raise HTTPException(422, {"message": "Question bank does not match the v2 schema", "errors": errors})
     subject = request.document["subject"]
     repository = ContentRepository(db)
-    if subject in load_banks() or subject in repository.banks():
-        raise HTTPException(409, "A bank with this subject is already loaded; published content is immutable")
+    existing = repository.banks().get(subject)
+    if existing is not None:
+        if existing["publicationStatus"] == "published":
+            raise HTTPException(409, "A published bank with this subject already exists and cannot be changed")
+        if request.document["publicationStatus"] != "draft":
+            raise HTTPException(409, "Review the existing draft before publishing it from the curriculum panel")
+        repository.replace_draft(subject, request.document, admin["id"])
+        return {"subject": subject, "templates_imported": len(request.document["templates"]), "status": "replaced"}
+    built_in = load_banks(True).get(subject)
+    if built_in is not None:
+        if built_in["publicationStatus"] == "published":
+            raise HTTPException(409, "This subject is built-in and published, so it cannot be replaced")
+        if request.document["publicationStatus"] != "draft":
+            raise HTTPException(409, "Import this built-in subject as a draft, then publish it after review")
     try:
         repository.import_bank(request.document, admin["id"])
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
     return {"subject": subject, "templates_imported": len(request.document["templates"]), "status": "imported"}
+
+
+@app.get("/api/v1/admin/question-banks")
+def admin_question_banks(_: dict = Depends(require_role("admin")), db: Session = Depends(get_db)) -> list[dict]:
+    imported = ContentRepository(db).banks()
+    records = []
+    built_in = load_banks(True)
+    for subject, bank in {**built_in, **imported}.items():
+        records.append({"subject": subject, "title": bank["title"], "publication_status": bank["publicationStatus"],
+                        "template_count": len(bank["templates"]), "source": "imported" if subject in imported else "built-in",
+                        "replaces_builtin": subject in imported and subject in built_in,
+                        "document": bank})
+    return sorted(records, key=lambda item: (item["title"].casefold(), item["subject"]))
+
+
+@app.post("/api/v1/admin/question-banks/{subject}/publish")
+def publish_question_bank(subject: str, _: dict = Depends(require_role("admin")),
+                          db: Session = Depends(get_db)) -> dict:
+    try:
+        bank = ContentRepository(db).publish_draft(subject)
+    except ValueError as error:
+        raise HTTPException(404 if "not found" in str(error) else 409, str(error)) from None
+    return {"subject": subject, "publication_status": bank["publicationStatus"]}
+
+
+@app.delete("/api/v1/admin/question-banks/{subject}", status_code=204)
+def delete_question_bank(subject: str, _: dict = Depends(require_role("admin")),
+                         db: Session = Depends(get_db)) -> None:
+    try:
+        ContentRepository(db).delete_draft(subject)
+    except ValueError as error:
+        raise HTTPException(404 if "not found" in str(error) else 409, str(error)) from None
 
 
 @app.get("/api/v1/subjects")

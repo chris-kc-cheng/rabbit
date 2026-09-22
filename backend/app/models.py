@@ -87,6 +87,12 @@ class ParentCreate(LoginRequest):
     display_name: str = Field(min_length=1, max_length=80)
 
 
+class ManagedUserUpdate(BaseModel):
+    display_name: str = Field(min_length=1, max_length=80)
+    username: str = Field(min_length=3, max_length=80)
+    disabled: bool
+
+
 class LearnerCreate(PasswordRequest):
     username: str = Field(min_length=3, max_length=80)
     display_name: str = Field(min_length=1, max_length=80)

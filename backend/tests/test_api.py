@@ -135,6 +135,56 @@ def test_import_pinpoints_schema_path_and_imports_valid_bank():
     assert response.status_code==200 and response.json()["templates_imported"]==10
 
 
+def test_admin_can_replace_then_publish_a_draft_but_published_bank_is_immutable():
+    headers, _ = login()
+    bank = json.loads((Path(__file__).parents[2] / "content/math.question-bank.json").read_text())
+    bank.update(subject="math.review", title="Review Math", publicationStatus="draft")
+    assert client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank}).json()["status"] == "imported"
+
+    bank["title"] = "Revised Review Math"
+    replaced = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert replaced.status_code == 200 and replaced.json()["status"] == "replaced"
+    listed = client.get("/api/v1/admin/question-banks", headers=headers).json()
+    record = next(item for item in listed if item["subject"] == "math.review")
+    assert record["title"] == "Revised Review Math" and record["source"] == "imported"
+
+    published = client.post("/api/v1/admin/question-banks/math.review/publish", headers=headers)
+    assert published.json()["publication_status"] == "published"
+    assert client.delete("/api/v1/admin/question-banks/math.review", headers=headers).status_code == 409
+    conflict = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert conflict.status_code == 409 and "published" in conflict.json()["detail"]
+
+
+def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():
+    headers, _ = login()
+    bank = json.loads((Path(__file__).parents[2] / "content/canadian-citizenship.question-bank.json").read_text())
+
+    imported = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert imported.status_code == 200 and imported.json()["status"] == "imported"
+    listed = client.get("/api/v1/admin/question-banks", headers=headers).json()
+    override = next(item for item in listed if item["subject"] == bank["subject"])
+    assert override["source"] == "imported" and override["replaces_builtin"] is True
+
+    assert client.delete(f"/api/v1/admin/question-banks/{bank['subject']}", headers=headers).status_code == 204
+    restored = client.get("/api/v1/admin/question-banks", headers=headers).json()
+    baseline = next(item for item in restored if item["subject"] == bank["subject"])
+    assert baseline["source"] == "built-in" and baseline["replaces_builtin"] is False
+
+    reimported = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert reimported.status_code == 200 and reimported.json()["status"] == "imported"
+
+
+def test_admin_can_edit_and_pause_managed_user():
+    headers, _ = login()
+    created = client.post("/api/v1/admin/parents", headers=headers,
+                          json={"username": "managed.parent", "password": "welcome12", "display_name": "Managed"}).json()
+    response = client.put(f"/api/v1/admin/users/{created['id']}", headers=headers,
+                          json={"username": "updated.parent", "display_name": "Updated Parent", "disabled": True})
+    assert response.status_code == 200
+    assert response.json()["display_name"] == "Updated Parent" and response.json()["disabled"] is True
+    assert client.post("/api/v1/auth/login", json={"username": "updated.parent", "password": "welcome12"}).status_code == 401
+
+
 def test_public_question_validation_checks_schema_and_generation_without_importing():
     invalid = client.post("/api/v1/questions/validate", json={"document": {"schemaVersion": 2}})
     assert invalid.status_code == 422
