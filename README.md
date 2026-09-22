@@ -163,12 +163,20 @@ environment secrets:
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 
-The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags,
-database password, and port, then passes it to Compose. The optional `RABBIT_PORT`
-environment variable defaults to `8090`; the service
-binds to `127.0.0.1` for an existing TLS reverse proxy. Point Rabbit's reverse
-proxy upstream at `127.0.0.1:8090` unless `RABBIT_PORT` is overridden. The API
-remains private on the Compose network at `api:8000`.
+Before the first production deployment, create the shared external network used
+by the dedicated Caddy container:
+
+```bash
+docker network create proxy
+```
+
+The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
+and database credentials, then passes it to Compose. Production Compose attaches
+the web container to the external `proxy` network with the `rabbit-web` alias; use
+`reverse_proxy rabbit-web:8080` in Caddy. No Rabbit port is published on the
+host. Nginx passes Caddy's original `X-Forwarded-Proto` value to the API so an
+HTTPS request remains identifiable as HTTPS across both proxy hops. The API
+remains private on Rabbit's internal Compose network at `api:8000`.
 
 Production Compose stores PostgreSQL data in the `rabbit_postgres` named volume.
 This supplies persistence, not a backup strategy: configure encrypted off-host
@@ -178,8 +186,8 @@ Before the first deployment with the new project name, stop the old
 `rabbit-learning` stack on Hostinger from its deployment directory using
 `docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml down`
 (use the old deployment's existing env-file name for this one-time command).
-Then deploy the new workflow. If the reverse proxy currently points at port
-`8080`, update its upstream to `127.0.0.1:8090`. Set `RABBIT_PORT` in
-`~/rabbit/.env.prod` if the proxy uses a different port.
+Then deploy the new workflow. Ensure the dedicated Caddy container is also
+attached to the external `proxy` network before configuring its upstream as
+`rabbit-web:8080`.
 For later checks on the VPS, run `cd ~/rabbit` and use
 `docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml ps`.
