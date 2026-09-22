@@ -21,10 +21,9 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    environment:
-      RABBIT_ADMIN_PASSWORD: ${RABBIT_ADMIN_PASSWORD:?Set RABBIT_ADMIN_PASSWORD}
     restart: unless-stopped
     environment:
+      RABBIT_ADMIN_PASSWORD: ${RABBIT_ADMIN_PASSWORD:?Set RABBIT_ADMIN_PASSWORD}
       RABBIT_DATABASE_HOST: db
       RABBIT_DATABASE_NAME: rabbit
       RABBIT_DATABASE_USER: rabbit

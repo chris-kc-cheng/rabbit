@@ -8,7 +8,8 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 
 - Ten parameterized elementary-math templates with deterministic generation.
 - Misconception-based choices, server-side grading, hints, and feedback.
-- PostgreSQL-backed family and account records with JWT login/logout and
+- PostgreSQL-backed accounts, practice sessions, attempts, rewards, imported
+  content, application settings, demo activity, and JWT revocations, with
   role-protected learner, parent, and administrator areas.
 - Parent-managed learners, progress evidence, password resets, reward goals, and
   downloadable topic-based PDF worksheets with answer keys.
@@ -127,20 +128,21 @@ and refuses to start without them. Set them as URL-safe, single-line secrets in
 the protected GitHub Actions `production` environment before deploying.
 The administrator creates parent accounts, and each parent creates their learner
 accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
-web app returns to login on a rejected/expired token. Logout revokes the token in
-this process and removes it from the browser; password resets persist in
-PostgreSQL and invalidate that user's issued tokens. OIDC, persisted revocation,
-refresh-token rotation, and rate limiting remain production requirements.
+web app returns to login on a rejected/expired token. Logout durably revokes the
+token and removes it from the browser; password resets persist in PostgreSQL and
+invalidate that user's issued tokens. OIDC, refresh-token rotation, and rate
+limiting remain production requirements.
 
 Visitors see a public product overview and can use **Try the free demo**. Demo
-attempts are process-local and are not attached to an account or family report.
+attempts persist for idempotent retries but are not attached to an account or
+family report; retention cleanup remains to be implemented.
 Only the fixed prototype demo pack is available without authentication;
 it includes Math, Trivia, English, and Discover Canada samples. New published
 question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke
-test. Valid imports remain process-local and published banks are immutable.
+test. Valid imports persist in PostgreSQL and published banks are immutable.
 The public **Docs** page remains available before and after login and provides a
 non-publishing validator with the same schema and generation checks.
 

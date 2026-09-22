@@ -10,7 +10,11 @@ os.environ.setdefault("RABBIT_DATABASE_URL", "sqlite+pysqlite:///:memory:")
 os.environ["RABBIT_ADMIN_PASSWORD"] = "rabbit-admin"
 
 from app.database import Base, engine  # noqa: E402
-from app.db_models import Family, FamilyGuardian, LearnerProfile, User  # noqa: E402
+from app.db_models import (  # noqa: E402
+    ApplicationSetting, Attempt, DemoAttemptRecord, DemoSession, Family, FamilyGuardian,
+    ImportedQuestionBank, LearnerProfile, PracticeSession, RevokedToken, RewardSetting,
+    SessionQuestion, User,
+)
 from app.repositories import ensure_admin  # noqa: E402
 
 
@@ -20,6 +24,9 @@ Base.metadata.create_all(engine)
 @pytest.fixture(autouse=True)
 def reset_identity_database():
     with Session(engine) as session:
+        for model in (DemoAttemptRecord, DemoSession, RevokedToken, Attempt, SessionQuestion,
+                      PracticeSession, RewardSetting, ImportedQuestionBank, ApplicationSetting):
+            session.execute(delete(model))
         session.execute(delete(LearnerProfile))
         session.execute(delete(FamilyGuardian))
         session.execute(delete(User))
