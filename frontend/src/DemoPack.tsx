@@ -73,8 +73,8 @@ export function DemoPack() {
     {experience === "parent" ? <DemoParentView /> : <>
     <div className="subject-switch" role="tablist" aria-label="Demo subjects">{subjects.map(item => <button key={item.id} type="button" role="tab" aria-selected={subject === item.id} className={subject === item.id ? "active" : ""} onClick={() => selectSubject(item.id)}><strong>{item.name}</strong><small>{item.subtitle}</small></button>)}</div>
     {!session ? <div className="card demo-loading">{error || "Preparing the activities…"}</div> : question && <div className="demo-layout">
-      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span>{index + 1}</span>{item.title}{results[item.id] && <b aria-label="completed">✓</b>}</button>)}</nav>
-      <article className="card demo-card"><div className="demo-card-head"><p className="eyebrow">{subject} · {question.kind.replace("-", " ")}</p><h2>{question.title}</h2><p>{question.instruction}</p></div>
+      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span>{index + 1}</span>{item.title}{results[item.id] && <b className={results[item.id].correct ? "correct" : "wrong"} aria-label={results[item.id].correct ? "correct" : "needs another look"}>{results[item.id].correct ? "✓" : "↗"}</b>}</button>)}</nav>
+      <article className={`card demo-card ${result ? (result.correct ? "result-correct" : "result-wrong") : ""}`}><div className="demo-card-head"><p className="eyebrow">{subject} · {question.kind.replace("-", " ")}</p><h2>{question.title}</h2><p>{question.instruction}</p></div>
         {question.visual === "triangle" && <Triangle />}
         {question.visual === "prism" && <Prism />}
         {question.latex && <MathBlock value={question.latex} />}

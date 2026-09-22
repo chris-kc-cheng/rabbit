@@ -80,6 +80,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
   --line: #554842;
   --green: #72d5b5;
   --green-soft: #173c34;
+  --red: #ff918c;
+  --red-soft: #492a29;
   --amber: #f4bd63;
   --paper: #282321;
   --bg: #1b1817;
