@@ -49,7 +49,9 @@ working in this repository, not production-ready at population scale.
   visibility. JSON imports retain path-specific schema errors and a generation
   smoke test. Built-in drafts can be tested through removable database overrides
   (removing one restores the bundled baseline), while published banks remain
-  immutable.
+  immutable. The curriculum inspector distinguishes authored templates from
+  their fact/variant/parameter generation space, exposes exact stored JSON, and
+  produces seeded server-side question previews.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.

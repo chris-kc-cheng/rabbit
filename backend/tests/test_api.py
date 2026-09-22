@@ -164,6 +164,24 @@ def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():
     listed = client.get("/api/v1/admin/question-banks", headers=headers).json()
     override = next(item for item in listed if item["subject"] == bank["subject"])
     assert override["source"] == "imported" and override["replaces_builtin"] is True
+    assert override["template_count"] == 1
+    assert override["template_summaries"] == [{
+        "id": "canada.history.milestones", "version": 1,
+        "type": "fact-collection-single-select", "skill": "canada.history.milestones",
+        "difficulty": None, "fact_count": 6, "variant_count": 1, "generation_space": 6,
+    }]
+
+    first_preview = client.post(
+        f"/api/v1/admin/question-banks/{bank['subject']}/preview", headers=headers,
+        json={"seed": 8675309, "count": 1},
+    )
+    second_preview = client.post(
+        f"/api/v1/admin/question-banks/{bank['subject']}/preview", headers=headers,
+        json={"seed": 8675309, "count": 1},
+    )
+    assert first_preview.status_code == 200 and first_preview.json() == second_preview.json()
+    question = first_preview.json()["questions"][0]
+    assert "correct_choice_id" not in question and "misconception" not in json.dumps(question)
 
     assert client.delete(f"/api/v1/admin/question-banks/{bank['subject']}", headers=headers).status_code == 204
     restored = client.get("/api/v1/admin/question-banks", headers=headers).json()

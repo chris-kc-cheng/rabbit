@@ -1,6 +1,8 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { api } from "./api";
-import type { ImportError, QuestionBankAdmin, User } from "./types";
+import { FractionBar } from "./FractionBar";
+import { MathBlock } from "./MathBlock";
+import type { AdminBankPreview, ImportError, QuestionBankAdmin, User } from "./types";
 
 type Section = "overview" | "curriculum" | "users" | "settings";
 
@@ -10,6 +12,8 @@ export function AdminView() {
   const [banks, setBanks] = useState<QuestionBankAdmin[]>([]);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [preview, setPreview] = useState<AdminBankPreview | null>(null);
+  const [previewing, setPreviewing] = useState(false);
   const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<ImportError[]>([]);
   const [includeDrafts, setIncludeDrafts] = useState(false);
@@ -27,6 +31,7 @@ export function AdminView() {
   const learnerCount = accounts.filter(user => user.role === "learner").length;
   const draftCount = banks.filter(bank => bank.publication_status === "draft").length;
   const skills = useMemo(() => selectedBank ? new Set(selectedBank.document.templates.map(template => template.skill)).size : 0, [selectedBank]);
+  useEffect(() => setPreview(null), [selectedSubject]);
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); const form = event.currentTarget; const data = new FormData(form);
@@ -80,6 +85,12 @@ export function AdminView() {
     try { const value = await api.saveContentSettings(enabled); setIncludeDrafts(value.include_drafts); setNotice(value.include_drafts ? "Draft subjects are visible to learners." : "Draft subjects are hidden from learners."); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not update draft visibility"); }
   };
+  const generatePreview = async (bank: QuestionBankAdmin) => {
+    setPreviewing(true);
+    try { setPreview(await api.previewQuestionBank(bank.subject)); }
+    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not generate a preview"); }
+    finally { setPreviewing(false); }
+  };
 
   return <main className="admin-workspace">
     <aside className="admin-sidebar"><div><p className="eyebrow">Rabbit admin</p><h1>Control room</h1></div><nav aria-label="Administration sections">
@@ -92,7 +103,18 @@ export function AdminView() {
 
       {section === "overview" && <><section className="admin-stats"><article><span>Curriculum banks</span><strong>{banks.length}</strong><small>{draftCount} awaiting review</small></article><article><span>Parent accounts</span><strong>{parentCount}</strong><small>{accounts.filter(user => user.role === "parent" && !user.disabled).length} active</small></article><article><span>Learners</span><strong>{learnerCount}</strong><small>Across registered families</small></article></section><section className="admin-card"><div className="card-heading"><div><p className="eyebrow">Review queue</p><h2>Draft curriculum</h2></div><button className="quiet" onClick={() => setSection("curriculum")}>View library →</button></div>{banks.filter(bank => bank.publication_status === "draft").map(bank => <button className="review-row" key={bank.subject} onClick={() => { setSelectedSubject(bank.subject); setSection("curriculum"); }}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} templates · {bank.subject}</small></span><i>Review</i></button>)}{draftCount === 0 && <p className="empty">No curriculum is waiting for review.</p>}</section></>}
 
-      {section === "curriculum" && <div className="library-layout"><section className="admin-card bank-list"><div className="list-title"><h2>Question banks</h2><span>{banks.length}</span></div>{banks.map(bank => <button key={bank.subject} className={selectedSubject === bank.subject ? "selected" : ""} onClick={() => setSelectedSubject(bank.subject)}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} templates</small></span><i className={`status ${bank.publication_status}`}>{bank.publication_status}</i></button>)}</section>{selectedBank && <section className="admin-card bank-detail"><header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i></header><div className="bank-facts"><div><span>Templates</span><strong>{selectedBank.template_count}</strong></div><div><span>Skills</span><strong>{skills}</strong></div><div><span>Generator</span><strong>{selectedBank.document.generatorVersion}</strong></div></div><div className="template-table"><div className="table-head"><span>Template</span><span>Skill</span><span>Level</span></div>{selectedBank.document.templates.map(template => <div key={template.id}><span><strong>{template.id}</strong><small>{template.type}</small></span><span>{template.skill}</span><span>{template.difficulty}</span></div>)}</div><footer>{selectedBank.source === "built-in" ? <p>Built-in content is read-only and updated through reviewed source releases.</p> : selectedBank.publication_status === "published" ? <p>Published content is locked to preserve reproducible learner records.</p> : <><button className="danger-button" onClick={() => void remove(selectedBank)}>Delete draft</button><button className="primary" onClick={() => void publish(selectedBank)}>Publish bank</button></>}</footer></section>}</div>}
+      {section === "curriculum" && <div className="library-layout">
+        <section className="admin-card bank-list"><div className="list-title"><h2>Question banks</h2><span>{banks.length}</span></div>{banks.map(bank => <button key={bank.subject} className={selectedSubject === bank.subject ? "selected" : ""} onClick={() => setSelectedSubject(bank.subject)}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} authored {bank.template_count === 1 ? "template" : "templates"}</small></span><i className={`status ${bank.publication_status}`}>{bank.publication_status}</i></button>)}</section>
+        {selectedBank && <section className="admin-card bank-detail">
+          <header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i></header>
+          <div className="bank-facts"><div><span>Authored templates</span><strong>{selectedBank.template_count}</strong></div><div><span>Skills</span><strong>{skills}</strong></div><div><span>Generator</span><strong>{selectedBank.document.generatorVersion}</strong></div></div>
+          <p className="count-explainer">A template is a reusable recipe, not one question. Facts, variants, and parameters let one template generate many distinct questions.</p>
+          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span><span>Possible inputs</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span><span>{template.generation_space.toLocaleString()}</span></div>)}</div>
+          <section className="preview-panel"><div className="card-heading"><div><p className="eyebrow">Live generator</p><h3>Random question preview</h3></div><button className="primary" disabled={previewing} onClick={() => void generatePreview(selectedBank)}>{previewing ? "Generating…" : preview ? "Generate another" : "Generate preview"}</button></div>{preview ? <><p className="preview-seed">Seed {preview.seed} · generated server-side from the selected bank</p>{preview.questions.map(question => <article className="admin-question-preview" key={question.id}><p className="eyebrow">{question.template_id} · difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <FractionBar {...question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>)}</> : <p className="empty">Generate a reproducible example to verify how this stored template renders. Correct answers remain server-side.</p>}</section>
+          <details className="raw-bank"><summary>View exact {selectedBank.source === "imported" ? "database JSON" : "bundled JSON"}</summary><p>{selectedBank.source === "imported" ? "This is the complete document currently stored in the database." : "This bank comes from the deployed content files, not the database."}</p><pre>{JSON.stringify(selectedBank.document, null, 2)}</pre></details>
+          <footer>{selectedBank.source === "built-in" ? <p>Built-in content is read-only and updated through reviewed source releases.</p> : selectedBank.publication_status === "published" ? <p>Published content is application-locked to preserve reproducible learner records; this is not a database foreign-key restriction.</p> : <><button className="danger-button" onClick={() => void remove(selectedBank)}>Delete draft</button><button className="primary" onClick={() => void publish(selectedBank)}>Publish bank</button></>}</footer>
+        </section>}
+      </div>}
 
       {section === "users" && <div className="people-layout"><section className="admin-card"><div className="list-title"><h2>Accounts</h2><span>{accounts.length}</span></div><div className="people-table"><div className="table-head"><span>Person</span><span>Role</span><span>Status</span><span></span></div>{accounts.map(user => <div key={user.id}><span><strong>{user.display_name}</strong><small>@{user.username}</small></span><span className="role-label">{user.role}</span><span className={`user-status ${user.disabled ? "disabled" : "active"}`}>{user.disabled ? "Paused" : "Active"}</span><span><button className="quiet" onClick={() => setEditingUser({...user})}>Edit</button><button className="quiet" onClick={() => void reset(user)}>Reset password</button></span></div>)}</div></section><section className="admin-card create-account"><p className="eyebrow">New account</p><h2>Create a parent</h2><form onSubmit={create} className="stack-form"><label>Display name<input name="name" required /></label><label>Username<input name="username" minLength={3} required /></label><label>Temporary password<input name="password" type="password" minLength={8} required /></label><button className="primary">Create parent</button></form></section></div>}
 

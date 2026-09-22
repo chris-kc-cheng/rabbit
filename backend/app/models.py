@@ -102,6 +102,11 @@ class QuestionImport(BaseModel):
     document: dict[str, Any]
 
 
+class AdminQuestionPreview(BaseModel):
+    seed: int | None = None
+    count: int = Field(default=1, ge=1, le=10)
+
+
 class ContentSettings(BaseModel):
     include_drafts: bool = False
 

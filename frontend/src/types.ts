@@ -57,8 +57,19 @@ export type QuestionBankAdmin = {
   publication_status: "draft" | "published";
   source: "built-in" | "imported";
   replaces_builtin: boolean;
+  template_summaries: Array<{
+    id: string;
+    version: number;
+    type: string;
+    skill: string;
+    difficulty: number | null;
+    fact_count: number;
+    variant_count: number;
+    generation_space: number;
+  }>;
   document: { generatorVersion: string; templates: Array<{ id: string; skill: string; difficulty: number; type: string }> } & Record<string, unknown>;
 };
+export type AdminBankPreview = { subject: string; seed: number; questions: Question[] };
 export type WorksheetTopic = { subject: string; subject_title: string; id: string; title: string };
 
 export type DemoSubject = "math" | "trivia" | "english" | "canadian-citizenship";

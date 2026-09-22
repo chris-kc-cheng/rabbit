@@ -3,7 +3,8 @@
 ## Normative files
 
 - `content/question-template.schema.json` is the JSON Schema Draft 2020-12
-  contract for a complete bank.
+  contract for a complete bank. “2020-12” is the official JSON Schema
+  specification release name, not a Rabbit content date or a generated value.
 - `content/math.question-bank.json` is the published ten-template elementary
   math bank loaded by FastAPI.
 - `content/canadian-citizenship.question-bank.json` is a draft, executable
@@ -103,6 +104,20 @@ A bank wraps templates with `schemaVersion`, `generatorVersion`,
 `publicationStatus`, `subject`, `title`, and `locale`. Validate the
 whole file, then property-test many seeds because JSON Schema cannot prove that
 computed options remain distinct.
+
+The admin curriculum view deliberately reports templates separately from the
+questions they can produce. A template is a reusable generation recipe. For a
+fact collection, the basic generation space is the number of facts multiplied
+by the number of prompt variants; computed templates can produce combinations
+across every allowed parameter value. The admin view exposes these counts, the
+complete stored JSON document, and a seeded server-generated preview.
+
+Publishing is an application/content-governance lock, not a foreign-key
+constraint. Rabbit refuses update and deletion of published bank rows so an
+administrator cannot silently change the versioned source of learner activity.
+Existing attempts already retain exact resolved snapshots, but immutable
+publication remains the safer authoring rule. A future retirement workflow can
+hide a published bank from new sessions without deleting its historical record.
 
 ## Reusable fact collections
 

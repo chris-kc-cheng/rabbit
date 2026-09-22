@@ -21,6 +21,7 @@ from .engine import BANK_DIRECTORY, generate_session, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
+    AdminQuestionPreview,
     ContentSettings,
     LearnerCreate,
     LoginRequest,
@@ -247,11 +248,39 @@ def admin_question_banks(_: dict = Depends(require_role("admin")), db: Session =
     records = []
     built_in = load_banks(True)
     for subject, bank in {**built_in, **imported}.items():
+        template_summaries = []
+        for template in bank["templates"]:
+            facts = len(template.get("knowledge", {}).get("facts", []))
+            variants = len(template.get("variants", []))
+            if facts:
+                generation_space = facts * variants
+            else:
+                generation_space = 1
+                for parameter in template.get("parameters", {}).values():
+                    generation_space *= ((parameter["max"] - parameter["min"]) // parameter.get("step", 1)) + 1
+            template_summaries.append({
+                "id": template["id"], "version": template["version"], "type": template["type"],
+                "skill": template["skill"], "difficulty": template.get("difficulty"),
+                "fact_count": facts, "variant_count": variants, "generation_space": generation_space,
+            })
         records.append({"subject": subject, "title": bank["title"], "publication_status": bank["publicationStatus"],
                         "template_count": len(bank["templates"]), "source": "imported" if subject in imported else "built-in",
                         "replaces_builtin": subject in imported and subject in built_in,
+                        "template_summaries": template_summaries,
                         "document": bank})
     return sorted(records, key=lambda item: (item["title"].casefold(), item["subject"]))
+
+
+@app.post("/api/v1/admin/question-banks/{subject}/preview")
+def preview_question_bank(subject: str, request: AdminQuestionPreview,
+                          _: dict = Depends(require_role("admin")), db: Session = Depends(get_db)) -> dict:
+    imported = ContentRepository(db).banks()
+    bank = {**load_banks(True), **imported}.get(subject)
+    if bank is None:
+        raise HTTPException(404, "Question bank not found")
+    seed = request.seed if request.seed is not None else secrets.randbits(63)
+    generated = generate_session(seed, request.count, bank)
+    return {"subject": subject, "seed": seed, "questions": [question.public for question in generated]}
 
 
 @app.post("/api/v1/admin/question-banks/{subject}/publish")
