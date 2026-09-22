@@ -47,7 +47,9 @@ working in this repository, not production-ready at population scale.
   imported banks down to their template metadata; import or replace drafts;
   delete drafts; permanently publish reviewed banks; and control draft-bank
   visibility. JSON imports retain path-specific schema errors and a generation
-  smoke test, while built-in and published banks remain immutable.
+  smoke test. Built-in drafts can be tested through removable database overrides
+  (removing one restores the bundled baseline), while published banks remain
+  immutable.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.

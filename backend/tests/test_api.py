@@ -155,6 +155,25 @@ def test_admin_can_replace_then_publish_a_draft_but_published_bank_is_immutable(
     assert conflict.status_code == 409 and "published" in conflict.json()["detail"]
 
 
+def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():
+    headers, _ = login()
+    bank = json.loads((Path(__file__).parents[2] / "content/canadian-citizenship.question-bank.json").read_text())
+
+    imported = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert imported.status_code == 200 and imported.json()["status"] == "imported"
+    listed = client.get("/api/v1/admin/question-banks", headers=headers).json()
+    override = next(item for item in listed if item["subject"] == bank["subject"])
+    assert override["source"] == "imported" and override["replaces_builtin"] is True
+
+    assert client.delete(f"/api/v1/admin/question-banks/{bank['subject']}", headers=headers).status_code == 204
+    restored = client.get("/api/v1/admin/question-banks", headers=headers).json()
+    baseline = next(item for item in restored if item["subject"] == bank["subject"])
+    assert baseline["source"] == "built-in" and baseline["replaces_builtin"] is False
+
+    reimported = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+    assert reimported.status_code == 200 and reimported.json()["status"] == "imported"
+
+
 def test_admin_can_edit_and_pause_managed_user():
     headers, _ = login()
     created = client.post("/api/v1/admin/parents", headers=headers,

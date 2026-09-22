@@ -56,6 +56,7 @@ export type QuestionBankAdmin = {
   template_count: number;
   publication_status: "draft" | "published";
   source: "built-in" | "imported";
+  replaces_builtin: boolean;
   document: { generatorVersion: string; templates: Array<{ id: string; skill: string; difficulty: number; type: string }> } & Record<string, unknown>;
 };
 export type WorksheetTopic = { subject: string; subject_title: string; id: string; title: string };

@@ -220,8 +220,6 @@ def import_questions(request: QuestionImport, admin: dict = Depends(require_role
         raise HTTPException(422, {"message": "Question bank does not match the v2 schema", "errors": errors})
     subject = request.document["subject"]
     repository = ContentRepository(db)
-    if subject in load_banks(True):
-        raise HTTPException(409, "This built-in subject already exists and is managed in source control")
     existing = repository.banks().get(subject)
     if existing is not None:
         if existing["publicationStatus"] == "published":
@@ -230,6 +228,12 @@ def import_questions(request: QuestionImport, admin: dict = Depends(require_role
             raise HTTPException(409, "Review the existing draft before publishing it from the curriculum panel")
         repository.replace_draft(subject, request.document, admin["id"])
         return {"subject": subject, "templates_imported": len(request.document["templates"]), "status": "replaced"}
+    built_in = load_banks(True).get(subject)
+    if built_in is not None:
+        if built_in["publicationStatus"] == "published":
+            raise HTTPException(409, "This subject is built-in and published, so it cannot be replaced")
+        if request.document["publicationStatus"] != "draft":
+            raise HTTPException(409, "Import this built-in subject as a draft, then publish it after review")
     try:
         repository.import_bank(request.document, admin["id"])
     except ValueError as error:
@@ -241,9 +245,11 @@ def import_questions(request: QuestionImport, admin: dict = Depends(require_role
 def admin_question_banks(_: dict = Depends(require_role("admin")), db: Session = Depends(get_db)) -> list[dict]:
     imported = ContentRepository(db).banks()
     records = []
-    for subject, bank in {**load_banks(True), **imported}.items():
+    built_in = load_banks(True)
+    for subject, bank in {**built_in, **imported}.items():
         records.append({"subject": subject, "title": bank["title"], "publication_status": bank["publicationStatus"],
                         "template_count": len(bank["templates"]), "source": "imported" if subject in imported else "built-in",
+                        "replaces_builtin": subject in imported and subject in built_in,
                         "document": bank})
     return sorted(records, key=lambda item: (item["title"].casefold(), item["subject"]))
 

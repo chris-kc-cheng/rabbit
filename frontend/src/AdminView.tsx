@@ -59,7 +59,7 @@ export function AdminView() {
       await refreshBanks(); setSelectedSubject(result.subject);
     } catch (caught) {
       const error = caught as Error & { details?: ImportError[] }; const message = caught instanceof Error ? caught.message : "Import failed"; setNotice(message);
-      setErrors(error.details ?? [{ path: "$", message, suggestion: message.includes("built-in") ? "Choose the existing bank to preview it. Built-in curriculum is changed through a reviewed code release." : message.includes("published") ? "Use a new subject ID for a new bank. Published banks stay immutable so learner history remains auditable." : "Open the existing draft and either publish or delete it, or upload a draft with the same subject to replace it." }]);
+      setErrors(error.details ?? [{ path: "$", message, suggestion: message.includes("built-in") && message.includes("published") ? "Use a new subject ID. Published curriculum stays immutable so learner history remains auditable." : message.includes("built-in") ? "Set publicationStatus to draft, import it, review it here, and then publish it." : message.includes("published") ? "Use a new subject ID for a new bank. Published banks stay immutable so learner history remains auditable." : "Open the existing draft and either publish or delete it, or upload a draft with the same subject to replace it." }]);
     }
     event.target.value = "";
   };
@@ -69,8 +69,11 @@ export function AdminView() {
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not publish bank"); }
   };
   const remove = async (bank: QuestionBankAdmin) => {
-    if (!window.confirm(`Delete the draft “${bank.title}”?`)) return;
-    try { await api.deleteQuestionBank(bank.subject); setNotice(`${bank.title} draft deleted.`); await refreshBanks(); }
+    const prompt = bank.replaces_builtin
+      ? `Remove the imported “${bank.title}” draft? Rabbit will restore the bundled draft for this subject.`
+      : `Delete the draft “${bank.title}”?`;
+    if (!window.confirm(prompt)) return;
+    try { await api.deleteQuestionBank(bank.subject); setNotice(bank.replaces_builtin ? `${bank.title} restored to its bundled draft.` : `${bank.title} draft deleted.`); await refreshBanks(); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not delete bank"); }
   };
   const updateDrafts = async (enabled: boolean) => {
