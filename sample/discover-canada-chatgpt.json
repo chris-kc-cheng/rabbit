@@ -1,0 +1,185 @@
+{
+  "schemaVersion": 2,
+  "generatorVersion": "2.0.0",
+  "publicationStatus": "draft",
+  "subject": "canadian-citizenship",
+  "title": "Canadian History: 20 Additional Timeline Questions",
+  "locale": "en-CA",
+  "templates": [
+    {
+      "id": "early-exploration-and-settlement",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "identify-historical-year",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {"id": "cabot-east-coast-map", "year": 1497, "event": "John Cabot’s expedition began European exploration in earnest and produced the first map of Canada’s East Coast"},
+          {"id": "cartier-first-voyage", "year": 1534, "event": "Jacques Cartier began the first of his three voyages across the Atlantic"},
+          {"id": "port-royal-settlement", "year": 1604, "event": "French explorers established the first European settlement north of Florida at St. Croix Island and later Port-Royal"},
+          {"id": "champlain-quebec-fortress", "year": 1608, "event": "Samuel de Champlain built a fortress at what is now Québec City"}
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 2,
+          "prompt": [{"type": "text", "value": "In what year did this event occur: {{fact.event}}?"}],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "early-history-sequence-confusion",
+          "feedback": "Place the event in order with the other exploration and settlement milestones, then compare the years again.",
+          "hint": "Think about whether the event belongs to Cabot’s voyage, Cartier’s voyages, or Champlain’s settlements.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": {"screenReaderText": "Choose the year in which {{fact.event}} occurred."}
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Canada’s History",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "democracy-and-abolition",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "identify-historical-year",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {"id": "halifax-first-assembly", "year": 1758, "event": "The first representative assembly was elected in Halifax, Nova Scotia"},
+          {"id": "quebec-act", "year": 1774, "event": "The British Parliament passed the Quebec Act"},
+          {"id": "constitutional-act", "year": 1791, "event": "The Constitutional Act divided the Province of Quebec into Upper and Lower Canada and granted elected legislative assemblies"},
+          {"id": "upper-canada-abolition", "year": 1793, "event": "Upper Canada became the first province in the Empire to move toward the abolition of slavery"}
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 3,
+          "prompt": [{"type": "text", "value": "In what year did this event occur: {{fact.event}}?"}],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "democratic-milestone-order-confusion",
+          "feedback": "Review how representative government, constitutional change, and abolition developed over time before choosing again.",
+          "hint": "Arrange the milestones from the first representative assembly through the early movement toward abolition.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": {"screenReaderText": "Choose the year in which {{fact.event}} occurred."}
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Canada’s History",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "responsible-government-and-nation-building",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "identify-historical-year",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {"id": "province-of-canada-united", "year": 1840, "event": "Upper and Lower Canada were united as the Province of Canada"},
+          {"id": "la-fontaine-responsible-government", "year": 1849, "event": "Sir Louis-Hippolyte La Fontaine became the first head of a responsible government in Canada"},
+          {"id": "dominion-born", "year": 1867, "event": "The Dominion of Canada was officially born on July 1"},
+          {"id": "canadian-pacific-last-spike", "year": 1885, "event": "Donald Smith drove the last spike to complete the Canadian Pacific Railway"}
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 3,
+          "prompt": [{"type": "text", "value": "In what year did this event occur: {{fact.event}}?"}],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "nation-building-sequence-confusion",
+          "feedback": "Trace the sequence from political union to responsible government, Confederation, and the national railway.",
+          "hint": "Decide whether the event came before responsible government, at Confederation, or during later railway construction.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": {"screenReaderText": "Choose the year in which {{fact.event}} occurred."}
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Canada’s History",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "womens-political-participation",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "identify-historical-year",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {"id": "manitoba-womens-vote", "year": 1916, "event": "Manitoba became the first province to grant voting rights to women"},
+          {"id": "wartime-federal-vote", "year": 1917, "event": "The federal government first gave voting rights in federal elections to nurses at the battle front and women related to men in active wartime service"},
+          {"id": "most-women-federal-vote", "year": 1918, "event": "Most Canadian female citizens aged 21 and over were granted the right to vote in federal elections"},
+          {"id": "agnes-macphail-elected", "year": 1921, "event": "Agnes Macphail became the first woman Member of Parliament"}
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 4,
+          "prompt": [{"type": "text", "value": "In what year did this event occur: {{fact.event}}?"}],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "suffrage-timeline-neighbour-confusion",
+          "feedback": "These milestones occurred close together; compare their order from provincial voting rights to representation in Parliament.",
+          "hint": "Follow the progression from Manitoba, to limited wartime federal voting, to broader federal voting, and then election to Parliament.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": {"screenReaderText": "Choose the year in which {{fact.event}} occurred."}
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Canada’s History",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "second-world-war-milestones",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "identify-historical-year",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {"id": "second-world-war-began", "year": 1939, "event": "The Second World War began when Adolf Hitler invaded Poland"},
+          {"id": "defence-of-hong-kong", "year": 1941, "event": "Canadians suffered losses in the unsuccessful defence of Hong Kong"},
+          {"id": "dieppe-raid", "year": 1942, "event": "Canadians took part in the failed raid on Nazi-controlled Dieppe"},
+          {"id": "juno-beach", "year": 1944, "event": "Canadian troops stormed and captured Juno Beach during the D-Day invasion of Normandy"}
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-year",
+          "difficulty": 3,
+          "prompt": [{"type": "text", "value": "In what year did this event occur: {{fact.event}}?"}],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "second-world-war-sequence-confusion",
+          "feedback": "Place the event within the wartime sequence from the invasion of Poland through Hong Kong, Dieppe, and D-Day.",
+          "hint": "Identify whether the event marks the start of the war or one of Canada’s later major engagements.",
+          "explanation": "{{fact.event}} in {{fact.year}}.",
+          "accessibility": {"screenReaderText": "Choose the year in which {{fact.event}} occurred."}
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Canada’s History",
+        "reviewStatus": "draft"
+      }
+    }
+  ]
+}
