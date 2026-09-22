@@ -41,10 +41,17 @@ working in this repository, not production-ready at population scale.
 - [x] Production Compose refuses to start the prototype identity service without
   configured admin-password and JWT-signing secrets; local Compose also requires
   an explicitly configured admin password.
-- [x] Authenticated administrator UI for creating parents, resetting parent or
-  learner passwords, and importing question banks with JSON-path schema errors
-  plus a generation smoke test. Administrators can also enable draft-bank
-  visibility for signed-in learners; drafts are hidden by default.
+- [x] Authenticated, responsive administrator workspace with overview,
+  curriculum, people, and settings navigation. Administrators can create,
+  edit, pause, and reset access for managed accounts; preview built-in and
+  imported banks down to their template metadata; import or replace drafts;
+  delete drafts; permanently publish reviewed banks; and control draft-bank
+  visibility. JSON imports retain path-specific schema errors and a generation
+  smoke test. Built-in drafts can be tested through removable database overrides
+  (removing one restores the bundled baseline), while published banks remain
+  immutable. The curriculum inspector distinguishes authored templates from
+  their fact/variant/parameter generation space, exposes exact stored JSON, and
+  produces seeded server-side question previews.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.
@@ -72,8 +79,10 @@ working in this repository, not production-ready at population scale.
   report aggregates are still computed on read rather than maintained as durable,
   recomputable projections.
 - [~] **Question templates:** v2 supports bounded-integer computed questions and
-  scalar historical-event fact collections; authoring UI, automated publishing,
-  richer parameter/fact types, and immutable database versions are absent.
+  scalar historical-event fact collections. The admin workspace supports bank
+  preview and a draft review/publish lifecycle, but field-level template
+  authoring, richer parameter/fact types, and separately addressable immutable
+  database versions are absent.
 - [~] **Vector rendering:** the fraction bar is real accessible SVG, but the general
   declarative geometry scene language is not implemented.
 - [~] **Adaptivity:** misconception evidence is captured for later selection, but

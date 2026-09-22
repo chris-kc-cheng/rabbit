@@ -87,6 +87,12 @@ class ParentCreate(LoginRequest):
     display_name: str = Field(min_length=1, max_length=80)
 
 
+class ManagedUserUpdate(BaseModel):
+    display_name: str = Field(min_length=1, max_length=80)
+    username: str = Field(min_length=3, max_length=80)
+    disabled: bool
+
+
 class LearnerCreate(PasswordRequest):
     username: str = Field(min_length=3, max_length=80)
     display_name: str = Field(min_length=1, max_length=80)
@@ -94,6 +100,11 @@ class LearnerCreate(PasswordRequest):
 
 class QuestionImport(BaseModel):
     document: dict[str, Any]
+
+
+class AdminQuestionPreview(BaseModel):
+    seed: int | None = None
+    count: int = Field(default=1, ge=1, le=10)
 
 
 class ContentSettings(BaseModel):

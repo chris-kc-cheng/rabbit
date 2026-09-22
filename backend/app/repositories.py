@@ -34,7 +34,7 @@ def user_record(user: User) -> dict:
 
 def public_user(user: User | dict) -> dict:
     record = user_record(user) if isinstance(user, User) else user
-    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id")}
+    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled")}
 
 
 class IdentityRepository:
@@ -94,6 +94,14 @@ class IdentityRepository:
         user.password_hash = hash_password(password)
         user.token_version += 1
         self.session.commit()
+
+    def update_managed_user(self, user: User, username: str, display_name: str, disabled: bool) -> User:
+        user.username = username.strip().casefold()
+        user.display_name = display_name.strip()
+        if user.disabled != disabled:
+            user.token_version += 1
+        user.disabled = disabled
+        return self._commit_user(user)
 
     def _commit_user(self, user: User) -> User:
         try:
@@ -208,6 +216,35 @@ class ContentRepository:
         except IntegrityError as error:
             self.session.rollback()
             raise ValueError("A bank with this subject is already loaded; published content is immutable") from error
+
+    def replace_draft(self, subject: str, document: dict, user_id: str) -> None:
+        row = self.session.get(ImportedQuestionBank, subject)
+        if row is None:
+            raise ValueError("Question bank not found")
+        if row.document["publicationStatus"] != "draft":
+            raise ValueError("Published content is immutable")
+        row.document = document
+        row.imported_by = user_id
+        self.session.commit()
+
+    def publish_draft(self, subject: str) -> dict:
+        row = self.session.get(ImportedQuestionBank, subject)
+        if row is None:
+            raise ValueError("Question bank not found")
+        if row.document["publicationStatus"] == "published":
+            return row.document
+        row.document = {**row.document, "publicationStatus": "published"}
+        self.session.commit()
+        return row.document
+
+    def delete_draft(self, subject: str) -> None:
+        row = self.session.get(ImportedQuestionBank, subject)
+        if row is None:
+            raise ValueError("Question bank not found")
+        if row.document["publicationStatus"] != "draft":
+            raise ValueError("Published content is immutable")
+        self.session.delete(row)
+        self.session.commit()
 
     def include_drafts(self) -> bool:
         row = self.session.get(ApplicationSetting, self.DRAFTS_KEY)
