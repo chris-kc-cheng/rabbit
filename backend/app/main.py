@@ -33,8 +33,8 @@ from .models import (
     SessionResponse,
     WorksheetCreate,
 )
-from .store import SessionRecord, store
-from .repositories import IdentityRepository, public_user, user_record
+from .repositories import (ContentRepository, IdentityRepository, PracticeRepository, TokenRepository,
+                           public_user, user_record)
 from .worksheet import build_demo_pack_pdf, build_worksheet_pdf, topic_title
 
 app = FastAPI(title="Rabbit Learning API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
@@ -53,13 +53,13 @@ def health(db: Session = Depends(get_db)) -> dict[str, str]:
 
 
 @app.post("/api/v1/demo-pack/sessions", status_code=201)
-def start_demo_pack() -> dict:
-    return create_demo_session()
+def start_demo_pack(db: Session = Depends(get_db)) -> dict:
+    return create_demo_session(db)
 
 
 @app.post("/api/v1/demo-pack/attempts")
-def submit_demo_pack_attempt(attempt: DemoAttempt) -> dict:
-    return grade_demo_attempt(attempt)
+def submit_demo_pack_attempt(attempt: DemoAttempt, db: Session = Depends(get_db)) -> dict:
+    return grade_demo_attempt(attempt, db)
 
 
 @app.post("/api/v1/demo-pack/worksheet", status_code=200, response_class=StreamingResponse)
@@ -108,8 +108,10 @@ def me(user: dict = Depends(require_role("admin", "parent", "learner"))) -> dict
 
 @app.post("/api/v1/auth/logout", status_code=204)
 def logout(credentials: HTTPAuthorizationCredentials = Depends(bearer),
-           _: dict = Depends(require_role("admin", "parent", "learner"))) -> None:
-    store.revoked_tokens.add(decode_token(credentials.credentials)["jti"])
+           user: dict = Depends(require_role("admin", "parent", "learner")),
+           db: Session = Depends(get_db)) -> None:
+    claims = decode_token(credentials.credentials)
+    TokenRepository(db).revoke(claims["jti"], user["id"], claims["exp"])
 
 
 @app.get("/api/v1/admin/users")
@@ -195,56 +197,67 @@ def validate_questions(request: QuestionImport) -> dict:
 
 
 @app.post("/api/v1/admin/questions/import")
-def import_questions(request: QuestionImport, _: dict = Depends(require_role("admin"))) -> dict:
+def import_questions(request: QuestionImport, admin: dict = Depends(require_role("admin")),
+                     db: Session = Depends(get_db)) -> dict:
     errors = validate_question_bank(request.document)
     if errors:
         raise HTTPException(422, {"message": "Question bank does not match the v2 schema", "errors": errors})
     subject = request.document["subject"]
-    if subject in load_banks() or subject in store.imported_banks:
+    repository = ContentRepository(db)
+    if subject in load_banks() or subject in repository.banks():
         raise HTTPException(409, "A bank with this subject is already loaded; published content is immutable")
-    store.imported_banks[subject] = request.document
+    try:
+        repository.import_bank(request.document, admin["id"])
+    except ValueError as error:
+        raise HTTPException(409, str(error)) from None
     return {"subject": subject, "templates_imported": len(request.document["templates"]), "status": "imported"}
 
 
 @app.get("/api/v1/subjects")
-def subjects(_: dict = Depends(require_role("learner", "parent", "admin"))) -> list[dict]:
+def subjects(_: dict = Depends(require_role("learner", "parent", "admin")),
+             db: Session = Depends(get_db)) -> list[dict]:
+    repository = ContentRepository(db)
+    include_drafts = repository.include_drafts()
     return [
         {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"]),
          "publication_status": bank["publicationStatus"]}
-        for bank in {**load_banks(store.include_drafts), **store.imported_banks}.values()
-        if store.include_drafts or bank["publicationStatus"] == "published"
+        for bank in {**load_banks(include_drafts), **repository.banks()}.values()
+        if include_drafts or bank["publicationStatus"] == "published"
     ]
 
 
 @app.post("/api/v1/sessions", response_model=SessionResponse, status_code=201)
-def create_session(request: SessionCreate, user: dict = Depends(require_role("learner"))) -> SessionResponse:
+def create_session(request: SessionCreate, user: dict = Depends(require_role("learner")),
+                   db: Session = Depends(get_db)) -> SessionResponse:
     if request.learner_id != user["id"]:
         raise HTTPException(403, "Learners can only start their own sessions")
-    bank = {**load_banks(store.include_drafts), **store.imported_banks}.get(request.subject)
+    content = ContentRepository(db)
+    include_drafts = content.include_drafts()
+    bank = {**load_banks(include_drafts), **content.banks()}.get(request.subject)
     if bank is None:
         raise HTTPException(status_code=400, detail="Unknown subject")
-    if bank["publicationStatus"] != "published" and not store.include_drafts:
+    if bank["publicationStatus"] != "published" and not include_drafts:
         raise HTTPException(status_code=400, detail="Subject is not currently visible")
     session_id = secrets.token_urlsafe(12)
-    generated = generate_session(request.seed if request.seed is not None else time.time_ns(), request.count, bank)
-    store.sessions[session_id] = SessionRecord(
-        learner_id=request.learner_id,
-        questions={question.public.id: question for question in generated},
-    )
+    seed = request.seed if request.seed is not None else time.time_ns()
+    generated = generate_session(seed, request.count, bank)
+    PracticeRepository(db).create_session(session_id, request.learner_id, request.subject, seed, generated)
     return SessionResponse(id=session_id, learner_id=request.learner_id, questions=[q.public for q in generated])
 
 
 @app.post("/api/v1/attempts", response_model=AttemptResult)
-def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("learner"))) -> AttemptResult:
-    session = store.sessions.get(request.session_id)
-    if not session:
+def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("learner")),
+                   db: Session = Depends(get_db)) -> AttemptResult:
+    repository = PracticeRepository(db)
+    owner = repository.session_owner(request.session_id)
+    if owner is None:
         raise HTTPException(status_code=404, detail="Session not found")
-    if session.learner_id != user["id"]:
+    if owner != user["id"]:
         raise HTTPException(403, "This session belongs to another learner")
-    question = session.questions.get(request.question_id)
+    question = repository.question(request.session_id, request.question_id)
     if not question:
         raise HTTPException(status_code=404, detail="Question not found")
-    if request.question_id in session.attempts:
+    if repository.attempt_exists(request.session_id, request.question_id):
         raise HTTPException(status_code=409, detail="Question already answered")
     choice = question.choices.get(request.choice_id)
     if not choice:
@@ -266,11 +279,12 @@ def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("le
         "misconception_id": choice["misconception"],
         "hint_used": request.hint_used,
         "points_earned": 10 if correct else 0,
-        "answered_at": store.now(),
         "time_spent_ms": request.time_spent_ms,
     }
-    with store.lock:
-        session.attempts[request.question_id] = attempt
+    try:
+        repository.add_attempt(request.session_id, request.question_id, user["id"], attempt)
+    except ValueError:
+        raise HTTPException(status_code=409, detail="Question already answered") from None
     return AttemptResult(
         correct=correct,
         correct_choice_id=question.correct_choice_id,
@@ -290,7 +304,8 @@ def _parent_learner(parent: dict, learner_id: str, db: Session) -> User:
 
 @app.get("/api/v1/parents/learners")
 def parent_learners(parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> list[dict]:
-    return [{**public_user(user), "progress": store.progress(user.id)}
+    progress = PracticeRepository(db)
+    return [{**public_user(user), "progress": progress.progress(user.id)}
             for user in IdentityRepository(db).learners_for_family(parent["family_id"])]
 
 
@@ -317,13 +332,13 @@ def parent_reset_password(learner_id: str, request: PasswordRequest, parent: dic
 def learner_progress(learner_id: str, parent: dict = Depends(require_role("parent")),
                      db: Session = Depends(get_db)) -> dict:
     _parent_learner(parent, learner_id, db)
-    return store.progress(learner_id)
+    return PracticeRepository(db).progress(learner_id)
 
 
 @app.get("/api/v1/learners/me/progress", response_model=ProgressResponse)
-def own_progress(learner: dict = Depends(require_role("learner"))) -> dict:
+def own_progress(learner: dict = Depends(require_role("learner")), db: Session = Depends(get_db)) -> dict:
     """Let a learner review their own evidence without exposing another family."""
-    return store.progress(learner["id"])
+    return PracticeRepository(db).progress(learner["id"])
 
 
 @app.get("/api/v1/parents/families/{family_id}/progress")
@@ -333,7 +348,7 @@ def family_progress(family_id: str, parent: dict = Depends(require_role("parent"
         raise HTTPException(403, "This family belongs to another parent")
     learners = IdentityRepository(db).learners_for_family(family_id)
     return {"family_id": family_id, "learners": [
-        {"id": learner.id, "name": learner.display_name, "progress": store.progress(learner.id)}
+        {"id": learner.id, "name": learner.display_name, "progress": PracticeRepository(db).progress(learner.id)}
         for learner in learners
     ]}
 
@@ -342,19 +357,21 @@ def family_progress(family_id: str, parent: dict = Depends(require_role("parent"
 def update_reward(learner_id: str, reward: RewardSettings, parent: dict = Depends(require_role("parent")),
                   db: Session = Depends(get_db)) -> RewardSettings:
     _parent_learner(parent, learner_id, db)
-    store.rewards[learner_id] = reward
-    return reward
+    return PracticeRepository(db).set_reward(learner_id, reward)
 
 
-def _visible_banks() -> dict[str, dict]:
-    return {**load_banks(store.include_drafts), **store.imported_banks}
+def _visible_banks(db: Session) -> tuple[dict[str, dict], bool]:
+    repository = ContentRepository(db)
+    include_drafts = repository.include_drafts()
+    return {**load_banks(include_drafts), **repository.banks()}, include_drafts
 
 
 @app.get("/api/v1/parents/worksheet-topics")
-def worksheet_topics(_: dict = Depends(require_role("parent"))) -> list[dict]:
+def worksheet_topics(_: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> list[dict]:
     topics = []
-    for bank in _visible_banks().values():
-        if bank["publicationStatus"] != "published" and not store.include_drafts:
+    banks, include_drafts = _visible_banks(db)
+    for bank in banks.values():
+        if bank["publicationStatus"] != "published" and not include_drafts:
             continue
         for skill in dict.fromkeys(template["skill"] for template in bank["templates"]):
             topics.append({"subject": bank["subject"], "subject_title": bank["title"],
@@ -363,9 +380,11 @@ def worksheet_topics(_: dict = Depends(require_role("parent"))) -> list[dict]:
 
 
 @app.post("/api/v1/parents/worksheets")
-def create_worksheet(request: WorksheetCreate, _: dict = Depends(require_role("parent"))) -> StreamingResponse:
-    bank = _visible_banks().get(request.subject)
-    if bank is None or (bank["publicationStatus"] != "published" and not store.include_drafts):
+def create_worksheet(request: WorksheetCreate, _: dict = Depends(require_role("parent")),
+                     db: Session = Depends(get_db)) -> StreamingResponse:
+    banks, include_drafts = _visible_banks(db)
+    bank = banks.get(request.subject)
+    if bank is None or (bank["publicationStatus"] != "published" and not include_drafts):
         raise HTTPException(400, "Unknown subject")
     templates = [template for template in bank["templates"] if template["skill"] == request.topic]
     if not templates:
@@ -381,11 +400,12 @@ def create_worksheet(request: WorksheetCreate, _: dict = Depends(require_role("p
 
 
 @app.get("/api/v1/admin/content", response_model=ContentSettings)
-def content_settings(_: dict = Depends(require_role("admin"))) -> ContentSettings:
-    return ContentSettings(include_drafts=store.include_drafts)
+def content_settings(_: dict = Depends(require_role("admin")), db: Session = Depends(get_db)) -> ContentSettings:
+    return ContentSettings(include_drafts=ContentRepository(db).include_drafts())
 
 
 @app.put("/api/v1/admin/content", response_model=ContentSettings)
-def update_content_settings(settings: ContentSettings, _: dict = Depends(require_role("admin"))) -> ContentSettings:
-    store.include_drafts = settings.include_drafts
+def update_content_settings(settings: ContentSettings, _: dict = Depends(require_role("admin")),
+                            db: Session = Depends(get_db)) -> ContentSettings:
+    ContentRepository(db).set_include_drafts(settings.include_drafts)
     return settings

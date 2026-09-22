@@ -7,14 +7,12 @@ from fastapi.testclient import TestClient
 
 from app import main as main_module
 from app.main import app
-from app.store import store
 
 client = TestClient(app)
 
 
 def setup_function():
-    store.sessions.clear(); store.rewards.clear(); store.imported_banks.clear(); store.revoked_tokens.clear()
-    store.include_drafts = False
+    pass
 
 
 def login(username="admin", password=None):
@@ -64,7 +62,11 @@ def test_role_login_family_isolation_password_reset_and_progress():
     session = client.post("/api/v1/sessions", headers=learner_headers, json={"learner_id":learner["id"],"seed":42,"count":2}).json()
     question = session["questions"][0]
     assert "correct_choice_id" not in question
-    correct = store.sessions[session["id"]].questions[question["id"]].correct_choice_id
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.repositories import PracticeRepository
+    with Session(engine) as db:
+        correct = PracticeRepository(db).question(session["id"], question["id"]).correct_choice_id
     assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct,"time_spent_ms":12500}).status_code == 200
     progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
     assert progress["attempts"] == 1 and progress["points"] == 10
@@ -142,7 +144,11 @@ def test_public_question_validation_checks_schema_and_generation_without_importi
     response = client.post("/api/v1/questions/validate", json={"document": bank})
     assert response.status_code == 200
     assert response.json() == {"valid": True, "templates_validated": 10}
-    assert store.imported_banks == {}
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.repositories import ContentRepository
+    with Session(engine) as db:
+        assert ContentRepository(db).banks() == {}
 
     bank["templates"][0]["answer"]["expression"] = "1 / 0"
     unsafe = client.post("/api/v1/questions/validate", json={"document": bank})
