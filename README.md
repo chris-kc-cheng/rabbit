@@ -8,7 +8,8 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 
 - Ten parameterized elementary-math templates with deterministic generation.
 - Misconception-based choices, server-side grading, hints, and feedback.
-- PostgreSQL-backed family and account records with JWT login/logout and
+- PostgreSQL-backed accounts, practice sessions, attempts, rewards, imported
+  content, application settings, demo activity, and JWT revocations, with
   role-protected learner, parent, and administrator areas.
 - Parent-managed learners, progress evidence, password resets, reward goals, and
   downloadable topic-based PDF worksheets with answer keys.
@@ -104,6 +105,12 @@ PYTHONPATH=backend pytest backend/tests
 cd frontend && npm run build
 ```
 
+The backend test fixtures use an isolated in-memory database and override
+`RABBIT_ADMIN_PASSWORD` with the development-only `rabbit-admin` value, so CI
+tests neither require nor consume production environment secrets. The CI workflow
+separately applies every migration to a fresh PostgreSQL service before running
+the test suite.
+
 ## Question content and AI authoring
 
 - Normative schema: [`content/question-template.schema.json`](content/question-template.schema.json)
@@ -121,19 +128,21 @@ and refuses to start without them. Set them as URL-safe, single-line secrets in
 the protected GitHub Actions `production` environment before deploying.
 The administrator creates parent accounts, and each parent creates their learner
 accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
-web app returns to login on a rejected/expired token. Logout revokes the token in
-this process and removes it from the browser; password resets persist in
-PostgreSQL and invalidate that user's issued tokens. OIDC, persisted revocation,
-refresh-token rotation, and rate limiting remain production requirements.
+web app returns to login on a rejected/expired token. Logout durably revokes the
+token and removes it from the browser; password resets persist in PostgreSQL and
+invalidate that user's issued tokens. OIDC, refresh-token rotation, and rate
+limiting remain production requirements.
 
 Visitors see a public product overview and can use **Try the free demo**. Demo
-attempts are process-local and are not attached to an account or family report.
+attempts persist for idempotent retries but are not attached to an account or
+family report; retention cleanup remains to be implemented.
 Only the fixed prototype demo pack is available without authentication;
-new published question types are private by default until explicitly added to it.
+it includes Math, Trivia, English, and Discover Canada samples. New published
+question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke
-test. Valid imports remain process-local and published banks are immutable.
+test. Valid imports persist in PostgreSQL and published banks are immutable.
 The public **Docs** page remains available before and after login and provides a
 non-publishing validator with the same schema and generation checks.
 
@@ -156,12 +165,20 @@ environment secrets:
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 
-The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags,
-database password, and port, then passes it to Compose. The optional `RABBIT_PORT`
-environment variable defaults to `8090`; the service
-binds to `127.0.0.1` for an existing TLS reverse proxy. Point Rabbit's reverse
-proxy upstream at `127.0.0.1:8090` unless `RABBIT_PORT` is overridden. The API
-remains private on the Compose network at `api:8000`.
+Before the first production deployment, create the shared external network used
+by the dedicated Caddy container:
+
+```bash
+docker network create proxy
+```
+
+The workflow creates `~/rabbit` and writes `.env.prod` there with the image tags
+and database credentials, then passes it to Compose. Production Compose attaches
+the web container to the external `proxy` network with the `rabbit-web` alias; use
+`reverse_proxy rabbit-web:8080` in Caddy. No Rabbit port is published on the
+host. Nginx passes Caddy's original `X-Forwarded-Proto` value to the API so an
+HTTPS request remains identifiable as HTTPS across both proxy hops. The API
+remains private on Rabbit's internal Compose network at `api:8000`.
 
 Production Compose stores PostgreSQL data in the `rabbit_postgres` named volume.
 This supplies persistence, not a backup strategy: configure encrypted off-host
@@ -171,8 +188,8 @@ Before the first deployment with the new project name, stop the old
 `rabbit-learning` stack on Hostinger from its deployment directory using
 `docker compose -p rabbit-learning --env-file .env.production -f compose.prod.yml down`
 (use the old deployment's existing env-file name for this one-time command).
-Then deploy the new workflow. If the reverse proxy currently points at port
-`8080`, update its upstream to `127.0.0.1:8090`. Set `RABBIT_PORT` in
-`~/rabbit/.env.prod` if the proxy uses a different port.
+Then deploy the new workflow. Ensure the dedicated Caddy container is also
+attached to the external `proxy` network before configuring its upstream as
+`rabbit-web:8080`.
 For later checks on the VPS, run `cd ~/rabbit` and use
 `docker compose -p rabbit --env-file .env.prod --env-file .env.deploy -f compose.prod.yml ps`.

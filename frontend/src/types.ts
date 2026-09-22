@@ -52,7 +52,7 @@ export type FamilyProgress = { family_id: string; learners: Array<{ id: string; 
 export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published" };
 export type WorksheetTopic = { subject: string; subject_title: string; id: string; title: string };
 
-export type DemoSubject = "math" | "trivia" | "english";
+export type DemoSubject = "math" | "trivia" | "english" | "canadian-citizenship";
 export type DemoQuestion = {
   id: string;
   subject: DemoSubject;
@@ -69,3 +69,4 @@ export type DemoQuestion = {
 };
 export type DemoSession = { id: string; questions: DemoQuestion[] };
 export type DemoResult = { correct: boolean; feedback: string; points_earned: number };
+export type DemoWorksheetPreview = { subject_title: string; seed: number; questions: Question[] };

@@ -20,13 +20,15 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Password hashing uses an explicit scrypt memory allowance and round-trip tests
+  for administrator, parent, and learner credential shapes.
 - [x] Reader-comfort typography and a responsive, persistent light/dark theme
   control that defaults to the learner's operating-system preference.
 - [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
-- [x] Explore packs prototype with distinct Math, Trivia, and English styles: eight fixed sample activities, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. The demo also includes a clearly labeled, illustrative parent dashboard with learner tracking, reward progress, misconception evidence, and a working deterministic PDF worksheet download. Demo activity remains non-persistent and does not feed real parent reports or adaptation.
+- [x] Explore packs prototype with distinct Math, Trivia, English, and Discover Canada styles: eleven fixed sample activities, including three Canadian history questions, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. The demo also includes a clearly labeled, illustrative parent dashboard with learner tracking, reward progress, misconception evidence, and a PDF activity pack containing all kid-view questions, diagrams, formulas, and images. Demo activity remains non-persistent and does not feed real parent reports or adaptation.
 - [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
-- [x] In-app and written JSON schema documentation, per-type examples, and reusable AI
+- [x] In-app and written JSON schema documentation, per-type examples, an AI-ready schema download, responsive field-by-field tree tables, parameter and formula boundaries, a live fraction-bar playground, and a self-contained Discover Canada AI
   structured-output prompt, with a public schema and generation validator that
   remains available from signed-in workspaces.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
@@ -50,18 +52,25 @@ working in this repository, not production-ready at population scale.
   questions, with a separate answer key and worked explanations.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
   Alembic migrations for families, guardians, users, and learner profiles.
+- [x] PostgreSQL persistence for generated practice sessions, private grading
+  snapshots, append-only attempts, exact public question snapshots, reward
+  settings, imported banks, draft visibility, logout revocations, and anonymous
+  demo sessions/attempts. Database uniqueness makes one logical answer durable
+  even when multiple API workers receive it concurrently.
 
 ## B. Partially implemented, prototype, or based on a major assumption
 
 - [~] **Identity and parent experience:** working prototype accounts are role- and
   family-protected and persisted in PostgreSQL, but password login is temporary;
   OIDC-backed identity, audited storage access, and child login handoff are absent.
-- [~] **Rewards:** parents can enable a target and name a present/experience, but
-  data is kept only in backend memory and resets on restart.
+- [~] **Rewards:** parents can durably enable a target and name a
+  present/experience, but there is not yet a lifetime transaction ledger,
+  deduction policy, approval, or fulfillment workflow.
 - [~] **Progress and exact results:** each attempt preserves the resolved question
   snapshot, chosen and correct answers, timing, and hint evidence. Learners and
-  their parent can review the complete history, but the prototype memory store is
-  not durable.
+  their parent can review the complete PostgreSQL-backed history. Mastery and
+  report aggregates are still computed on read rather than maintained as durable,
+  recomputable projections.
 - [~] **Question templates:** v2 supports bounded-integer computed questions and
   scalar historical-event fact collections; authoring UI, automated publishing,
   richer parameter/fact types, and immutable database versions are absent.
@@ -72,10 +81,11 @@ working in this repository, not production-ready at population scale.
 - [~] **Infrastructure:** local/production Compose and CI deployment definitions
   exist, but no actual Hostinger credentials, domain, TLS proxy, or live deployment
   can be verified from this repository.
-- [~] **Persistence:** PostgreSQL now stores family and account records through
-  SQLAlchemy and Alembic. Practice sessions, attempts, rewards, imported content,
-  token revocations, and content settings remain process-local; Redis/S3 and
-  production backup/restore automation are absent.
+- [~] **Persistence:** all current mutable backend state is stored through
+  SQLAlchemy and Alembic; JSONB holds immutable content/render/grading snapshots
+  on PostgreSQL. Redis is still absent because there are no durable background
+  jobs yet, S3-compatible storage is absent because PDFs are streamed rather than
+  retained, and production backup/restore automation remains operational work.
 - [~] **Accessibility:** semantic controls, keyboard focus, MathML, SVG alt text,
   reduced motion, and responsive UI are present; a formal WCAG audit is not.
 
@@ -87,8 +97,10 @@ working in this repository, not production-ready at population scale.
   guardians within one family, durable audit logs, and forced temporary-password
   change. Basic parent-created learner accounts and role/family authorization are
   implemented in PostgreSQL; a learner must not belong to multiple families.
-- [ ] PostgreSQL migrations for practice and reward records, row-level security,
-  append-only attempts, transactional outbox, Redis jobs, or object storage.
+- [ ] PostgreSQL row-level security, database triggers/privilege separation that
+  make attempts physically append-only, a transactional outbox, Redis-backed
+  jobs/rate limits, and S3-compatible artifact storage. Application code currently
+  only inserts attempts, but database credentials still permit mutation.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced
   repetition, exploration, or known-weakness distractor weighting.
 - [ ] Parent charts, diagnostic summaries, history export, retention, deletion,

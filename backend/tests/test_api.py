@@ -1,18 +1,18 @@
 import json
 import os
 from pathlib import Path
+from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
+from app import main as main_module
 from app.main import app
-from app.store import store
 
 client = TestClient(app)
 
 
 def setup_function():
-    store.sessions.clear(); store.rewards.clear(); store.imported_banks.clear(); store.revoked_tokens.clear()
-    store.include_drafts = False
+    pass
 
 
 def login(username="admin", password=None):
@@ -25,11 +25,24 @@ def login(username="admin", password=None):
 
 def family():
     admin, _ = login()
-    parent = client.post("/api/v1/admin/parents", headers=admin, json={"username":"parent.one","password":"welcome12","display_name":"A Parent"}).json()
+    parent_response = client.post("/api/v1/admin/parents", headers=admin, json={"username":"parent.one","password":"welcome12","display_name":"A Parent"})
+    assert parent_response.status_code == 201, parent_response.text
+    parent = parent_response.json()
     parent_headers, _ = login("parent.one", "welcome12")
-    learner = client.post("/api/v1/parents/learners", headers=parent_headers, json={"username":"learner.one","password":"practice12","display_name":"Mina"}).json()
+    learner_response = client.post("/api/v1/parents/learners", headers=parent_headers, json={"username":"learner.one","password":"practice12","display_name":"Mina"})
+    assert learner_response.status_code == 201, learner_response.text
+    learner = learner_response.json()
     learner_headers, _ = login("learner.one", "practice12")
     return parent_headers, learner_headers, learner
+
+
+def test_password_hash_round_trip_is_stable_for_created_accounts():
+    from app.auth import hash_password, verify_password
+
+    for password in ("rabbit-admin", "welcome12", "practice12"):
+        encoded = hash_password(password)
+        assert verify_password(password, encoded)
+        assert not verify_password(f"{password}-different", encoded)
 
 
 def test_health_demo_and_protected_catalogue():
@@ -49,7 +62,11 @@ def test_role_login_family_isolation_password_reset_and_progress():
     session = client.post("/api/v1/sessions", headers=learner_headers, json={"learner_id":learner["id"],"seed":42,"count":2}).json()
     question = session["questions"][0]
     assert "correct_choice_id" not in question
-    correct = store.sessions[session["id"]].questions[question["id"]].correct_choice_id
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.repositories import PracticeRepository
+    with Session(engine) as db:
+        correct = PracticeRepository(db).question(session["id"], question["id"]).correct_choice_id
     assert client.post("/api/v1/attempts", headers=learner_headers, json={"session_id":session["id"],"question_id":question["id"],"choice_id":correct,"time_spent_ms":12500}).status_code == 200
     progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
     assert progress["attempts"] == 1 and progress["points"] == 10
@@ -127,7 +144,37 @@ def test_public_question_validation_checks_schema_and_generation_without_importi
     response = client.post("/api/v1/questions/validate", json={"document": bank})
     assert response.status_code == 200
     assert response.json() == {"valid": True, "templates_validated": 10}
-    assert store.imported_banks == {}
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.repositories import ContentRepository
+    with Session(engine) as db:
+        assert ContentRepository(db).banks() == {}
+
+    bank["templates"][0]["answer"]["expression"] = "1 / 0"
+    unsafe = client.post("/api/v1/questions/validate", json={"document": bank})
+    assert unsafe.status_code == 422
+    assert unsafe.json()["detail"]["errors"][0]["path"] == "$.templates"
+
+
+def test_public_question_schema_is_downloadable():
+    response = client.get("/api/v1/questions/schema")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/schema+json")
+    assert "rabbit-question-bank-v2.schema.json" in response.headers["content-disposition"]
+    assert response.json()["properties"]["schemaVersion"]["const"] == 2
+
+    bank["templates"][0]["answer"]["expression"] = "1 / 0"
+    unsafe = client.post("/api/v1/questions/validate", json={"document": bank})
+    assert unsafe.status_code == 422
+    assert unsafe.json()["detail"]["errors"][0]["path"] == "$.templates"
+
+
+def test_public_question_schema_is_downloadable():
+    response = client.get("/api/v1/questions/schema")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/schema+json")
+    assert "rabbit-question-bank-v2.schema.json" in response.headers["content-disposition"]
+    assert response.json()["properties"]["schemaVersion"]["const"] == 2
 
 
 def test_expired_jwt_is_rejected():
@@ -168,11 +215,37 @@ def test_parent_can_generate_topic_worksheet_with_answer_key():
 
 
 def test_public_demo_can_generate_a_real_worksheet_without_login():
-    first = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-    second = client.post("/api/v1/demo-pack/worksheet", json={"count": 4})
-    assert first.status_code == 200
+    route = next(
+        (route for route in app.routes if getattr(route, "path", None) == "/api/v1/demo-pack/worksheet"),
+        None,
+    )
+    assert route is not None and "POST" in route.methods
+    with patch.object(main_module, "build_demo_pack_pdf", wraps=main_module.build_demo_pack_pdf) as pdf_builder:
+        first = client.post("/api/v1/demo-pack/worksheet", json={})
+        second = client.post("/api/v1/demo-pack/worksheet", json={})
+    pdf_questions = pdf_builder.call_args.args[0]
+    kid_questions = client.post("/api/v1/demo-pack/sessions").json()["questions"]
+    assert first.status_code == 200, first.text
     assert first.headers["content-type"] == "application/pdf"
-    assert "rabbit-demo-4-questions.pdf" in first.headers["content-disposition"]
+    assert "rabbit-demo-all-questions.pdf" in first.headers["content-disposition"]
     assert first.content.startswith(b"%PDF-") and first.content == second.content
     assert b"Answer key" in first.content
-    assert client.post("/api/v1/demo-pack/worksheet", json={"count": 21}).status_code == 422
+    assert len(pdf_questions) == 11
+    assert [question["id"] for question in pdf_questions] == [question["id"] for question in kid_questions]
+    assert {question["subject"] for question in pdf_questions} == {
+        "math", "trivia", "english", "canadian-citizenship"
+    }
+    assert {question["kind"] for question in pdf_questions} == {
+        "single-select", "multi-select", "fill-blank", "reorder", "correction"
+    }
+    assert b"Find the missing side" in first.content
+    assert b"Animal expert" in first.content
+    assert b"Build the sentence" in first.content
+    assert b"Confederation milestone" in first.content
+    assert b"/Subtype /Image" in first.content
+
+
+def test_backend_image_contains_the_demo_pdf_asset():
+    dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(encoding="utf-8")
+    assert "RABBIT_DEMO_ASSET_DIRECTORY=/app/frontend/public" in dockerfile
+    assert "COPY frontend/public/trivia-animals.png ./frontend/public/trivia-animals.png" in dockerfile

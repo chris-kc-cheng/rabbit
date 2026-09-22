@@ -1,4 +1,4 @@
-import type { AttemptResult, AuthSession, DemoResult, DemoSession, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
+import type { AttemptResult, AuthSession, DemoResult, DemoSession, DemoWorksheetPreview, FamilyLearner, FamilyProgress, ImportError, Progress, Reward, Session, Subject, User, WorksheetTopic } from "./types";
 
 const JSON_HEADERS = { "Content-Type": "application/json" };
 
@@ -7,9 +7,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...options, headers: { ...(options?.body ? JSON_HEADERS : {}), ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!response.ok) {
     if (response.status === 401 && token) { sessionStorage.removeItem("rabbit_token"); window.dispatchEvent(new Event("rabbit:unauthorized")); }
-    const message = await response.json().catch(() => ({ detail: "Request failed" }));
-    const error = new Error(typeof message.detail === "string" ? message.detail : message.detail?.message ?? "Request failed") as Error & { details?: ImportError[] };
-    error.details = message.detail?.errors;
+    const payload: unknown = await response.json().catch(() => null);
+    const detail = payload && typeof payload === "object" && "detail" in payload ? payload.detail : null;
+    const validationMessage = Array.isArray(detail) && detail[0] && typeof detail[0] === "object" && "msg" in detail[0] && typeof detail[0].msg === "string"
+      ? detail[0].msg
+      : null;
+    const structuredDetail = detail && !Array.isArray(detail) && typeof detail === "object" ? detail as { message?: string; errors?: ImportError[] } : null;
+    const message = typeof detail === "string" ? detail : structuredDetail?.message ?? validationMessage ?? `Request failed (${response.status})`;
+    const error = new Error(message) as Error & { details?: ImportError[] };
+    error.details = structuredDetail?.errors;
     throw error;
   }
   if (response.status === 204) return undefined as T;
@@ -35,7 +41,7 @@ export const api = {
   submitDemoAttempt: (sessionId: string, questionId: string, response: string | string[]) => request<DemoResult>("/api/v1/demo-pack/attempts", {
     method: "POST", headers: JSON_HEADERS, body: JSON.stringify({ session_id: sessionId, question_id: questionId, response }),
   }),
-  createDemoWorksheet: (count: number) => download("/api/v1/demo-pack/worksheet", { count }),
+  createDemoWorksheet: () => download("/api/v1/demo-pack/worksheet", {}),
   getSubjects: () => request<Subject[]>("/api/v1/subjects"),
   createSession: (learnerId: string, subject = "math.elementary", seed = Date.now()) => request<Session>("/api/v1/sessions", {
     method: "POST",
@@ -63,6 +69,7 @@ export const api = {
   createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
+  getQuestionSchema: () => request<object>("/api/v1/questions/schema"),
   validateQuestions: (document: object) => request<{ valid: true; templates_validated: number }>("/api/v1/questions/validate", { method: "POST", body: JSON.stringify({ document }) }),
   getContentSettings: () => request<{ include_drafts: boolean }>("/api/v1/admin/content"),
   saveContentSettings: (includeDrafts: boolean) => request<{ include_drafts: boolean }>("/api/v1/admin/content", {

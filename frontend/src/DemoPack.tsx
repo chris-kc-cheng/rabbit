@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { api } from "./api";
+import { DemoParentView } from "./DemoParentView";
 import { MathBlock } from "./MathBlock";
-import type { DemoQuestion, DemoResult, DemoSession, DemoSubject } from "./types";
+import type { DemoQuestion, DemoResult, DemoSession, DemoSubject, DemoWorksheetPreview } from "./types";
 
 const subjects: Array<{ id: DemoSubject; name: string; subtitle: string }> = [
   { id: "math", name: "Math Lab", subtitle: "See it, turn it, solve it" },
   { id: "trivia", name: "Trivia Show", subtitle: "Pick every answer that fits" },
   { id: "english", name: "Word Studio", subtitle: "Build and polish sentences" },
+  { id: "canadian-citizenship", name: "Discover Canada", subtitle: "Explore Canada's history" },
 ];
 
 function Triangle() {
@@ -67,12 +69,12 @@ export function DemoPack() {
   const canSubmit = typeof response === "string" ? response.trim().length > 0 : Array.isArray(response) && response.length > 0;
 
   return <main className={`demo-page demo-${subject}`}>
-    <header className="demo-intro"><div><p className="eyebrow">Explore the prototype</p><h1>{experience === "learner" ? "Three ways to get curious." : "See the learning behind every try."}</h1><p>{experience === "learner" ? "Try a sample from each subject. Your answers are checked by Rabbit when you press Check answer." : "Preview how a parent can follow progress, spot practice signals, celebrate effort, and make an offline worksheet."}</p></div><div className="experience-switch" role="tablist" aria-label="Demo experience"><button role="tab" aria-selected={experience === "learner"} className={experience === "learner" ? "active" : ""} onClick={() => setExperience("learner")}>Learner view</button><button role="tab" aria-selected={experience === "parent"} className={experience === "parent" ? "active" : ""} onClick={() => setExperience("parent")}>Parent view</button></div></header>
+    <header className="demo-intro"><div><p className="eyebrow">Explore the prototype</p><h1>{experience === "learner" ? "Four ways to get curious." : "See the learning behind every try."}</h1><p>{experience === "learner" ? "Try a sample from each subject. Your answers are checked by Rabbit when you press Check answer." : "Preview how a parent can follow progress, spot practice signals, celebrate effort, and make an offline worksheet."}</p></div><div className="experience-switch" role="tablist" aria-label="Demo experience"><button role="tab" aria-selected={experience === "learner"} className={experience === "learner" ? "active" : ""} onClick={() => setExperience("learner")}>Learner view</button><button role="tab" aria-selected={experience === "parent"} className={experience === "parent" ? "active" : ""} onClick={() => setExperience("parent")}>Parent view</button></div></header>
     {experience === "parent" ? <DemoParentView /> : <>
     <div className="subject-switch" role="tablist" aria-label="Demo subjects">{subjects.map(item => <button key={item.id} type="button" role="tab" aria-selected={subject === item.id} className={subject === item.id ? "active" : ""} onClick={() => selectSubject(item.id)}><strong>{item.name}</strong><small>{item.subtitle}</small></button>)}</div>
     {!session ? <div className="card demo-loading">{error || "Preparing the activities…"}</div> : question && <div className="demo-layout">
-      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span>{index + 1}</span>{item.title}{results[item.id] && <b aria-label="completed">✓</b>}</button>)}</nav>
-      <article className="card demo-card"><div className="demo-card-head"><p className="eyebrow">{subject} · {question.kind.replace("-", " ")}</p><h2>{question.title}</h2><p>{question.instruction}</p></div>
+      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span>{index + 1}</span>{item.title}{results[item.id] && <b className={results[item.id].correct ? "correct" : "wrong"} aria-label={results[item.id].correct ? "correct" : "needs another look"}>{results[item.id].correct ? "✓" : "↗"}</b>}</button>)}</nav>
+      <article className={`card demo-card ${result ? (result.correct ? "result-correct" : "result-wrong") : ""}`}><div className="demo-card-head"><p className="eyebrow">{subject} · {question.kind.replace("-", " ")}</p><h2>{question.title}</h2><p>{question.instruction}</p></div>
         {question.visual === "triangle" && <Triangle />}
         {question.visual === "prism" && <Prism />}
         {question.latex && <MathBlock value={question.latex} />}
@@ -89,35 +91,6 @@ export function DemoPack() {
       </article>
     </div>}</>}
   </main>;
-}
-
-function DemoParentView() {
-  const [rewardEnabled, setRewardEnabled] = useState(true);
-  const [reward, setReward] = useState("Choose Friday's family movie");
-  const [count, setCount] = useState(8);
-  const [generating, setGenerating] = useState(false);
-  const [notice, setNotice] = useState("");
-  const downloadWorksheet = async () => {
-    setGenerating(true); setNotice("");
-    try {
-      const blob = await api.createDemoWorksheet(count);
-      const url = URL.createObjectURL(blob); const link = document.createElement("a");
-      link.href = url; link.download = `rabbit-demo-${count}-questions.pdf`;
-      document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(url);
-      setNotice("Worksheet and answer key downloaded.");
-    } catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not make the worksheet"); }
-    finally { setGenerating(false); }
-  };
-  return <section className="demo-parent" aria-label="Parent dashboard preview">
-    <div className="demo-parent-bar"><div><span className="demo-avatar">M</span><span><strong>Malik&apos;s learning</strong><small>Sample dashboard · illustrative data</small></span></div><select aria-label="Choose learner" defaultValue="Malik"><option>Malik</option><option>Sofia</option></select></div>
-    <div className="demo-metrics"><article><span>Questions tried</span><strong>42</strong><small>+8 this week</small></article><article><span>Accuracy</span><strong>81%</strong><small>34 thoughtful answers</small></article><article><span>Practice streak</span><strong>4 days</strong><small>Personal best: 6</small></article><article><span>Points earned</span><strong>340</strong><small>60 to the family goal</small></article></div>
-    <div className="demo-parent-grid">
-      <article className="card demo-progress-panel"><div className="panel-title"><div><p className="eyebrow">Progress by skill</p><h2>Growing steadily</h2></div><span>Last 30 days</span></div><div className="skill-progress"><div><p><strong>Fractions</strong><span>88%</span></p><i><b style={{width:"88%"}} /></i><small>Ready for a little more challenge</small></div><div><p><strong>Multiplication</strong><span>76%</span></p><i><b style={{width:"76%"}} /></i><small>Building confidence</small></div><div><p><strong>Place value</strong><span>64%</span></p><i><b style={{width:"64%"}} /></i><small>Keep practicing this week</small></div></div></article>
-      <article className="card demo-reward-panel"><p className="eyebrow">Optional encouragement</p><h2>Family reward</h2><label className="demo-toggle"><span><strong>Use a reward goal</strong><small>Celebrate effort together</small></span><input type="checkbox" checked={rewardEnabled} onChange={event => setRewardEnabled(event.target.checked)} /></label><label>Present or experience<input value={reward} disabled={!rewardEnabled} maxLength={80} onChange={event => setReward(event.target.value)} /></label><div className="reward-preview"><p><span>340 points</span><strong>400 goal</strong></p><i><b /></i><small>{rewardEnabled ? reward : "Reward goal is paused"}</small></div></article>
-      <article className="card demo-evidence-panel"><div className="panel-title"><div><p className="eyebrow">Learning evidence</p><h2>Recent answers</h2></div><span>Latest 3</span></div><div className="evidence-list"><div><i className="pass">✓</i><span><strong>Equivalent fractions</strong><small>Answered 3/4 · No hint</small></span><time>Today</time></div><div><i className="practice">↗</i><span><strong>Two-digit multiplication</strong><small>Answered 245 · Used a hint</small></span><time>Today</time></div><div><i className="pass">✓</i><span><strong>Place value</strong><small>Answered 7,000 · No hint</small></span><time>Yesterday</time></div></div><div className="practice-signal"><span>◎</span><p><strong>A useful practice signal</strong>Malik chose the “multiply only the ones” route twice. Rabbit will offer another supportive example.</p></div></article>
-      <article className="card demo-pdf-panel"><p className="eyebrow">Practice away from the screen</p><h2>Make a real PDF worksheet</h2><p>Download a printable arithmetic worksheet plus a separate answer key with explanations.</p><label>Number of questions<input type="number" min="1" max="20" value={count} onChange={event => setCount(Math.max(1, Math.min(20, Number(event.target.value) || 1)))} /></label><button className="primary" disabled={generating} onClick={downloadWorksheet}>{generating ? "Building your PDF…" : "↓ Generate & download PDF"}</button>{notice && <small className="download-notice" role="status">✓ {notice}</small>}</article>
-    </div>
-  </section>;
 }
 
 function Reorder({ question, order, disabled, onChange, onMove, dragId, setDragId }: { question: DemoQuestion; order: string[]; disabled: boolean; onChange: (value: string[]) => void; onMove: (from: number, to: number) => void; dragId: string | null; setDragId: (id: string | null) => void }) {

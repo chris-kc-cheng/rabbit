@@ -42,12 +42,16 @@ services:
     depends_on:
       api:
         condition: service_healthy
-    ports:
-      - "127.0.0.1:${RABBIT_PORT:-8090}:8080"
     security_opt: ["no-new-privileges:true"]
-    networks: [rabbit_internal]
+    networks:
+      rabbit_internal:
+      proxy:
+        aliases: [rabbit-web]
 networks:
   rabbit_internal:
     name: rabbit-internal
+  proxy:
+    external: true
+    name: proxy
 volumes:
   rabbit_postgres:

@@ -80,6 +80,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
   --line: #554842;
   --green: #72d5b5;
   --green-soft: #173c34;
+  --red: #ff918c;
+  --red-soft: #492a29;
   --amber: #f4bd63;
   --paper: #282321;
   --bg: #1b1817;
@@ -99,15 +101,24 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 [data-theme="dark"] .choice.wrong { background: #492a29; }
 [data-theme="dark"] .preview-badge { background: #493b20; color: #f2cb7f; }
 [data-theme="dark"] .toast { background: #39312e; }
-[data-theme="dark"] .demo-page { --pack-soft: #432e29; }
-[data-theme="dark"] .demo-trivia { --pack-soft: #34304c; }
-[data-theme="dark"] .demo-english { --pack-soft: #203d37; }
+[data-theme="dark"] .demo-page { --pack-accent: #ff9b87; --pack-soft: #432e29; }
+[data-theme="dark"] .demo-trivia { --pack-accent: #c3b8ff; --pack-soft: #34304c; }
+[data-theme="dark"] .demo-english { --pack-accent: #72d5b5; --pack-soft: #203d37; }
+[data-theme="dark"] .demo-canadian-citizenship { --pack-accent: #ff9aa6; --pack-soft: #472b30; }
 [data-theme="dark"] .demo-choices button,
 [data-theme="dark"] .word-tile,
 [data-theme="dark"] .docs-version,
 [data-theme="dark"] .docs-example-card { background: var(--choice-bg); }
 [data-theme="dark"] .demo-question-list span { background: var(--subtle); }
 [data-theme="dark"] .demo-feedback { background: #42351f; }
+[data-theme="dark"] .choice.correct>span,
+[data-theme="dark"] .choice.wrong>span,
+[data-theme="dark"] .feedback.positive>b,
+[data-theme="dark"] .feedback.coaching>b,
+[data-theme="dark"] .demo-card.result-correct .demo-choices button.selected>span,
+[data-theme="dark"] .demo-card.result-wrong .demo-choices button.selected>span,
+[data-theme="dark"] .demo-choices button.selected>span,
+[data-theme="dark"] .demo-actions .primary { color: #1b1817; }
 [data-theme="dark"] .docs-jump { background: rgba(27, 24, 23, .94); }
 [data-theme="dark"] .docs-type-list button:hover { background: var(--subtle); }
 [data-theme="dark"] .docs-example-head .prototype { background: #493b20; color: #f2cb7f; }

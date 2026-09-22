@@ -32,16 +32,25 @@ JavaScript.
 
 ## Fixed subject-pack prototype
 
-`content/demo-pack.json` contains eight fixed prototype examples for the
+`content/demo-pack.json` contains eleven fixed prototype examples for the
 Explore packs screen. Its separate contract is `content/demo-pack.schema.json`.
 The pack covers a labeled trigonometry triangle, a rotatable rectangular prism,
 a KaTeX formula question, image-backed quiz and multi-select trivia, fill-in-the-blank,
-word reordering, and grammar correction. The bitmap is stored at
+word reordering, grammar correction, and three Canadian history questions based
+on the draft *Discover Canada* fact collection. The bitmap is stored at
 `frontend/public/trivia-animals.png`. The API removes `answer` and `feedback`
 before an attempt and grades each kind on the server. These examples are not
 parameterized, adaptive, or part of the published v2 banks. The published math
 bank remains the source of truth for regular learner sessions. The examples still
 need curriculum review before any production publication.
+
+The unauthenticated demo PDF endpoint prints all eleven activities shown in the
+Explore packs kid view, in the same order. It includes the triangle and prism
+diagrams, readable formulas, the authored animal image and alt text, every
+choice or response area, and a separate answer key. The endpoint does not create
+a learner session or retain attempt data. The backend image packages the shared
+bitmap and locates it through `RABBIT_DEMO_ASSET_DIRECTORY`, because container
+module paths differ from the source-repository layout.
 
 ## Required template example
 
@@ -133,3 +142,58 @@ The Canadian history bank remains `draft` because its source facts still require
 human curriculum review. Prototype admins may expose it for review without
 changing its publication status; production use still requires formal review and
 a new immutable published version.
+
+## Parameter field reference
+
+A computed parameter is a named integer domain. The property name must match
+`^[a-z][a-z0-9_]*$` and becomes the variable available to expressions. `type` is
+currently always `integer`; `min` and `max` are inclusive JSON integers; optional
+`step` is an integer of at least 1 and defaults to 1. Thus
+`{"type":"integer","min":2,"max":8,"step":2}` permits exactly 2, 4, 6, and 8.
+The generator rejects an empty range, unknown variables, unsafe syntax,
+non-finite results, and questions that cannot produce four distinct choices.
+
+## Formula and diagram boundaries
+
+Answer, distractor, interpolation, numerator, and denominator expressions share
+the numeric DSL: declared variables, numeric constants, parentheses, unary `+`
+or `-`, and binary `+`, `-`, `*`, `/`, `//`, and `%`. Powers, comparisons,
+Boolean operators, assignment, strings, collections, indexing, attributes, and
+function calls are not supported. In a `math` prompt block, reviewed static
+KaTeX presentation commands such as `\\times`, `\\div`, `\\frac`, superscripts,
+and subscripts may be used. Rendering is strict HTML+MathML with trust disabled;
+HTML, links, images, macros, raw SVG, and trust-requiring commands are forbidden.
+
+The only normative v2 diagram is `fraction-bar`. Its `numerator` and
+`denominator` fields are DSL expressions, not final coordinates. For parameters
+`shaded` and `total`, an author can use:
+
+```json
+{
+  "type": "fraction-bar",
+  "numerator": "shaded",
+  "denominator": "total",
+  "alt": "{{shaded}} of {{total}} equal parts are shaded"
+}
+```
+
+The server resolves those expressions and the client draws equal sanitized
+segments. v2 does not accept raw SVG, arbitrary shapes, scripts, coordinates, or
+colours. The Docs page includes sliders that update this example immediately.
+The exact schema accepted by the validator can also be downloaded from
+`GET /api/v1/questions/schema` as `application/schema+json`.
+
+
+## Self-documenting field guides
+
+The Docs page shows a responsive tree-table immediately below both visible JSON
+examples. The bank table explains each top-level path, whether it is required,
+its accepted values, and its product meaning. The question table changes with
+the selected type: computed templates, fact collections, and fixed-pack
+prototypes each receive the relevant field definitions. On narrow screens each
+row becomes a labelled card rather than requiring horizontal scrolling.
+
+The Discover Canada prompt is also self-contained. The page fetches the exact
+live schema from `GET /api/v1/questions/schema`, appends it inside the prompt,
+and enables Copy only after that succeeds. Authors paste official excerpts into
+the marked block; they do not need to manage a separate schema attachment.

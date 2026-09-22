@@ -26,11 +26,14 @@ if os.environ.get("RABBIT_ENV") == "production" and not os.environ.get("RABBIT_J
 JWT_SECRET = os.environ.get("RABBIT_JWT_SECRET", secrets.token_urlsafe(48))
 JWT_TTL_SECONDS = int(os.environ.get("RABBIT_JWT_TTL_SECONDS", "3600"))
 bearer = HTTPBearer(auto_error=False)
+SCRYPT_MAX_MEMORY = 64 * 1024 * 1024
 
 
 def hash_password(password: str) -> str:
     salt = secrets.token_bytes(16)
-    digest = hashlib.scrypt(password.encode(), salt=salt, n=2**14, r=8, p=1)
+    digest = hashlib.scrypt(
+        password.encode(), salt=salt, n=2**14, r=8, p=1, maxmem=SCRYPT_MAX_MEMORY
+    )
     return f"scrypt${_encode(salt)}${_encode(digest)}"
 
 
@@ -39,7 +42,10 @@ def verify_password(password: str, encoded: str) -> bool:
         algorithm, salt, expected = encoded.split("$")
         if algorithm != "scrypt":
             return False
-        actual = hashlib.scrypt(password.encode(), salt=_decode(salt), n=2**14, r=8, p=1)
+        actual = hashlib.scrypt(
+            password.encode(), salt=_decode(salt), n=2**14, r=8, p=1,
+            maxmem=SCRYPT_MAX_MEMORY,
+        )
         return hmac.compare_digest(actual, _decode(expected))
     except (ValueError, TypeError):
         return False
@@ -83,13 +89,13 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bear
                  db: Session = Depends(get_db)) -> dict:
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(401, "Please log in")
-    from .repositories import IdentityRepository, user_record
-    from .store import store
+    from .repositories import IdentityRepository, TokenRepository, user_record
     claims = decode_token(credentials.credentials)
     model = IdentityRepository(db).get_by_id(claims["sub"])
     user = user_record(model) if model is not None else None
     if (user is None or user.get("disabled") or user["role"] != claims["role"]
-            or user["token_version"] != claims.get("ver") or claims.get("jti") in store.revoked_tokens):
+            or user["token_version"] != claims.get("ver")
+            or TokenRepository(db).is_revoked(claims.get("jti", ""))):
         raise HTTPException(401, "This login is no longer active")
     return user
 
