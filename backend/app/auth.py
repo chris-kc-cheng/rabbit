@@ -89,13 +89,13 @@ def current_user(credentials: HTTPAuthorizationCredentials | None = Depends(bear
                  db: Session = Depends(get_db)) -> dict:
     if credentials is None or credentials.scheme.lower() != "bearer":
         raise HTTPException(401, "Please log in")
-    from .repositories import IdentityRepository, user_record
-    from .store import store
+    from .repositories import IdentityRepository, TokenRepository, user_record
     claims = decode_token(credentials.credentials)
     model = IdentityRepository(db).get_by_id(claims["sub"])
     user = user_record(model) if model is not None else None
     if (user is None or user.get("disabled") or user["role"] != claims["role"]
-            or user["token_version"] != claims.get("ver") or claims.get("jti") in store.revoked_tokens):
+            or user["token_version"] != claims.get("ver")
+            or TokenRepository(db).is_revoked(claims.get("jti", ""))):
         raise HTTPException(401, "This login is no longer active")
     return user
 

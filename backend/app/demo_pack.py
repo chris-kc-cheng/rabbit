@@ -9,10 +9,11 @@ import json
 import os
 import secrets
 from pathlib import Path
-from threading import Lock
-
 from fastapi import HTTPException
 from pydantic import BaseModel, Field
+from sqlalchemy.orm import Session
+
+from .repositories import DemoRepository
 
 
 class DemoAttempt(BaseModel):
@@ -25,8 +26,6 @@ _content_dir = Path(os.environ["RABBIT_QUESTION_BANK"]).parent if "RABBIT_QUESTI
 _questions = {item["id"]: item for item in json.loads(
     (_content_dir / "demo-pack.json").read_text(encoding="utf-8")
 )["questions"]}
-_sessions: dict[str, dict[str, dict]] = {}
-_lock = Lock()
 
 
 def demo_questions() -> list[dict]:
@@ -34,17 +33,16 @@ def demo_questions() -> list[dict]:
     return list(_questions.values())
 
 
-def create_demo_session() -> dict:
+def create_demo_session(db: Session) -> dict:
     session_id = secrets.token_urlsafe(18)
-    with _lock:
-        _sessions[session_id] = {}
+    DemoRepository(db).create(session_id)
     return {"id": session_id, "questions": [
         {key: value for key, value in question.items() if key not in {"answer", "feedback"}}
         for question in demo_questions()
     ]}
 
 
-def grade_demo_attempt(attempt: DemoAttempt) -> dict:
+def grade_demo_attempt(attempt: DemoAttempt, db: Session) -> dict:
     question = _questions.get(attempt.question_id)
     if question is None:
         raise HTTPException(404, "Question not found")
@@ -72,14 +70,16 @@ def grade_demo_attempt(attempt: DemoAttempt) -> dict:
         correct = normalize(value) == normalize(question["answer"])
 
     result = {"correct": correct, "feedback": question["feedback"], "points_earned": 10 if correct else 0}
-    with _lock:
-        session = _sessions.get(attempt.session_id)
-        if session is None:
-            raise HTTPException(404, "Demo session not found")
-        previous = session.get(attempt.question_id)
-        if previous:
-            if previous["response"] == value:
-                return previous["result"]
-            raise HTTPException(409, "Question already answered")
-        session[attempt.question_id] = {"response": value, "result": result}
+    repository = DemoRepository(db)
+    if not repository.exists(attempt.session_id):
+        raise HTTPException(404, "Demo session not found")
+    previous = repository.attempt(attempt.session_id, attempt.question_id)
+    if previous:
+        if previous.response["value"] == value:
+            return previous.result
+        raise HTTPException(409, "Question already answered")
+    try:
+        repository.add_attempt(attempt.session_id, attempt.question_id, value, result)
+    except ValueError:
+        raise HTTPException(409, "Question already answered") from None
     return result
