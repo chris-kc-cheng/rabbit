@@ -6,7 +6,7 @@ import time
 from io import BytesIO
 
 from fastapi import Depends, FastAPI, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import HTTPAuthorizationCredentials
 from jsonschema import Draft202012Validator
@@ -140,6 +140,16 @@ SCHEMA_PATH = BANK_DIRECTORY / "question-template.schema.json"
 QUESTION_VALIDATOR = Draft202012Validator(json.loads(SCHEMA_PATH.read_text(encoding="utf-8")))
 
 
+@app.get("/api/v1/questions/schema", response_class=FileResponse)
+def question_schema() -> FileResponse:
+    """Return the exact authoring contract used by the public validator."""
+    return FileResponse(
+        SCHEMA_PATH,
+        media_type="application/schema+json",
+        filename="rabbit-question-bank-v2.schema.json",
+    )
+
+
 def error_path(error) -> str:
     return "$" + "".join(f"[{part}]" if isinstance(part, int) else f".{part}" for part in error.absolute_path)
 
@@ -159,7 +169,11 @@ def error_suggestion(error) -> str:
 
 
 def validate_question_bank(document: dict) -> list[dict[str, str]]:
-    errors = sorted(QUESTION_VALIDATOR.iter_errors(document), key=lambda item: error_path(item))
+    try:
+        errors = sorted(QUESTION_VALIDATOR.iter_errors(document), key=lambda item: error_path(item))
+    except Exception as error:
+        return [{"path": "$", "message": f"The schema check could not read this document: {error}",
+                 "suggestion": "Confirm the uploaded value is a complete JSON question-bank object."}]
     if errors:
         return [{"path": error_path(error), "message": error.message, "suggestion": error_suggestion(error)}
                 for error in errors[:25]]

@@ -144,6 +144,19 @@ def test_public_question_validation_checks_schema_and_generation_without_importi
     assert response.json() == {"valid": True, "templates_validated": 10}
     assert store.imported_banks == {}
 
+    bank["templates"][0]["answer"]["expression"] = "1 / 0"
+    unsafe = client.post("/api/v1/questions/validate", json={"document": bank})
+    assert unsafe.status_code == 422
+    assert unsafe.json()["detail"]["errors"][0]["path"] == "$.templates"
+
+
+def test_public_question_schema_is_downloadable():
+    response = client.get("/api/v1/questions/schema")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("application/schema+json")
+    assert "rabbit-question-bank-v2.schema.json" in response.headers["content-disposition"]
+    assert response.json()["properties"]["schemaVersion"]["const"] == 2
+
 
 def test_expired_jwt_is_rejected():
     import app.auth as auth
