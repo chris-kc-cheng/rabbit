@@ -69,6 +69,10 @@ export function Documentation() {
       setValidation({ state: "invalid", message: "This is not valid JSON yet.", errors: [{ path: "$", message: "The JSON could not be parsed.", suggestion: "Check commas, quotation marks, and brackets." }] });
       return;
     }
+    if (!document || Array.isArray(document) || typeof document !== "object") {
+      setValidation({ state: "invalid", message: "A question bank must be a JSON object.", errors: [{ path: "$", message: "The top-level JSON value must be an object.", suggestion: "Wrap the schema version, subject, title, and templates fields in one JSON object." }] });
+      return;
+    }
     try {
       const result = await api.validateQuestions(document);
       setValidation({ state: "valid", message: `Valid question bank. ${result.templates_validated} template${result.templates_validated === 1 ? "" : "s"} passed the schema and generation checks.` });

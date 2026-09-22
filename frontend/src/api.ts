@@ -7,9 +7,15 @@ async function request<T>(url: string, options?: RequestInit): Promise<T> {
   const response = await fetch(url, { ...options, headers: { ...(options?.body ? JSON_HEADERS : {}), ...options?.headers, ...(token ? { Authorization: `Bearer ${token}` } : {}) } });
   if (!response.ok) {
     if (response.status === 401 && token) { sessionStorage.removeItem("rabbit_token"); window.dispatchEvent(new Event("rabbit:unauthorized")); }
-    const message = await response.json().catch(() => ({ detail: "Request failed" }));
-    const error = new Error(typeof message.detail === "string" ? message.detail : message.detail?.message ?? "Request failed") as Error & { details?: ImportError[] };
-    error.details = message.detail?.errors;
+    const payload: unknown = await response.json().catch(() => null);
+    const detail = payload && typeof payload === "object" && "detail" in payload ? payload.detail : null;
+    const validationMessage = Array.isArray(detail) && detail[0] && typeof detail[0] === "object" && "msg" in detail[0] && typeof detail[0].msg === "string"
+      ? detail[0].msg
+      : null;
+    const structuredDetail = detail && !Array.isArray(detail) && typeof detail === "object" ? detail as { message?: string; errors?: ImportError[] } : null;
+    const message = typeof detail === "string" ? detail : structuredDetail?.message ?? validationMessage ?? `Request failed (${response.status})`;
+    const error = new Error(message) as Error & { details?: ImportError[] };
+    error.details = structuredDetail?.errors;
     throw error;
   }
   if (response.status === 204) return undefined as T;
