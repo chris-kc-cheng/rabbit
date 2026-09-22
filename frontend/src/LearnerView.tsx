@@ -33,7 +33,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
   if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
   if (index >= session.questions.length) return (
-    <main className="learner-column"><section className="card finish"><span className="celebration">★</span><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
+    <main className="learner-column"><section className="card finish"><img className="finish-mascot" src="/rabbit-excited.png" alt="Rabbit celebrating" /><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
       <p>You completed this practice trail and earned <strong>{points} accuracy points</strong>.</p>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
       <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
@@ -66,8 +66,8 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
             onClick={() => setSelected(choice.id)}><span>{correct ? "✓" : wrong ? "×" : String.fromCharCode(65 + choiceIndex)}</span>{choice.value}</button>;
         })}
       </div>
-      {hintVisible && !result && <aside className="hint">💡 <span><strong>A little nudge</strong>{question.hint}<small>Hints help you learn and are shared with your parent as learning evidence.</small></span></aside>}
-      {result && <aside className={`feedback ${result.correct ? "positive" : "coaching"}`} role="status"><b>{result.correct ? "✓" : "↗"}</b><span><strong>{result.correct ? "Brilliant thinking!" : "Good try — this is how we grow."}</strong>{result.feedback}</span></aside>}
+      {hintVisible && !result && <aside className="hint"><img className="feedback-mascot" src="/rabbit-thinking.png" alt="" /><span><strong>A little nudge</strong>{question.hint}<small>Hints help you learn and are shared with your parent as learning evidence.</small></span></aside>}
+      {result && <aside className={`feedback ${result.correct ? "positive" : "coaching"}`} role="status"><img className="feedback-mascot" src={result.correct ? "/rabbit-excited.png" : "/rabbit-supportive.png"} alt="" /><span><strong>{result.correct ? "Brilliant thinking!" : "Good try — this is how we grow."}</strong>{result.feedback}</span></aside>}
     </article>
     <footer className="actions"><button className="quiet" disabled={Boolean(result)} onClick={() => setHintVisible(!hintVisible)}>💡 {hintVisible ? "Hide hint" : "Need a hint?"}</button>
       {result ? <button className="primary" onClick={next}>Next question →</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer →</button>}</footer>
