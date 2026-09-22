@@ -85,7 +85,6 @@ jobs:
           GHCR_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
           API_IMAGE: "${{ steps.images.outputs.api }}"
           WEB_IMAGE: "${{ steps.images.outputs.web }}"
-          RABBIT_PORT: "${{ vars.RABBIT_PORT || '8090' }}"
           RABBIT_ADMIN_PASSWORD: "${{ secrets.RABBIT_ADMIN_PASSWORD }}"
           RABBIT_JWT_SECRET: "${{ secrets.RABBIT_JWT_SECRET }}"
           RABBIT_DATABASE_PASSWORD: "${{ secrets.RABBIT_DATABASE_PASSWORD }}"
@@ -94,5 +93,5 @@ jobs:
           ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'mkdir -p ~/rabbit'
           scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:~/rabbit/compose.prod.yml"
           printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
-          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_PORT=%s\nRABBIT_ADMIN_PASSWORD=%s\nRABBIT_JWT_SECRET=%s\nRABBIT_DATABASE_PASSWORD=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_PORT" "$RABBIT_ADMIN_PASSWORD" "$RABBIT_JWT_SECRET" "$RABBIT_DATABASE_PASSWORD" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
+          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_ADMIN_PASSWORD=%s\nRABBIT_JWT_SECRET=%s\nRABBIT_DATABASE_PASSWORD=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_ADMIN_PASSWORD" "$RABBIT_JWT_SECRET" "$RABBIT_DATABASE_PASSWORD" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
           ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'cd ~/rabbit && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml pull && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml up -d --remove-orphans'
