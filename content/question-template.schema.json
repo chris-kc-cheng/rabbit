@@ -8,7 +8,7 @@
   "required": ["schemaVersion", "generatorVersion", "publicationStatus", "subject", "title", "locale", "templates"],
   "properties": {
     "schemaVersion": { "const": 2 },
-    "generatorVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "generatorVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$", "description": "Semantic version of the deterministic server generator, for example 2.0.0." },
     "publicationStatus": { "enum": ["draft", "published"] },
     "subject": { "$ref": "#/$defs/stableId" },
     "title": { "type": "string", "minLength": 1, "maxLength": 100 },
@@ -20,12 +20,14 @@
   },
   "$defs": {
     "stableId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$" },
-    "expression": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "expression": { "type": "string", "minLength": 1, "maxLength": 200, "description": "Rabbit arithmetic DSL: declared variables, numeric constants, parentheses, unary +/- and binary +, -, *, /, //, %. No calls, powers, indexing, attributes, or code." },
     "parameter": {
       "type": "object", "additionalProperties": false, "required": ["type", "min", "max"],
       "properties": {
-        "type": { "const": "integer" }, "min": { "type": "integer" },
-        "max": { "type": "integer" }, "step": { "type": "integer", "minimum": 1 }
+        "type": { "const": "integer", "description": "v2 generates whole-number parameters only." },
+        "min": { "type": "integer", "description": "Inclusive lower bound; must be no greater than max." },
+        "max": { "type": "integer", "description": "Inclusive upper bound." },
+        "step": { "type": "integer", "minimum": 1, "description": "Optional positive spacing from min; defaults to 1." }
       }
     },
     "block": {
