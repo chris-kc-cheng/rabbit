@@ -323,6 +323,7 @@ def test_admin_lists_created_user_and_can_impersonate_active_accounts():
     viewed_headers = {"Authorization": f"Bearer {viewed.json()['access_token']}"}
     assert client.get("/api/v1/auth/me", headers=viewed_headers).json() == created
     assert client.get("/api/v1/admin/users", headers=viewed_headers).status_code == 403
+    assert client.get("/api/v1/parents/learners", headers=viewed_headers).status_code == 200
 
     paused = client.put(f"/api/v1/admin/users/{created['id']}", headers=admin_headers,
                         json={"username": "visible.parent", "display_name": "Visible Parent",
