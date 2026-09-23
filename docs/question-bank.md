@@ -7,6 +7,9 @@
   specification release name, not a Rabbit content date or a generated value.
 - `content/math.question-bank.json` is the published ten-template elementary
   math bank loaded by FastAPI.
+- `content/math-visuals.question-bank.json` is a draft review bank exercising
+  every declarative table and visual type. It is deliberately not published;
+  curriculum and accessibility reviewers must approve its content first.
 - `content/canadian-citizenship.question-bank.json` is a draft, executable
   example of a reusable historical-event collection based on *Discover Canada*.
   Draft banks appear in the prototype learner subject catalogue when an admin
@@ -105,6 +108,12 @@ A bank wraps templates with `schemaVersion`, `generatorVersion`,
 whole file, then property-test many seeds because JSON Schema cannot prove that
 computed options remain distinct.
 
+Use one bank for a coherent broad subject or course, even when it contains many
+subtopics. Each template's stable `skill` is the topic-selection boundary used by
+practice and worksheet tools. Separate files are appropriate for independent
+publication lifecycles such as different grades, locales, curriculum authorities,
+or review owners—not merely because a subject has several topics.
+
 The admin curriculum view deliberately reports templates separately from the
 questions they can produce. A template is a reusable generation recipe. For a
 fact collection, the basic generation space is the number of facts multiplied
@@ -179,8 +188,13 @@ KaTeX presentation commands such as `\\times`, `\\div`, `\\frac`, superscripts,
 and subscripts may be used. Rendering is strict HTML+MathML with trust disabled;
 HTML, links, images, macros, raw SVG, and trust-requiring commands are forbidden.
 
-The only normative v2 diagram is `fraction-bar`. Its `numerator` and
-`denominator` fields are DSL expressions, not final coordinates. For parameters
+Normative v2 visuals are closed, declarative objects: `data-table`, `fraction-bar`,
+`rectangle-grid`, `angle`, `triangle`, `solid`, and `scene-2d`. Authors describe
+meaningful values; Rabbit resolves expressions and compiles the result to its own
+web SVG/HTML and PDF primitives. Raw SVG, scripts, styles, URLs, arbitrary markup,
+and author-selected colours remain forbidden.
+
+The fraction bar's `numerator` and `denominator` fields are DSL expressions, not final coordinates. For parameters
 `shaded` and `total`, an author can use:
 
 ```json
@@ -193,10 +207,27 @@ The only normative v2 diagram is `fraction-bar`. Its `numerator` and
 ```
 
 The server resolves those expressions and the client draws equal sanitized
-segments. v2 does not accept raw SVG, arbitrary shapes, scripts, coordinates, or
-colours. The Docs page includes sliders that update this example immediately.
+segments. Rectangle grids, angles, triangles, and solids similarly expose only
+bounded mathematical dimensions. A data table permits 2–8 columns and up to 20
+rows; every resolved row must match the column count. The general `scene-2d`
+escape hatch remains bounded to 24 named points in a 0–100 view box, 36 segments,
+and 12 polygons. References must name declared points. It cannot carry paths,
+scripts, styles, event handlers, foreign resources, or raw SVG.
+
+Every visual requires equivalent `alt` text. Web, history, admin preview, and PDF
+renderers consume the same resolved payload. The Docs page includes sliders that update the fraction-bar example immediately.
 The exact schema accepted by the validator can also be downloaded from
 `GET /api/v1/questions/schema` as `application/schema+json`.
+
+| Visual type | Authored content | Safety and accessibility boundary |
+| --- | --- | --- |
+| `data-table` | Caption, 2–8 column headings, 1–20 equal-width rows | Text interpolation only; no HTML; `alt` summarizes the table's purpose. |
+| `fraction-bar` | Numerator and denominator expressions | Resolved numerator must be from zero through the positive denominator. |
+| `rectangle-grid` | Width, height, optional shaded-cell count, and unit | Positive dimensions are capped at 100; shading cannot exceed the cell count. |
+| `angle` | Degree expression and optional label | Only non-reflex 1–179 degree angles are accepted. |
+| `triangle` | `right` or `isosceles`, base, height, unit, and optional unknown | The renderer owns vertices and marks; authors cannot provide SVG coordinates. |
+| `solid` | `rectangular-prism` or `cube`, three dimensions, and unit | Uses a deterministic static projection with the same labelled PDF fallback. |
+| `scene-2d` | Named bounded points, segments, optional polygons and labels | IDs are unique, references must exist, and coordinates stay inside 0–100. |
 
 
 ## Self-documenting field guides

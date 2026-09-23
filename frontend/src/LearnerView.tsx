@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { api } from "./api";
 import { AttemptHistory } from "./AttemptHistory";
-import { FractionBar } from "./FractionBar";
+import { QuestionVisual } from "./QuestionVisual";
 import { MathBlock } from "./MathBlock";
 import { correctAnswersNeeded, reachedAccuracyTarget, trophyForCompletedTrail } from "./raceRules";
 import type { AttemptResult, Progress, Session, Subject } from "./types";
@@ -74,7 +74,7 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
     <article className="card question-card">
       <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 EXP for a correct answer</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">{subject === "canadian-citizenship" ? "Discover Canada · Draft" : "Math explorer"}</span></header>
       <section className="prompt">{question.prompt.map((block, blockIndex) => block.type === "math" ? <MathBlock key={blockIndex} value={block.value} /> : <p key={blockIndex}>{block.value}</p>)}</section>
-      {question.visual && <FractionBar {...question.visual} />}
+      {question.visual && <QuestionVisual visual={question.visual} />}
       <div className="choices" role="radiogroup" aria-label="Answer choices">
         {question.choices.map((choice, choiceIndex) => {
           const correct = result && choice.id === result.correct_choice_id;

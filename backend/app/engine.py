@@ -97,6 +97,66 @@ def format_value(value: int | float, style: str) -> str:
     return str(value)
 
 
+_VISUAL_EXPRESSION_FIELDS = {
+    "numerator", "denominator", "width", "height", "shaded", "degrees",
+    "base", "length", "x", "y",
+}
+
+
+def resolve_visual(visual: dict[str, Any], variables: dict[str, Any]) -> dict[str, Any]:
+    """Resolve a validated declarative visual without accepting drawing code."""
+    numeric_variables = {
+        key: value for key, value in variables.items()
+        if isinstance(value, (int, float)) and not isinstance(value, bool)
+    }
+
+    def resolve(value: Any, key: str = "") -> Any:
+        if isinstance(value, dict):
+            return {child_key: resolve(child, child_key) for child_key, child in value.items()}
+        if isinstance(value, list):
+            return [resolve(child, key) for child in value]
+        if isinstance(value, str):
+            if key in _VISUAL_EXPRESSION_FIELDS:
+                return evaluate(value, numeric_variables)
+            return render_text(value, variables)
+        return value
+
+    resolved = resolve(visual)
+    visual_type = resolved["type"]
+    positive_fields = {
+        "fraction-bar": ("denominator",), "rectangle-grid": ("width", "height"),
+        "triangle": ("base", "height"), "solid": ("length", "width", "height"),
+    }.get(visual_type, ())
+    if any(not 0 < resolved[field] <= 100 for field in positive_fields):
+        raise ValueError("Visual dimensions must be greater than zero and at most 100")
+    if visual_type == "fraction-bar" and not 0 <= resolved["numerator"] <= resolved["denominator"]:
+        raise ValueError("Fraction-bar numerator must be between zero and its denominator")
+    if (visual_type == "rectangle-grid" and "shaded" in resolved
+            and not 0 <= resolved["shaded"] <= resolved["width"] * resolved["height"]):
+        raise ValueError("Rectangle-grid shading must fit within the grid")
+    if visual_type == "angle" and not 1 <= resolved["degrees"] <= 179:
+        raise ValueError("Angle must be between 1 and 179 degrees")
+    if (visual_type == "solid" and resolved["kind"] == "cube"
+            and len({resolved["length"], resolved["width"], resolved["height"]}) != 1):
+        raise ValueError("Cube dimensions must be equal")
+    if resolved["type"] == "data-table":
+        width = len(resolved["columns"])
+        if any(len(row) != width for row in resolved["rows"]):
+            raise ValueError("Data-table rows must match the number of columns")
+    if resolved["type"] == "scene-2d":
+        if any(not 0 <= point[axis] <= 100 for point in resolved["points"] for axis in ("x", "y")):
+            raise ValueError("Scene points must stay inside the 0 to 100 view box")
+        point_ids = [point["id"] for point in resolved["points"]]
+        if len(point_ids) != len(set(point_ids)):
+            raise ValueError("Scene point IDs must be unique")
+        known = set(point_ids)
+        references = [item[key] for item in resolved["segments"] for key in ("from", "to")]
+        references += [point for polygon in resolved.get("polygons", []) for point in polygon["points"]]
+        if any(reference not in known for reference in references):
+            raise ValueError("Scene elements must reference declared points")
+    return resolved
+
+
 def load_bank(path: Path | None = None) -> dict[str, Any]:
     return json.loads((path or BANK_PATH).read_text(encoding="utf-8"))
 
@@ -151,15 +211,7 @@ def _public_question(
     ]
     visual = variant.get("visual")
     if visual:
-        numeric_variables = {
-            key: value for key, value in variables.items() if isinstance(value, (int, float))
-        }
-        visual = {
-            key: evaluate(value, numeric_variables)
-            if key in {"numerator", "denominator"}
-            else value
-            for key, value in visual.items()
-        }
+        visual = resolve_visual(visual, variables)
     public = PublicQuestion(
         id=instance_id, template_id=template["id"], variant_id=variant.get("id", "default"),
         skill=template["skill"], difficulty=variant.get("difficulty", template.get("difficulty", 1)),

@@ -7,6 +7,8 @@ The rebuild uses **React**, **FastAPI**, **Docker Compose**, and a schema-valida
 ## What works
 
 - Ten parameterized elementary-math templates with deterministic generation.
+- Per-learner parent controls for one, several, or all practice topics, plus an
+  accessible topic-strength radar based on submitted-answer evidence.
 - Misconception-based choices, server-side grading, hints, and feedback.
 - PostgreSQL-backed accounts, practice sessions, attempts, rewards, imported
   content, application settings, demo activity, and JWT revocations, with
