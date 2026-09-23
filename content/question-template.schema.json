@@ -225,7 +225,8 @@
                 "number",
                 "decimal",
                 "money"
-              ]
+              ],
+              "description": "Learner-visible formatting applied before choice uniqueness is checked. number uses an unpadded numeric representation (integer results omit .0); decimal rounds to exactly one fractional digit; money rounds to exactly two fractional digits and prefixes $. Use decimal only for tenths, money only for currency, and number when non-currency choices must remain distinct beyond tenths. V2 cannot require trailing zeros for non-currency hundredths."
             }
           }
         },

@@ -56,6 +56,13 @@ Requirements:
   SVG, a URL, or an untrusted LaTeX command.
 - Provide structured text/math prompt blocks, exactly one answer expression, a
   useful hint, a worked explanation, and meaningful screen-reader text.
+- Choose `answer.format` by learner-visible precision: `number` is unpadded and
+  does not preserve trailing zeros; `decimal` rounds to exactly one fractional
+  digit; `money` adds `$` and rounds to exactly two fractional digits. Use
+  `decimal` only for answers intentionally shown to tenths and `money` only for
+  currency. Use `number` when non-currency choices must differ at hundredths and
+  a trailing zero is not required. V2 cannot express fixed two-decimal
+  non-currency output; do not substitute `money` or invent another format.
 - When the question needs structured data or a diagram, use exactly one supported
   declarative `visual`: `data-table`, `fraction-bar`, `rectangle-grid`, `angle`,
   `triangle`, `solid`, or `scene-2d`. Use expressions only in fields marked as
@@ -69,7 +76,9 @@ Requirements:
   expressions. Each needs a stable id, stable misconception id, and supportive
   feedback explaining the next step without labeling or shaming the learner.
 - Silently test minimum, middle, and maximum parameter values. Correct and wrong
-  values must be finite and distinct. Avoid ambiguous wording, division by zero,
+  values must be finite and remain distinct after applying `answer.format`;
+  expressions that differ by `0.01` are not distinct under `decimal`. Avoid
+  ambiguous wording, division by zero,
   unintended negative answers, stereotypes, personal data, advertising, and
   promises of rewards.
 - Do not invent fields outside the schema. If the objective cannot fit a v2 computed

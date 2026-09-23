@@ -228,6 +228,17 @@ def test_import_pinpoints_schema_path_and_imports_valid_bank():
     assert response.status_code==200 and response.json()["templates_imported"]==10
 
 
+def test_ontario_grade_5_sample_imports():
+    headers, _ = login()
+    path = Path(__file__).parents[2] / "sample/ontario-grade-5-math-chatgpt.json"
+    bank = json.loads(path.read_text(encoding="utf-8"))
+
+    response = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
+
+    assert response.status_code == 200, response.json()
+    assert response.json()["templates_imported"] == 264
+
+
 def test_admin_can_replace_then_publish_a_draft_but_published_bank_is_immutable():
     headers, _ = login()
     bank = json.loads((Path(__file__).parents[2] / "content/math.question-bank.json").read_text())
