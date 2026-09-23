@@ -4,7 +4,7 @@ from pathlib import Path
 
 import jsonschema
 
-from app.engine import evaluate, generate_question, generate_session, load_bank, resolve_visual
+from app.engine import evaluate, format_value, generate_question, generate_session, load_bank, resolve_visual
 from app.worksheet import build_worksheet_pdf
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -29,6 +29,14 @@ def test_safe_expression_evaluator():
         pass
     else:
         raise AssertionError("Unsafe call was accepted")
+
+
+def test_answer_formats_apply_documented_precision():
+    assert format_value(4.0, "number") == "4"
+    assert format_value(0.41, "number") == "0.41"
+    assert format_value(0.41, "decimal") == "0.4"
+    assert format_value(4, "decimal") == "4.0"
+    assert format_value(4, "money") == "$4.00"
 
 
 def test_every_template_generates_distinct_rationale_aware_choices():

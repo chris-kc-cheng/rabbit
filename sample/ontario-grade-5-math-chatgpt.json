@@ -900,7 +900,7 @@
       ],
       "answer": {
         "expression": "a / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -954,7 +954,7 @@
       ],
       "answer": {
         "expression": "(a + b) / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1008,7 +1008,7 @@
       ],
       "answer": {
         "expression": "b / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1062,7 +1062,7 @@
       ],
       "answer": {
         "expression": "a // 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1116,7 +1116,7 @@
       ],
       "answer": {
         "expression": "t / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1170,7 +1170,7 @@
       ],
       "answer": {
         "expression": "(t + 1) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1224,7 +1224,7 @@
       ],
       "answer": {
         "expression": "1 + t / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -1278,7 +1278,7 @@
       ],
       "answer": {
         "expression": "1 + (t + 1) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -4212,7 +4212,7 @@
       ],
       "answer": {
         "expression": "(a + 2 * d) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -4266,7 +4266,7 @@
       ],
       "answer": {
         "expression": "(a + 2 * d) / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -4320,7 +4320,7 @@
       ],
       "answer": {
         "expression": "d / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -4374,7 +4374,7 @@
       ],
       "answer": {
         "expression": "d / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10260,7 +10260,7 @@
       ],
       "answer": {
         "expression": "(a + b) / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10314,7 +10314,7 @@
       ],
       "answer": {
         "expression": "a / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10368,7 +10368,7 @@
       ],
       "answer": {
         "expression": "a / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10422,7 +10422,7 @@
       ],
       "answer": {
         "expression": "(a + b) / 100 - 1",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10712,7 +10712,7 @@
       ],
       "answer": {
         "expression": "(a + d) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10766,7 +10766,7 @@
       ],
       "answer": {
         "expression": "(a + d) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10820,7 +10820,7 @@
       ],
       "answer": {
         "expression": "2 * d / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -10874,7 +10874,7 @@
       ],
       "answer": {
         "expression": "(a + d + 1) / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -11576,7 +11576,7 @@
       ],
       "answer": {
         "expression": "h",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -11630,7 +11630,7 @@
       ],
       "answer": {
         "expression": "10 * t + h",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -11684,7 +11684,7 @@
       ],
       "answer": {
         "expression": "t / 10",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {
@@ -11738,7 +11738,7 @@
       ],
       "answer": {
         "expression": "t / 10 + (h + 1) / 100",
-        "format": "decimal"
+        "format": "number"
       },
       "distractors": [
         {

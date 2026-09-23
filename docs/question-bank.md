@@ -34,6 +34,33 @@ The expression language permits numeric constants, declared variables,
 parentheses, and `+`, `-`, `*`, `/`, `//`, and `%`. It never executes Python or
 JavaScript.
 
+### Numeric precision and answer formats
+
+Rabbit evaluates the answer and every distractor first, then applies the selected
+`answer.format`, and finally checks that the four learner-visible strings are
+distinct. Authors must therefore choose the format for the precision learners
+need to see—not merely for the numeric type used by the expression:
+
+| Format | Learner-visible rule | Use it for |
+| --- | --- | --- |
+| `number` | General, unpadded numeric text; integer-valued results omit `.0` and trailing zeros are not preserved. | Whole numbers and non-currency values whose choices must remain distinct beyond one decimal place. |
+| `decimal` | Exactly one digit after the decimal point, rounded to the nearest tenth. | Measurements or calculations intentionally answered to tenths. |
+| `money` | A `$` prefix and exactly two digits after the decimal point, rounded to the nearest cent. | Canadian-dollar amounts. |
+
+Formatting is part of grading identity, not decoration. For example, `0.41`,
+`0.42`, `0.40`, and `0.43` collapse to fewer than four choices under `decimal`,
+so that template is rejected. Use `number` when hundredth-level distinctions
+matter and fixed trailing zeros do not. If a non-currency question specifically
+requires a fixed two-decimal display such as `0.40`, schema v2 cannot represent
+that requirement; do not approximate it with `money` or publish it until the
+contract gains an appropriate format.
+
+Prefer scaled-integer expressions such as `hundredths / 100` over long chains of
+decimal arithmetic. Test minimum, representative middle, and maximum parameter
+values plus many deterministic seeds. At every tested value, compare the
+**formatted strings** and confirm one correct answer and at least three distinct
+distractors remain.
+
 ## Fixed subject-pack prototype
 
 `content/demo-pack.json` contains eleven fixed prototype examples for the

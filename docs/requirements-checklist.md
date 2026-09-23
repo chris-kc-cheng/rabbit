@@ -18,7 +18,8 @@ working in this repository, not production-ready at population scale.
 - [x] Reusable fact collections with stable fact/variant IDs, restricted dotted
   interpolation, seeded selection, and other-fact distractor pools.
 - [x] Seeded parameter generation, server-side grading, answer shuffling, hints,
-  explanations, and duplicate-choice rejection.
+  explanations, and duplicate-choice rejection after documented learner-visible
+  formatting (`number` unpadded, `decimal` to tenths, and `money` to cents).
 - [x] Wrong answers mapped to stable misconception IDs and supportive feedback.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering plus accessible formatted tables and

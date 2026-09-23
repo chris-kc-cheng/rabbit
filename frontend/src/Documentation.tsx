@@ -88,7 +88,7 @@ const computedFields: FieldRow[] = [
   { path: "difficulty", required: "Yes", accepted: "Integer 1–5", meaning: "1 is introductory; 5 is the most demanding." },
   { path: "parameters.<name>", required: "Yes", accepted: "Integer domain", meaning: "Named generated value: type=integer, inclusive min/max, optional step ≥ 1." },
   { path: "prompt[]", required: "Yes", accepted: "text | math blocks", meaning: "Ordered learner-visible content; values are 1–500 characters." },
-  { path: "answer", required: "Yes", accepted: "expression + number|decimal|money", meaning: "Server-only correct expression and its display format." },
+  { path: "answer", required: "Yes", accepted: "expression + number|decimal|money", meaning: "Server-only expression plus visible precision: number is unpadded, decimal rounds to one place, and money uses $ with two places. Formatted choices must remain distinct." },
   { path: "distractors[]", required: "Yes", accepted: "At least 3", meaning: "Stable misconception routes with distinct expressions and supportive feedback." },
   { path: "hint / explanation", required: "Yes", accepted: "5–250 / 10–500 chars", meaning: "Learner support and the worked solution; both allow safe interpolation." },
   { path: "visual", required: "No", accepted: "table or declarative visual", meaning: "Data table, fraction bar, rectangle grid, angle, triangle, solid, or bounded 2D scene with equivalent alt text." },
