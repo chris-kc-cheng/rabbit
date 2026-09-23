@@ -126,7 +126,9 @@ working in this repository, not production-ready at population scale.
   SQLAlchemy and Alembic; JSONB holds immutable content/render/grading snapshots
   on PostgreSQL. Redis is still absent because there are no durable background
   jobs yet, S3-compatible storage is absent because PDFs are streamed rather than
-  retained, and production backup/restore automation remains operational work.
+  retained. An operator script can take an on-demand production snapshot and
+  replace the local development database, but encrypted scheduled off-host
+  backups and production disaster restoration remain operational work.
 - [~] **Accessibility:** semantic controls, keyboard focus, MathML, SVG alt text,
   reduced motion, and responsive UI are present; a formal WCAG audit is not.
 
