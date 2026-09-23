@@ -51,7 +51,11 @@ commands:
 RABBIT_PORT=8091 docker compose up --build -d
 ```
 
-Then open <http://localhost:8091>. To rebuild after source or dependency changes:
+Then open <http://localhost:8091>. The local Compose stack runs the Vite and
+Uvicorn development servers with bind-mounted source. Changes under
+`frontend/` trigger Vite hot updates, while Python changes under `backend/app/`
+restart the API automatically. Changes to dependency manifests or Dockerfiles
+still require a rebuild:
 
 ```bash
 docker compose up --build -d --remove-orphans
@@ -75,7 +79,7 @@ that old stack before starting the renamed one. With Docker Desktop running, use
 `docker compose ps`. The old named network may remain and can be inspected with
 `docker network ls`; it does not affect the new project.
 
-## Run in development mode
+## Run development servers directly on the host
 
 Backend (start PostgreSQL first with `docker compose up -d db`):
 
