@@ -79,8 +79,12 @@ working in this repository, not production-ready at population scale.
   evidence/tools remain available on demand through explicit icon buttons. Answer
   history supports seven- and thirty-day windows, correct/needs-practice filters,
   and pagination, while dashboard callouts identify evidence-backed strengths and
-  supportive next-focus areas. The administrator people view groups
-  learners beneath their managing parent and consolidates row actions in menus.
+  supportive next-focus areas. The administrator people view groups learners
+  beneath their managing parent and consolidates row actions in menus. Parents
+  can enter a child’s learner experience without the
+  child password. Each child has an independently saved default next question
+  bank. A parent can also practice under their own profile, listed after the
+  children, with an explicit route back to the family dashboard.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and

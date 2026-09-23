@@ -57,6 +57,8 @@ export const api = {
   getLearners: () => request<FamilyLearner[]>("/api/v1/parents/learners"),
   createLearner: (display_name: string, username: string, password: string) => request<User>("/api/v1/parents/learners", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   resetLearner: (id: string, password: string) => request<void>(`/api/v1/parents/learners/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
+  parentImpersonateLearner: (id: string) => request<AuthSession>(`/api/v1/parents/learners/${id}/impersonate`, { method: "POST" }),
+  saveDefaultSubject: (id: string, subject: string) => request<User>(`/api/v1/parents/learners/${id}/default-subject`, { method: "PUT", body: JSON.stringify({ subject }) }),
   getFamilyProgress: (parentId: string) => request<FamilyProgress>(`/api/v1/parents/families/${parentId}/progress`),
   saveReward: (learnerId: string, reward: Reward) => request<Reward>(`/api/v1/parents/learners/${learnerId}/reward`, {
     method: "PUT",

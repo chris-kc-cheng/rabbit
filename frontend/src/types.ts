@@ -44,9 +44,9 @@ export type AttemptHistoryItem = {
   time_spent_ms: number;
   question: Question;
 };
-export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean };
+export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean; default_subject?: string };
 export type AuthSession = { access_token: string; expires_at: number; user: User };
-export type FamilyLearner = User & { progress: Progress };
+export type FamilyLearner = User & { progress: Progress; is_self: boolean };
 export type ImportError = { path: string; message: string; suggestion: string };
 export type FamilyProgress = { family_id: string; learners: Array<{ id: string; name: string; progress: Progress }> };
 export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published" };

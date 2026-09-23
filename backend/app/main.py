@@ -23,6 +23,7 @@ from .models import (
     AttemptResult,
     AdminQuestionPreview,
     ContentSettings,
+    DefaultSubjectUpdate,
     LearnerCreate,
     LoginRequest,
     ParentCreate,
@@ -340,10 +341,10 @@ def subjects(_: dict = Depends(require_role("learner", "parent", "admin")),
 
 
 @app.post("/api/v1/sessions", response_model=SessionResponse, status_code=201)
-def create_session(request: SessionCreate, user: dict = Depends(require_role("learner")),
+def create_session(request: SessionCreate, user: dict = Depends(require_role("learner", "parent")),
                    db: Session = Depends(get_db)) -> SessionResponse:
     if request.learner_id != user["id"]:
-        raise HTTPException(403, "Learners can only start their own sessions")
+        raise HTTPException(403, "You can only start your own practice session")
     content = ContentRepository(db)
     include_drafts = content.include_drafts()
     bank = {**load_banks(include_drafts), **content.banks()}.get(request.subject)
@@ -359,7 +360,7 @@ def create_session(request: SessionCreate, user: dict = Depends(require_role("le
 
 
 @app.post("/api/v1/attempts", response_model=AttemptResult)
-def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("learner")),
+def submit_attempt(request: AttemptCreate, user: dict = Depends(require_role("learner", "parent")),
                    db: Session = Depends(get_db)) -> AttemptResult:
     repository = PracticeRepository(db)
     owner = repository.session_owner(request.session_id)
@@ -418,8 +419,36 @@ def _parent_learner(parent: dict, learner_id: str, db: Session) -> User:
 @app.get("/api/v1/parents/learners")
 def parent_learners(parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> list[dict]:
     progress = PracticeRepository(db)
-    return [{**public_user(user), "progress": progress.progress(user.id)}
-            for user in IdentityRepository(db).learners_for_family(parent["family_id"])]
+    children = [{**public_user(user), "progress": progress.progress(user.id), "is_self": False}
+                for user in IdentityRepository(db).learners_for_family(parent["family_id"])]
+    parent_user = IdentityRepository(db).get_by_id(parent["id"])
+    return children + [{**public_user(parent_user), "progress": progress.progress(parent["id"]), "is_self": True}]
+
+
+@app.post("/api/v1/parents/learners/{learner_id}/impersonate")
+def parent_impersonate_learner(learner_id: str, parent: dict = Depends(require_role("parent")),
+                               db: Session = Depends(get_db)) -> dict:
+    """Let a guardian enter a child's learner view while retaining the parent session."""
+    learner = _parent_learner(parent, learner_id, db)
+    if learner.disabled:
+        raise HTTPException(409, "Activate this learner before viewing their practice")
+    record = user_record(learner)
+    token, expires_at = issue_token(record)
+    return {"access_token": token, "token_type": "bearer", "expires_at": expires_at,
+            "user": public_user(record)}
+
+
+@app.put("/api/v1/parents/learners/{learner_id}/default-subject")
+def update_default_subject(learner_id: str, request: DefaultSubjectUpdate,
+                           parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> dict:
+    user = IdentityRepository(db).get_by_id(learner_id)
+    if user is None or user.family_id != parent["family_id"] or (user.role != "learner" and user.id != parent["id"]):
+        raise HTTPException(404, "Learner not found in your family")
+    banks, include_drafts = _visible_banks(db)
+    bank = banks.get(request.subject)
+    if bank is None or (bank["publicationStatus"] != "published" and not include_drafts):
+        raise HTTPException(400, "Subject is not currently available")
+    return public_user(IdentityRepository(db).set_default_subject(user, request.subject))
 
 
 @app.post("/api/v1/parents/learners", status_code=201)
@@ -449,7 +478,7 @@ def learner_progress(learner_id: str, parent: dict = Depends(require_role("paren
 
 
 @app.get("/api/v1/learners/me/progress", response_model=ProgressResponse)
-def own_progress(learner: dict = Depends(require_role("learner")), db: Session = Depends(get_db)) -> dict:
+def own_progress(learner: dict = Depends(require_role("learner", "parent")), db: Session = Depends(get_db)) -> dict:
     """Let a learner review their own evidence without exposing another family."""
     return PracticeRepository(db).progress(learner["id"])
 

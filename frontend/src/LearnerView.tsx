@@ -6,7 +6,7 @@ import { MathBlock } from "./MathBlock";
 import { correctAnswersNeeded, reachedAccuracyTarget } from "./raceRules";
 import type { AttemptResult, Progress, Session, Subject } from "./types";
 
-export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: string; onAttemptsChanged: () => void }) {
+export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "math.elementary" }: { learnerId: string; onAttemptsChanged: () => void; defaultSubject?: string }) {
   const [session, setSession] = useState<Session | null>(null);
   const [index, setIndex] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
@@ -18,7 +18,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [subject, setSubject] = useState("math.elementary");
+  const [subject, setSubject] = useState(defaultSubject);
   const [progress, setProgress] = useState<Progress | null>(null);
   const questionStartedAt = useRef(Date.now());
 

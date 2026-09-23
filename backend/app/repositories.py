@@ -29,12 +29,13 @@ def user_record(user: User) -> dict:
         "password_hash": user.password_hash,
         "disabled": user.disabled,
         "token_version": user.token_version,
+        "default_subject": user.default_subject,
     }
 
 
 def public_user(user: User | dict) -> dict:
     record = user_record(user) if isinstance(user, User) else user
-    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled")}
+    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled", "default_subject")}
 
 
 class IdentityRepository:
@@ -74,7 +75,10 @@ class IdentityRepository:
             self.session.flush()
             self.session.add(user)
             self.session.flush()
-            self.session.add(FamilyGuardian(family_id=identifier, guardian_user_id=identifier))
+            self.session.add_all([
+                FamilyGuardian(family_id=identifier, guardian_user_id=identifier),
+                LearnerProfile(user_id=identifier, family_id=identifier),
+            ])
             self.session.commit()
         except IntegrityError as error:
             self.session.rollback()
@@ -108,6 +112,12 @@ class IdentityRepository:
         user.password_hash = hash_password(password)
         user.token_version += 1
         self.session.commit()
+
+    def set_default_subject(self, user: User, subject: str) -> User:
+        user.default_subject = subject
+        self.session.commit()
+        self.session.refresh(user)
+        return user
 
     def update_managed_user(self, user: User, username: str, display_name: str, disabled: bool) -> User:
         user.username = username.strip().casefold()

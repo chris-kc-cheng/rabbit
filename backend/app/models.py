@@ -98,6 +98,10 @@ class LearnerCreate(PasswordRequest):
     display_name: str = Field(min_length=1, max_length=80)
 
 
+class DefaultSubjectUpdate(BaseModel):
+    subject: str = Field(min_length=1, max_length=80)
+
+
 class QuestionImport(BaseModel):
     document: dict[str, Any]
 
