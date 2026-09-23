@@ -185,8 +185,25 @@ HTTPS request remains identifiable as HTTPS across both proxy hops. The API
 remains private on Rabbit's internal Compose network at `api:8000`.
 
 Production Compose stores PostgreSQL data in the `rabbit_postgres` named volume.
-This supplies persistence, not a backup strategy: configure encrypted off-host
-backups and regularly test restoration before storing real family data.
+This supplies persistence, not a backup strategy. For an on-demand development
+snapshot, start the local database and copy production into it with:
+
+```bash
+docker compose up -d db
+HOSTINGER_HOST=example.com HOSTINGER_USER=deploy \
+  HOSTINGER_SSH_KEY="$HOME/.ssh/hostinger" \
+  scripts/restore-production-database.sh
+```
+
+The script streams a custom-format `pg_dump` from the production `db` container
+over SSH into the gitignored `local-data/` directory, validates it, and then
+drops and recreates the local `rabbit` database before restoring it. The dated
+dump is retained with owner-only permissions. `HOSTINGER_SSH_PORT`,
+`RABBIT_REMOTE_DIR`, `RABBIT_LOCAL_DATA`, `RABBIT_DATABASE_NAME`, and
+`RABBIT_DATABASE_USER` can override the defaults; run the script with `--help`
+for details. This deliberately destructive tool replaces local data only. It is
+not an encrypted, automated, off-host production backup: configure those backups
+and regularly test disaster restoration before storing real family data.
 
 Before the first deployment with the new project name, stop the old
 `rabbit-learning` stack on Hostinger from its deployment directory using
