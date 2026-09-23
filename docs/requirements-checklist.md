@@ -9,7 +9,9 @@ working in this repository, not production-ready at population scale.
 - [x] FastAPI backend with JSON request/response models and generated OpenAPI docs.
 - [x] Docker Compose orchestration under project `rabbit` for separate frontend
   and backend containers; web binds to host loopback port 8090 by default, and
-  API port 8000 remains internal.
+  API port 8000 remains internal. Local Compose bind-mounts application source
+  and runs the Vite and Uvicorn development reloaders; production continues to
+  use independently built immutable images.
 - [x] JSON Schema v2 and Git-managed question banks with ten published
   elementary-math templates plus a draft Discover Canada historical-event example.
 - [x] Reusable fact collections with stable fact/variant IDs, restricted dotted

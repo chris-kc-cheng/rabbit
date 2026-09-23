@@ -28,6 +28,13 @@ services:
       RABBIT_DATABASE_NAME: rabbit
       RABBIT_DATABASE_USER: rabbit
       RABBIT_DATABASE_PASSWORD: rabbit-local
+      WATCHFILES_FORCE_POLLING: "true"
+    command: ["sh", "-c", "alembic upgrade head && python -m app.bootstrap && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --reload --reload-dir app"]
+    volumes:
+      - ./backend/app:/app/app
+      - ./backend/migrations:/app/migrations
+      - ./content:/app/content:ro
+      - ./frontend/public:/app/frontend/public:ro
     depends_on:
       db:
         condition: service_healthy
@@ -42,12 +49,18 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+      target: development
     restart: unless-stopped
     depends_on:
       api:
         condition: service_healthy
+    environment:
+      VITE_API_PROXY_TARGET: http://api:8000
+    volumes:
+      - ./frontend:/app
+      - rabbit_frontend_node_modules:/app/node_modules
     ports:
-      - "127.0.0.1:${RABBIT_PORT:-8090}:8080"
+      - "127.0.0.1:${RABBIT_PORT:-8090}:5173"
     security_opt: ["no-new-privileges:true"]
     networks: [rabbit_internal]
 networks:
@@ -55,3 +68,4 @@ networks:
     name: rabbit-internal
 volumes:
   rabbit_postgres:
+  rabbit_frontend_node_modules:
