@@ -98,6 +98,31 @@ def test_new_learners_default_to_a_seventy_percent_reward_target():
     assert learner_progress["reward"]["target_accuracy"] == 70
 
 
+def test_parent_can_choose_each_default_bank_impersonate_child_and_practice_last():
+    parent_headers, learner_headers, learner = family()
+    parent = client.get("/api/v1/auth/me", headers=parent_headers).json()
+    listed = client.get("/api/v1/parents/learners", headers=parent_headers)
+    assert listed.status_code == 200
+    assert [(item["id"], item["is_self"]) for item in listed.json()] == [
+        (learner["id"], False), (parent["id"], True)
+    ]
+    selected = client.put(f"/api/v1/parents/learners/{learner['id']}/default-subject",
+                          headers=parent_headers, json={"subject": "math.elementary"})
+    assert selected.status_code == 200
+    assert selected.json()["default_subject"] == "math.elementary"
+    assert client.put(f"/api/v1/parents/learners/{learner['id']}/default-subject",
+                      headers=learner_headers, json={"subject": "math.elementary"}).status_code == 403
+    viewed = client.post(f"/api/v1/parents/learners/{learner['id']}/impersonate", headers=parent_headers)
+    assert viewed.status_code == 200
+    child_headers = {"Authorization": f"Bearer {viewed.json()['access_token']}"}
+    assert client.get("/api/v1/auth/me", headers=child_headers).json()["id"] == learner["id"]
+    own_session = client.post("/api/v1/sessions", headers=parent_headers, json={
+        "learner_id": parent["id"], "subject": "math.elementary", "seed": 99, "count": 1,
+    })
+    assert own_session.status_code == 201, own_session.text
+    assert client.get("/api/v1/learners/me/progress", headers=parent_headers).status_code == 200
+
+
 def test_identity_records_are_relational_and_learner_has_one_family():
     from sqlalchemy import select
     from sqlalchemy.orm import Session
