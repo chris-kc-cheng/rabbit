@@ -122,6 +122,19 @@ def test_duplicate_username_rolls_back_parent_family_creation():
         assert session.scalar(select(func.count()).select_from(Family)) == 1
 
 
+def test_non_username_integrity_errors_are_not_mislabeled():
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import Session
+
+    from app.database import engine
+    from app.repositories import IdentityRepository
+
+    with Session(engine) as session:
+        repository = IdentityRepository(session)
+        error = IntegrityError("insert", {}, Exception("foreign key constraint failed"))
+        assert repository._is_username_conflict(error) is False
+
+
 def test_import_pinpoints_schema_path_and_imports_valid_bank():
     headers, _ = login()
     invalid={"schemaVersion":2}
