@@ -70,7 +70,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
       {result && <aside className={`feedback ${result.correct ? "positive" : "coaching"}`} role="status"><img className={`feedback-mascot ${result.correct ? "mascot-correct" : ""}`} src={result.correct ? "/rabbit-excited.png" : "/rabbit-supportive.png"} alt="" /><span><strong>{result.correct ? "Brilliant thinking!" : "Good try — this is how we grow."}</strong>{result.feedback}</span></aside>}
     </article>
     <footer className="actions"><button className="quiet" disabled={Boolean(result)} onClick={() => setHintVisible(!hintVisible)}>💡 {hintVisible ? "Hide hint" : "Need a hint?"}</button>
-      {result ? <button className="primary" onClick={next}>Next question →</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer →</button>}</footer>
+      {result ? <button className="primary" onClick={next}>Next question ▶</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer ▶</button>}</footer>
     <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
   </main>;
 }
