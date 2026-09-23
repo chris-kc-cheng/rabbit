@@ -64,7 +64,10 @@ working in this repository, not production-ready at population scale.
   individual accuracy reward goals, with family-boundary authorization tests.
   The compact family overview shows every learner in an accordion with question,
   accuracy, streak, time, and seven-day activity summaries; creation and detailed
-  evidence/tools remain available on demand. The administrator people view groups
+  evidence/tools remain available on demand through explicit icon buttons. Answer
+  history supports seven- and thirty-day windows, correct/needs-practice filters,
+  and pagination, while dashboard callouts identify evidence-backed strengths and
+  supportive next-focus areas. The administrator people view groups
   learners beneath their managing parent and consolidates row actions in menus.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
