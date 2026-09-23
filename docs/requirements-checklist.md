@@ -44,7 +44,10 @@ working in this repository, not production-ready at population scale.
   an explicitly configured admin password.
 - [x] Authenticated, responsive administrator workspace with overview,
   curriculum, people, and settings navigation. Administrators can create,
-  edit, pause, and reset access for managed accounts; preview built-in and
+  edit, pause, reset access for, and temporarily view the application as active
+  managed accounts, with a persistent, explicit impersonation banner and a
+  one-click return to administration. The people list and account forms retain
+  readable foreground/background contrast in light and dark themes; preview built-in and
   imported banks down to their template metadata; import or replace drafts;
   delete drafts; permanently publish reviewed banks; and control draft-bank
   visibility. JSON imports retain path-specific schema errors and a generation
