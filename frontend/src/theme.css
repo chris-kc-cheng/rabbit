@@ -34,9 +34,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 .topbar nav button.active { color: var(--purple); }
 .header-tools { justify-self: end; display: flex; align-items: center; gap: 14px; }
 .points { color: var(--purple); font-size: 14px; }
-.theme-toggle { min-height: 42px; border: 1px solid var(--line); border-radius: 999px; padding: 0 13px; background: var(--paper); color: var(--ink); display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px var(--shadow); }
-.theme-toggle:hover { border-color: var(--purple); }
-.theme-toggle span:first-child { color: var(--purple); font-size: 18px; line-height: 1; }
+.icon-toggle { width: 42px; height: 42px; border: 1px solid var(--line); border-radius: 999px; padding: 0; background: var(--paper); color: var(--purple); display: grid; place-items: center; font-size: 18px; line-height: 1; cursor: pointer; box-shadow: 0 4px 14px var(--shadow); }
+.icon-toggle:hover, .icon-toggle[aria-pressed="true"] { border-color: var(--purple); background: var(--soft); }
 .eyebrow { color: var(--purple); font-size: 14px; letter-spacing: .09em; }
 .trail h2 { font-size: 20px; letter-spacing: -.035em; }
 .trail .active { color: var(--purple); }
@@ -76,7 +75,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
    reserved for headings and short labels rather than full sentences. */
 button, input, select, textarea { font-size: 1rem; }
 p, li, label, small, time, figcaption { font-weight: 400; }
-.topbar nav button, .theme-toggle, .primary, .quiet { font-size: 1rem; font-weight: 650; }
+.topbar nav button, .primary, .quiet { font-size: 1rem; font-weight: 650; }
 .eyebrow { font-size: .875rem; font-weight: 700; }
 .trail li, .trail li small, .lesson-progress > div, .skill, .preview-badge,
 .metric-grid span, .metric-grid small, .panel label, .panel-copy, .empty,
@@ -148,8 +147,6 @@ p, li, label, small, time, figcaption { font-weight: 400; }
   .brand { font-size: 0; }
   .brand-logo { width: 64px; height: 64px; }
   .header-tools { gap: 6px; }
-  .theme-toggle { width: 42px; padding: 0; justify-content: center; }
-  .theme-toggle span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 }
 [data-theme="dark"] .demo-feedback.success { background: var(--green-soft); }
 [data-theme="dark"] .demo-feedback.try-again { background: var(--red-soft); }

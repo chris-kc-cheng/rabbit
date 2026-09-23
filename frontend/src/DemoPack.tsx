@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { api } from "./api";
 import { DemoParentView } from "./DemoParentView";
 import { MathBlock } from "./MathBlock";
+import { LearnerChrome } from "./LearnerChrome";
+import { RaceTrack } from "./LearnerView";
 import type { DemoQuestion, DemoResult, DemoSession, DemoSubject, DemoWorksheetPreview } from "./types";
 
 const subjects: Array<{ id: DemoSubject; name: string; subtitle: string }> = [
@@ -72,8 +74,8 @@ export function DemoPack() {
     <header className="demo-intro"><div><p className="eyebrow">Explore the prototype</p><h1>{experience === "learner" ? "Four ways to get curious." : "See the learning behind every try."}</h1><p>{experience === "learner" ? "Try a sample from each subject. Your answers are checked when you press Check answer." : "Preview how a parent can follow progress, spot practice signals, celebrate effort, and make an offline worksheet."}</p></div><div className="experience-switch" role="tablist" aria-label="Demo experience"><button role="tab" aria-selected={experience === "learner"} className={experience === "learner" ? "active" : ""} onClick={() => setExperience("learner")}>Learner view</button><button role="tab" aria-selected={experience === "parent"} className={experience === "parent" ? "active" : ""} onClick={() => setExperience("parent")}>Parent view</button></div></header>
     {experience === "parent" ? <DemoParentView /> : <>
     <div className="subject-switch" role="tablist" aria-label="Demo subjects">{subjects.map(item => <button key={item.id} type="button" role="tab" aria-selected={subject === item.id} className={subject === item.id ? "active" : ""} onClick={() => selectSubject(item.id)}><strong>{item.name}</strong><small>{item.subtitle}</small></button>)}</div>
-    {!session ? <div className="card demo-loading">{error || "Preparing the activities…"}</div> : question && <div className="demo-layout">
-      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span>{index + 1}</span>{item.title}{results[item.id] && <b className={results[item.id].correct ? "correct" : "wrong"} aria-label={results[item.id].correct ? "correct" : "needs another look"}>{results[item.id].correct ? "✓" : "↗"}</b>}</button>)}</nav>
+    {!session ? <div className="card demo-loading">{error || "Preparing the activities…"}</div> : question && <LearnerChrome demo><main className="learner-column demo-learner-column"><RaceTrack answered={Object.keys(results).length} total={questions.length} correct={Object.values(results).filter(item => item.correct).length} wrong={Object.values(results).filter(item => !item.correct).length} target={70} sleeping={Boolean(result && !result.correct)} /><div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{questions.indexOf(question) + 1} / {questions.length}</strong></div><i><b style={{ width: `${(questions.indexOf(question) / questions.length) * 100}%` }} /></i></div><div className="demo-layout">
+      <nav className="demo-question-list" aria-label={`${subject} activities`}>{questions.map((item, index) => <button key={item.id} title={`${index + 1}. ${item.title}`} aria-label={`Question ${index + 1}: ${item.title}`} className={question.id === item.id ? "active" : ""} onClick={() => { setQuestionId(item.id); setError(""); }}><span className="demo-question-number">{index + 1}</span><span className="demo-question-title">{item.title}</span>{results[item.id] && <b className={results[item.id].correct ? "correct" : "wrong"} aria-label={results[item.id].correct ? "correct" : "needs another look"}>{results[item.id].correct ? "✓" : "↗"}</b>}</button>)}</nav>
       <article className={`card demo-card ${result ? (result.correct ? "result-correct" : "result-wrong") : ""}`}><div className="demo-card-head"><p className="eyebrow">{subject} · {question.kind.replace("-", " ")}</p><h2>{question.title}</h2><p>{question.instruction}</p></div>
         {question.visual === "triangle" && <Triangle />}
         {question.visual === "prism" && <Prism />}
@@ -89,7 +91,7 @@ export function DemoPack() {
         {result && <div className={`demo-feedback ${result.correct ? "success" : "try-again"}`} role="status"><strong>{result.correct ? "Nicely done!" : "Good thinking—here’s the idea."}</strong><p>{result.feedback}</p></div>}
         <div className="demo-actions"><span>{result ? `${result.points_earned} points earned` : "Give it a try"}</span><button className="primary" disabled={!canSubmit || Boolean(result) || busy} onClick={submit}>{busy ? "Checking…" : result ? "Checked" : "Check answer"}</button></div>
       </article>
-    </div>}</>}
+    </div></main></LearnerChrome>}</>}
   </main>;
 }
 

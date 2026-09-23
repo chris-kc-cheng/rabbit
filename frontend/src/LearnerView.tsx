@@ -89,7 +89,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   </main>;
 }
 
-function RaceTrack({ answered, total, correct, wrong, target, sleeping }: { answered: number; total: number; correct: number; wrong: number; target: number; sleeping: boolean }) {
+export function RaceTrack({ answered, total, correct, wrong, target, sleeping }: { answered: number; total: number; correct: number; wrong: number; target: number; sleeping: boolean }) {
   const neededToWin = correctAnswersNeeded(total, target);
   const rabbitProgress = Math.min(1, correct / neededToWin);
   const tortoiseProgress = Math.min(1, answered / total);

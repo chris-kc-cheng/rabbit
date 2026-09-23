@@ -105,6 +105,9 @@ times”), never diagnose a child.
 
 ## Engineering rules
 
+- Whenever authenticated UI changes, review and update the landing-page preview
+  and demo in the same change so public examples remain faithful to the real
+  learner and parent interfaces. Prefer shared components over copied markup.
 - Before every commit and push, review the files and diffs being sent for
   secrets, private keys, credentials, tokens, and production `.env` values.
   Remove any such data from Git history or the pending changes before proceeding.
