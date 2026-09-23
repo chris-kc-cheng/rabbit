@@ -69,6 +69,7 @@ export const api = {
   updateManagedUser: (user: User) => request<User>(`/api/v1/admin/users/${user.id}`, { method: "PUT", body: JSON.stringify({ display_name: user.display_name, username: user.username, disabled: user.disabled }) }),
   createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
+  impersonateUser: (id: string) => request<AuthSession>(`/api/v1/admin/users/${id}/impersonate`, { method: "POST" }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number; status: "imported" | "replaced" }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
   getQuestionBanks: () => request<QuestionBankAdmin[]>("/api/v1/admin/question-banks"),
   previewQuestionBank: (subject: string, templateId: string, variantId: string, seed = Date.now()) => request<AdminBankPreview>(`/api/v1/admin/question-banks/${encodeURIComponent(subject)}/preview`, { method: "POST", body: JSON.stringify({ seed, template_id: templateId, variant_id: variantId }) }),

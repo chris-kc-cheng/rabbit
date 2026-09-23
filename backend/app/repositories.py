@@ -53,22 +53,36 @@ class IdentityRepository:
         ))
 
     def create_parent(self, username: str, password: str, display_name: str) -> User:
+        normalized_username = username.strip().casefold()
+        if self.get_by_username(normalized_username) is not None:
+            raise ValueError("That username is already in use")
         identifier = secrets.token_urlsafe(10)
         family = Family(id=identifier)
         user = User(
             id=identifier,
             family_id=identifier,
             role="parent",
-            username=username.strip().casefold(),
+            username=normalized_username,
             display_name=display_name.strip(),
             password_hash=hash_password(password),
         )
-        self.session.add_all([
-            family,
-            user,
-            FamilyGuardian(family_id=identifier, guardian_user_id=identifier),
-        ])
-        return self._commit_user(user)
+        try:
+            # Flush each dependency explicitly. This is portable across SQLite and
+            # PostgreSQL and avoids reporting a family/guardian constraint failure
+            # as though the submitted username were a duplicate.
+            self.session.add(family)
+            self.session.flush()
+            self.session.add(user)
+            self.session.flush()
+            self.session.add(FamilyGuardian(family_id=identifier, guardian_user_id=identifier))
+            self.session.commit()
+        except IntegrityError as error:
+            self.session.rollback()
+            if self._is_username_conflict(error):
+                raise ValueError("That username is already in use") from error
+            raise
+        self.session.refresh(user)
+        return user
 
     def create_learner(self, parent: dict, username: str, password: str, display_name: str) -> User:
         family_id = parent.get("family_id")
@@ -108,9 +122,19 @@ class IdentityRepository:
             self.session.commit()
         except IntegrityError as error:
             self.session.rollback()
-            raise ValueError("That username is already in use") from error
+            if self._is_username_conflict(error):
+                raise ValueError("That username is already in use") from error
+            raise
         self.session.refresh(user)
         return user
+
+    @staticmethod
+    def _is_username_conflict(error: IntegrityError) -> bool:
+        constraint = getattr(getattr(error.orig, "diag", None), "constraint_name", "") or ""
+        detail = str(error.orig).casefold()
+        return ("username" in constraint.casefold()
+                or "users.username" in detail
+                or ("username" in detail and "unique" in detail))
 
 
 def ensure_admin(session: Session, password: str) -> None:

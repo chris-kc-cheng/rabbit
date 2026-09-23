@@ -122,6 +122,19 @@ def test_duplicate_username_rolls_back_parent_family_creation():
         assert session.scalar(select(func.count()).select_from(Family)) == 1
 
 
+def test_non_username_integrity_errors_are_not_mislabeled():
+    from sqlalchemy.exc import IntegrityError
+    from sqlalchemy.orm import Session
+
+    from app.database import engine
+    from app.repositories import IdentityRepository
+
+    with Session(engine) as session:
+        repository = IdentityRepository(session)
+        error = IntegrityError("insert", {}, Exception("foreign key constraint failed"))
+        assert repository._is_username_conflict(error) is False
+
+
 def test_import_pinpoints_schema_path_and_imports_valid_bank():
     headers, _ = login()
     invalid={"schemaVersion":2}
@@ -210,6 +223,33 @@ def test_admin_can_edit_and_pause_managed_user():
     assert response.status_code == 200
     assert response.json()["display_name"] == "Updated Parent" and response.json()["disabled"] is True
     assert client.post("/api/v1/auth/login", json={"username": "updated.parent", "password": "welcome12"}).status_code == 401
+
+
+def test_admin_lists_created_user_and_can_impersonate_active_accounts():
+    admin_headers, _ = login()
+    created = client.post("/api/v1/admin/parents", headers=admin_headers,
+                          json={"username": "visible.parent", "password": "welcome12",
+                                "display_name": "Visible Parent"}).json()
+
+    listed = client.get("/api/v1/admin/users", headers=admin_headers)
+    assert listed.status_code == 200
+    assert [(user["display_name"], user["username"]) for user in listed.json()] == [
+        ("Visible Parent", "visible.parent")
+    ]
+
+    viewed = client.post(f"/api/v1/admin/users/{created['id']}/impersonate", headers=admin_headers)
+    assert viewed.status_code == 200
+    assert viewed.json()["user"] == created
+    viewed_headers = {"Authorization": f"Bearer {viewed.json()['access_token']}"}
+    assert client.get("/api/v1/auth/me", headers=viewed_headers).json() == created
+    assert client.get("/api/v1/admin/users", headers=viewed_headers).status_code == 403
+
+    paused = client.put(f"/api/v1/admin/users/{created['id']}", headers=admin_headers,
+                        json={"username": "visible.parent", "display_name": "Visible Parent",
+                              "disabled": True})
+    assert paused.status_code == 200
+    blocked = client.post(f"/api/v1/admin/users/{created['id']}/impersonate", headers=admin_headers)
+    assert blocked.status_code == 409
 
 
 def test_public_question_validation_checks_schema_and_generation_without_importing():

@@ -6,7 +6,7 @@ import type { AdminBankPreview, ImportError, QuestionBankAdmin, User } from "./t
 
 type Section = "overview" | "curriculum" | "users" | "settings";
 
-export function AdminView() {
+export function AdminView({ onImpersonate }: { onImpersonate: (user: User) => Promise<void> }) {
   const [section, setSection] = useState<Section>("overview");
   const [accounts, setAccounts] = useState<User[]>([]);
   const [banks, setBanks] = useState<QuestionBankAdmin[]>([]);
@@ -43,7 +43,7 @@ export function AdminView() {
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); const form = event.currentTarget; const data = new FormData(form);
-    try { await api.createParent(String(data.get("name")), String(data.get("username")), String(data.get("password"))); form.reset(); setNotice("Parent account created."); await refreshUsers(); }
+    try { await api.createParent(String(data.get("displayName")), String(data.get("newUsername")), String(data.get("newPassword"))); form.reset(); setNotice("Parent account created."); await refreshUsers(); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not create account"); }
   };
   const saveUser = async (event: FormEvent<HTMLFormElement>) => {
@@ -55,6 +55,11 @@ export function AdminView() {
     const password = window.prompt(`New password for ${user.display_name} (8+ characters)`); if (!password) return;
     try { await api.adminReset(user.id, password); setNotice("Password reset. Existing login tokens for this account are now invalid."); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not reset password"); }
+  };
+  const impersonate = async (user: User) => {
+    setNotice("");
+    try { await onImpersonate(user); }
+    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not view this account"); }
   };
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]; if (!file) return; setErrors([]); setNotice("");
@@ -124,7 +129,7 @@ export function AdminView() {
         </section>}
       </div>}
 
-      {section === "users" && <div className="people-layout"><section className="admin-card"><div className="list-title"><h2>Accounts</h2><span>{accounts.length}</span></div><div className="people-table"><div className="table-head"><span>Person</span><span>Role</span><span>Status</span><span></span></div>{accounts.map(user => <div key={user.id}><span><strong>{user.display_name}</strong><small>@{user.username}</small></span><span className="role-label">{user.role}</span><span className={`user-status ${user.disabled ? "disabled" : "active"}`}>{user.disabled ? "Paused" : "Active"}</span><span><button className="quiet" onClick={() => setEditingUser({...user})}>Edit</button><button className="quiet" onClick={() => void reset(user)}>Reset password</button></span></div>)}</div></section><section className="admin-card create-account"><p className="eyebrow">New account</p><h2>Create a parent</h2><form onSubmit={create} className="stack-form"><label>Display name<input name="name" required /></label><label>Username<input name="username" minLength={3} required /></label><label>Temporary password<input name="password" type="password" minLength={8} required /></label><button className="primary">Create parent</button></form></section></div>}
+      {section === "users" && <div className="people-layout"><section className="admin-card"><div className="list-title"><h2>Accounts</h2><span>{accounts.length}</span></div><div className="people-table"><div className="table-head"><span>Person</span><span>Role</span><span>Status</span><span>Actions</span></div>{accounts.map(user => <div key={user.id}><span><strong>{user.display_name}</strong><small>@{user.username}</small></span><span className="role-label">{user.role}</span><span className={`user-status ${user.disabled ? "disabled" : "active"}`}>{user.disabled ? "Paused" : "Active"}</span><span><button className="quiet view-as" disabled={user.disabled} title={user.disabled ? "Activate this account before viewing as this user" : undefined} onClick={() => void impersonate(user)}>View as</button><button className="quiet" onClick={() => setEditingUser({...user})}>Edit</button><button className="quiet" onClick={() => void reset(user)}>Reset password</button></span></div>)}</div></section><section className="admin-card create-account"><p className="eyebrow">New account</p><h2>Create a parent</h2><form onSubmit={create} className="stack-form" autoComplete="off"><label>Display name<input name="displayName" autoComplete="off" required /></label><label>Username<input name="newUsername" autoComplete="off" minLength={3} required /></label><label>Temporary password<input name="newPassword" type="password" autoComplete="new-password" minLength={8} required /></label><button className="primary">Create parent</button></form></section></div>}
 
       {section === "settings" && <section className="admin-card settings-card"><div><p className="eyebrow">Learner access</p><h2>Draft curriculum visibility</h2><p>Draft banks are hidden by default. Turn this on only for supervised testing; drafts will become available to every signed-in learner.</p></div><label className="switch"><input type="checkbox" checked={includeDrafts} onChange={event => void updateDrafts(event.target.checked)} /><span aria-hidden="true" /><b>{includeDrafts ? "Visible" : "Hidden"}</b></label></section>}
     </div>
