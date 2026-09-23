@@ -120,7 +120,10 @@ def test_parent_can_choose_each_default_bank_impersonate_child_and_practice_last
         "learner_id": parent["id"], "subject": "math.elementary", "seed": 99, "count": 1,
     })
     assert own_session.status_code == 201, own_session.text
-    assert client.get("/api/v1/learners/me/progress", headers=parent_headers).status_code == 200
+    assert client.get("/api/v1/learners/me/progress", headers=parent_headers).status_code == 403
+    assert client.get(
+        f"/api/v1/parents/learners/{parent['id']}/progress", headers=parent_headers
+    ).status_code == 200
 
 
 def test_identity_records_are_relational_and_learner_has_one_family():

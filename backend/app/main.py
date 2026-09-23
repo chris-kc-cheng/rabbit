@@ -473,12 +473,13 @@ def parent_reset_password(learner_id: str, request: PasswordRequest, parent: dic
 @app.get("/api/v1/parents/learners/{learner_id}/progress", response_model=ProgressResponse)
 def learner_progress(learner_id: str, parent: dict = Depends(require_role("parent")),
                      db: Session = Depends(get_db)) -> dict:
-    _parent_learner(parent, learner_id, db)
+    if learner_id != parent["id"]:
+        _parent_learner(parent, learner_id, db)
     return PracticeRepository(db).progress(learner_id)
 
 
 @app.get("/api/v1/learners/me/progress", response_model=ProgressResponse)
-def own_progress(learner: dict = Depends(require_role("learner", "parent")), db: Session = Depends(get_db)) -> dict:
+def own_progress(learner: dict = Depends(require_role("learner")), db: Session = Depends(get_db)) -> dict:
     """Let a learner review their own evidence without exposing another family."""
     return PracticeRepository(db).progress(learner["id"])
 
