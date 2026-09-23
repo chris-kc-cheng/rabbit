@@ -15,6 +15,8 @@
 .subject-switch strong { font-size: 18px; letter-spacing: -.03em; }
 .subject-switch small { font-size: 14px; color: var(--muted); }
 .demo-layout { display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 23px; align-items: start; }
+.learner-layout-demo { width: calc(100vw - 48px); margin-left: 50%; padding: 20px 0 0; transform: translateX(-50%); }
+.demo-learner-column>.race-card { margin-bottom: 14px; }
 .demo-question-list { display: grid; gap: 9px; }
 .demo-question-list button { border: 1px solid var(--line); border-radius: 14px; padding: 13px; text-align: left; background: var(--paper); cursor: pointer; display: flex; align-items: center; gap: 10px; font-weight: 800; }
 .demo-question-list button.active { border-color: var(--pack-accent); background: var(--pack-soft); color: var(--pack-accent); }
