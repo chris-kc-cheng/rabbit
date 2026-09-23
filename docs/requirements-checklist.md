@@ -62,6 +62,10 @@ working in this repository, not production-ready at population scale.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.
+  The compact family overview shows every learner in an accordion with question,
+  accuracy, streak, time, and seven-day activity summaries; creation and detailed
+  evidence/tools remain available on demand. The administrator people view groups
+  learners beneath their managing parent and consolidates row actions in menus.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
@@ -119,8 +123,9 @@ working in this repository, not production-ready at population scale.
   only inserts attempts, but database credentials still permit mutation.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced
   repetition, exploration, or known-weakness distractor weighting.
-- [ ] Parent charts, diagnostic summaries, history export, retention, deletion,
-  and audit-log interfaces.
+- [ ] Expanded parent diagnostic charts, history export, retention, deletion,
+  and audit-log interfaces. The current dashboard includes a basic seven-day
+  activity chart, accuracy ring, and misconception evidence summary.
 - [ ] General diagram scene specification and sanitized SVG compiler.
 - [ ] Published English grammar, fill-in-the-blank, error spotting, multi-select,
   composition, rubric/manual grading, broader trivia/Canadian citizenship, or
