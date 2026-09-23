@@ -26,7 +26,10 @@ working in this repository, not production-ready at population scale.
   a trophy: correct answers move the rabbit in larger steps, misses show
   progressively longer sleep, and the tortoise advances consistently. The
   parent-configured accuracy target (70% by default, inclusive) determines the
-  displayed winner and trophy outcome. Correct answers always award EXP,
+  displayed winner. The learner dashboard always displays the current achievement
+  path; every completed trail earns at least a silver trophy, including a tortoise
+  win, while only a perfect score earns gold. A newly earned trophy receives a
+  large, one-time celebration animation with reduced-motion support. Correct answers always award EXP,
   including when the learner does not win the trophy; durable points are still
   governed by the prototype per-attempt counter pending the rewards ledger
   described below.
