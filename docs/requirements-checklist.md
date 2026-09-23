@@ -22,11 +22,12 @@ working in this repository, not production-ready at population scale.
 - [x] Learner practice loop with progress, positive feedback, and points.
 - [x] Password hashing uses an explicit scrypt memory allowance and round-trip tests
   for administrator, parent, and learner credential shapes.
-- [x] Reader-comfort typography and a responsive, persistent light/dark theme
-  control that defaults to the learner's operating-system preference.
-- [x] Reading-rabbit logo concept integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster logo is a prototype asset; a reviewed scalable brand master is still needed for production.
+- [x] Reader-comfort typography with a consistent 14px minimum for supporting
+  copy, restrained font weights for longer text, and a responsive, persistent
+  light/dark theme control that defaults to the learner's operating-system
+  preference.
+- [x] Friendly guide illustrations integrated into the learner UI, with a matching coral, teal, and cream theme and rounded sans-serif typography. The generated raster art is a prototype asset; reviewed scalable masters are still needed for production. The internal project name is not presented as a product name in the interface.
 - [x] Explore packs prototype with distinct Math, Trivia, English, and Discover Canada styles: eleven fixed sample activities, including three Canadian history questions, server-side grading, image-backed single- and multi-select trivia, keyboard-accessible word reordering, and a rotatable prism. The demo also includes a clearly labeled, illustrative parent dashboard with learner tracking, reward progress, misconception evidence, and a PDF activity pack containing all kid-view questions, diagrams, formulas, and images. Demo activity remains non-persistent and does not feed real parent reports or adaptation.
-- [x] Rabbit “all ears” name easter egg on the logo and mascot.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] In-app and written JSON schema documentation, per-type examples, an AI-ready schema download, responsive field-by-field tree tables, parameter and formula boundaries, a live fraction-bar playground, and a self-contained Discover Canada AI
   structured-output prompt, with a public schema and generation validator that

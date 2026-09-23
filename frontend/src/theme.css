@@ -33,10 +33,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 .topbar nav button.active { color: var(--purple); }
 .header-tools { justify-self: end; display: flex; align-items: center; gap: 14px; }
 .points { color: var(--purple); font-size: 14px; }
-.theme-toggle { min-height: 42px; border: 1px solid var(--line); border-radius: 999px; padding: 0 13px; background: var(--paper); color: var(--ink); display: flex; align-items: center; gap: 7px; font-size: 13px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px var(--shadow); }
+.theme-toggle { min-height: 42px; border: 1px solid var(--line); border-radius: 999px; padding: 0 13px; background: var(--paper); color: var(--ink); display: flex; align-items: center; gap: 7px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: 0 4px 14px var(--shadow); }
 .theme-toggle:hover { border-color: var(--purple); }
 .theme-toggle span:first-child { color: var(--purple); font-size: 18px; line-height: 1; }
-.eyebrow { color: var(--purple); font-size: 12px; letter-spacing: .09em; }
+.eyebrow { color: var(--purple); font-size: 14px; letter-spacing: .09em; }
 .trail h2 { font-size: 20px; letter-spacing: -.035em; }
 .trail .active { color: var(--purple); }
 .lesson-progress b { background: linear-gradient(90deg, var(--purple), #ee9374); }
@@ -53,23 +53,41 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 .choice:hover:not(:disabled) { border-color: #df9a87; }
 .choice.selected { background: var(--selected-bg); }
 .primary { border-radius: 14px; font-size: 14px; }
-.quiet { font-size: 13px; }
+.quiet { font-size: 14px; }
 .mascot { width: 142px; height: 142px; padding: 0; }
 .mascot img { width: 100%; height: 100%; object-fit: contain; }
 .coach>div { background: var(--paper); box-shadow: 0 8px 25px var(--shadow); }
-.coach p { font-size: 13px; }
+.coach p { font-size: 14px; }
 .metric-grid article, .panel { background: var(--paper); box-shadow: 0 10px 30px #704d3b0b; }
 .metric-grid strong { color: var(--purple); font-weight: 800; }
 .attempt-list>div { background: var(--subtle); }
 .toast { background: var(--ink); }
 
 /* Keep supporting copy comfortably legible without crowding compact controls. */
-.trail li { font-size: 13px; }
+.trail li { font-size: 14px; }
 .trail li small, .skill, .preview-badge, .metric-grid span, .metric-grid small,
-.panel label, .attempt-list small { font-size: 11px; }
-.lesson-progress > div, .panel-copy, .empty, .attempt-list strong { font-size: 13px; }
+.panel label, .attempt-list small { font-size: 14px; }
+.lesson-progress > div, .panel-copy, .empty, .attempt-list strong { font-size: 14px; }
 .hint, .feedback, .parent-heading > div > p:last-child { font-size: 14px; }
 .question-card, .panel, .docs-page, .demo-page { line-height: 1.55; }
+
+/* Accessible type scale: supporting text stays readable and heavy weights are
+   reserved for headings and short labels rather than full sentences. */
+button, input, select, textarea { font-size: 1rem; }
+p, li, label, small, time, figcaption { font-weight: 400; }
+.topbar nav button, .theme-toggle, .primary, .quiet { font-size: 1rem; font-weight: 650; }
+.eyebrow { font-size: .875rem; font-weight: 700; }
+.trail li, .trail li small, .lesson-progress > div, .skill, .preview-badge,
+.metric-grid span, .metric-grid small, .panel label, .panel-copy, .empty,
+.attempt-list strong, .attempt-list small, .hint, .hint small, .feedback,
+.parent-heading > div > p:last-child, .coach p, .landing-hero small,
+.shot-top, .shot-pill, .shot-card p, .feature-row article > b, .feature-row p,
+.moment-grid strong, .moment-grid span, .history-list time, .history-list footer,
+.history-list p { font-size: .875rem; }
+.choice { font-weight: 650; }
+.choice > span { font-size: .875rem; }
+.subject-picker label, .subject-picker select, .learner-tabs small,
+.toggle, .saved, .worksheet-fields label { font-size: .875rem !important; }
 
 [data-theme="dark"] {
   --ink: #f3eee8;
