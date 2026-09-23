@@ -28,6 +28,7 @@ export default function App() {
     if (saved === "light" || saved === "dark") return saved;
     return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
   });
+  const [wide, setWide] = useState(() => localStorage.getItem("rabbit-layout") === "wide");
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -35,6 +36,10 @@ export default function App() {
     document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "dark" ? "#1b1817" : "#fff8f2");
     localStorage.setItem("rabbit-color-theme", theme);
   }, [theme]);
+  useEffect(() => {
+    document.documentElement.dataset.layout = wide ? "wide" : "contained";
+    localStorage.setItem("rabbit-layout", wide ? "wide" : "contained");
+  }, [wide]);
   useEffect(() => {
     const expired = () => { sessionStorage.removeItem(ADMIN_TOKEN_KEY); sessionStorage.removeItem(IMPERSONATED_USER_KEY); setImpersonatedUser(null); setUser(null); setView("login"); };
     window.addEventListener("rabbit:unauthorized", expired);
@@ -64,16 +69,18 @@ export default function App() {
     catch { await logout(); }
   };
   const toggleTheme = () => setTheme(current => current === "dark" ? "light" : "dark");
-  const themeButton = <button className="theme-toggle" type="button" aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} aria-pressed={theme === "dark"} onClick={toggleTheme}><span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span><span>{theme === "dark" ? "Light" : "Dark"}</span></button>;
+  const themeButton = <button className="icon-toggle" type="button" title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`} aria-pressed={theme === "dark"} onClick={toggleTheme}><span aria-hidden="true">{theme === "dark" ? "☀" : "☾"}</span></button>;
+  const wideButton = <button className="icon-toggle" type="button" title={`${wide ? "Exit" : "Use"} wide mode`} aria-label={`${wide ? "Exit" : "Use"} wide mode`} aria-pressed={wide} onClick={() => setWide(value => !value)}><span aria-hidden="true">{wide ? "↔" : "⛶"}</span></button>;
+  const displayButtons = <>{wideButton}{themeButton}</>;
 
   if (checking) return <main className="auth-page"><div className="spinner" /><p>Opening your learning space…</p></main>;
   if (!user) return <div className="app-shell">
-    <header className="topbar public-top"><button className="brand" aria-label="Go to home" onClick={() => setView("landing")}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Explore"><button className={view === "landing" ? "active" : ""} onClick={() => setView("landing")}>Home</button><button className={view === "demo" ? "active" : ""} onClick={() => setView("demo")}>Demo</button><button className={view === "docs" ? "active" : ""} onClick={() => setView("docs")}>Docs</button></nav><div className="header-tools">{themeButton}<button className="primary header-login" onClick={() => setView("login")}>Log in</button></div></header>
+    <header className="topbar public-top"><button className="brand" aria-label="Go to home" onClick={() => setView("landing")}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Explore"><button className={view === "landing" ? "active" : ""} onClick={() => setView("landing")}>Home</button><button className={view === "demo" ? "active" : ""} onClick={() => setView("demo")}>Demo</button><button className={view === "docs" ? "active" : ""} onClick={() => setView("docs")}>Docs</button></nav><div className="header-tools">{displayButtons}<button className="primary header-login" onClick={() => setView("login")}>Log in</button></div></header>
     {view === "landing" ? <Landing onLogin={() => setView("login")} onDemo={() => setView("demo")} /> : view === "login" ? <Login onBack={() => setView("landing")} onSuccess={setUser} /> : view === "docs" ? <Documentation /> : <DemoPack />}
   </div>;
   return <div className="app-shell">
     {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Administrator is viewing as user {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username} · {impersonatedUser.role}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to administration</button></div>}
-    <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace" onClick={() => setShowDocs(false)}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Your learning space"><button className={!showDocs ? "active" : ""} onClick={() => setShowDocs(false)}>Workspace</button><button className={showDocs ? "active" : ""} onClick={() => setShowDocs(true)}>Docs</button></nav><div className="header-tools">{themeButton}<div className="account"><span>Hi, <strong>{user.display_name}</strong></span><button className="quiet" onClick={logout}>Log out</button></div></div></header>
+    <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace" onClick={() => setShowDocs(false)}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Your learning space"><button className={!showDocs ? "active" : ""} onClick={() => setShowDocs(false)}>Workspace</button><button className={showDocs ? "active" : ""} onClick={() => setShowDocs(true)}>Docs</button></nav><div className="header-tools">{displayButtons}<div className="account"><span>Hi, <strong>{user.display_name}</strong></span><button className="quiet" onClick={logout}>Log out</button></div></div></header>
     {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} /> : <LearnerChrome><LearnerView learnerId={user.id} onAttemptsChanged={() => {}} /></LearnerChrome>}
   </div>;
 }
