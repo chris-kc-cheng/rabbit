@@ -63,8 +63,9 @@ working in this repository, not production-ready at population scale.
 - [x] Authenticated, responsive administrator workspace with overview,
   curriculum, people, and settings navigation. Administrators can create,
   edit, pause, reset access for, and temporarily view the application as active
-  managed accounts, with a persistent, explicit impersonation banner and a
-  one-click return to administration. The people list and account forms retain
+  managed accounts in their actual parent or learner experience, with a persistent,
+  explicit impersonation banner and a one-click return to administration. The
+  people list and account forms retain
   readable foreground/background contrast in light and dark themes, and new-account
   fields opt out of login-credential autofill so an administrator's own username is
   not accidentally submitted; preview built-in and

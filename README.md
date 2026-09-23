@@ -133,7 +133,9 @@ or deployed environment. The production Compose project requires all three value
 and refuses to start without them. Set them as URL-safe, single-line secrets in
 the protected GitHub Actions `production` environment before deploying.
 The administrator creates parent accounts, and each parent creates their learner
-accounts. JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
+accounts. From the people workspace, an administrator can temporarily view an
+active parent in the parent dashboard or an active learner in the learner workspace.
+JWTs expire after one hour by default (`RABBIT_JWT_TTL_SECONDS`) and the
 web app returns to login on a rejected/expired token. Logout durably revokes the
 token and removes it from the browser; password resets persist in PostgreSQL and
 invalidate that user's issued tokens. OIDC, refresh-token rotation, and rate

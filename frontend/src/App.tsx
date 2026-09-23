@@ -62,10 +62,11 @@ export default function App() {
   const startParentPractice = async (target: User) => {
     const parentToken = sessionStorage.getItem("rabbit_token");
     if (!parentToken) throw new Error("Your parent session is no longer active");
+    const returnToken = sessionStorage.getItem(ORIGINAL_TOKEN_KEY) ?? parentToken;
     const auth = target.role === "parent"
       ? { access_token: parentToken, user: target }
       : await api.parentImpersonateLearner(target.id);
-    sessionStorage.setItem(ORIGINAL_TOKEN_KEY, parentToken);
+    sessionStorage.setItem(ORIGINAL_TOKEN_KEY, returnToken);
     sessionStorage.setItem(IMPERSONATED_USER_KEY, JSON.stringify(auth.user));
     sessionStorage.setItem("rabbit_token", auth.access_token);
     setImpersonatedUser(auth.user); setUser(auth.user); setShowDocs(false);
@@ -90,8 +91,8 @@ export default function App() {
     {view === "landing" ? <Landing onLogin={() => setView("login")} onDemo={() => setView("demo")} /> : view === "login" ? <Login onBack={() => setView("landing")} onSuccess={setUser} /> : view === "docs" ? <Documentation /> : <DemoPack />}
   </div>;
   return <div className="app-shell">
-    {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Viewing the learner experience as {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to dashboard</button></div>}
+    {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Viewing the {impersonatedUser.role} experience as {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to dashboard</button></div>}
     <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace" onClick={() => setShowDocs(false)}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Your learning space"><button className={!showDocs ? "active" : ""} onClick={() => setShowDocs(false)}>Workspace</button><button className={showDocs ? "active" : ""} onClick={() => setShowDocs(true)}>Docs</button></nav><div className="header-tools">{displayButtons}<div className="account"><span>Hi, <strong>{user.display_name}</strong></span><button className="quiet" onClick={logout}>Log out</button></div></div></header>
-    {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" && !impersonatedUser ? <ParentView refreshKey={0} onPractice={startParentPractice} /> : <LearnerChrome><LearnerView learnerId={user.id} defaultSubject={user.default_subject} onAttemptsChanged={() => {}} loadProgress={user.role === "parent" ? () => api.getParentLearnerProgress(user.id) : undefined} /></LearnerChrome>}
+    {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} onPractice={startParentPractice} /> : <LearnerChrome><LearnerView learnerId={user.id} defaultSubject={user.default_subject} onAttemptsChanged={() => {}} /></LearnerChrome>}
   </div>;
 }
