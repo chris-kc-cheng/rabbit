@@ -1,5 +1,14 @@
 export type ContentBlock = { type: "text" | "math"; value: string };
 export type Choice = { id: string; value: string };
+type BaseVisual = { alt: string };
+export type QuestionVisual =
+  | (BaseVisual & { type: "fraction-bar"; numerator: number; denominator: number })
+  | (BaseVisual & { type: "data-table"; caption: string; columns: string[]; rows: string[][] })
+  | (BaseVisual & { type: "rectangle-grid"; width: number; height: number; shaded?: number; unit: string })
+  | (BaseVisual & { type: "angle"; degrees: number; label?: string })
+  | (BaseVisual & { type: "triangle"; kind: "right" | "isosceles"; base: number; height: number; unit: string; unknown?: "base" | "height" })
+  | (BaseVisual & { type: "solid"; kind: "rectangular-prism" | "cube"; length: number; width: number; height: number; unit: string })
+  | (BaseVisual & { type: "scene-2d"; points: Array<{ id: string; x: number; y: number; label?: string }>; segments: Array<{ from: string; to: string; label?: string }>; polygons?: Array<{ points: string[]; shaded?: boolean }> });
 export type Question = {
   id: string;
   template_id: string;
@@ -8,7 +17,7 @@ export type Question = {
   prompt: ContentBlock[];
   choices: Choice[];
   hint: string;
-  visual?: { type: "fraction-bar"; numerator: number; denominator: number; alt: string } | null;
+  visual?: QuestionVisual | null;
 };
 export type Session = { id: string; learner_id: string; questions: Question[] };
 export type AttemptResult = {
@@ -44,12 +53,12 @@ export type AttemptHistoryItem = {
   time_spent_ms: number;
   question: Question;
 };
-export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean; default_subject?: string };
+export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean; default_subject?: string; default_topics?: string[] };
 export type AuthSession = { access_token: string; expires_at: number; user: User };
 export type FamilyLearner = User & { progress: Progress; is_self: boolean };
 export type ImportError = { path: string; message: string; suggestion: string };
 export type FamilyProgress = { family_id: string; learners: Array<{ id: string; name: string; progress: Progress }> };
-export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published" };
+export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published"; topics: Array<{ id: string; title: string }> };
 export type QuestionBankAdmin = {
   subject: string;
   title: string;

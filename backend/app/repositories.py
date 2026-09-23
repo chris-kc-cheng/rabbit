@@ -30,12 +30,13 @@ def user_record(user: User) -> dict:
         "disabled": user.disabled,
         "token_version": user.token_version,
         "default_subject": user.default_subject,
+        "default_topics": list(user.default_topics or []),
     }
 
 
 def public_user(user: User | dict) -> dict:
     record = user_record(user) if isinstance(user, User) else user
-    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled", "default_subject")}
+    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled", "default_subject", "default_topics")}
 
 
 class IdentityRepository:
@@ -113,8 +114,9 @@ class IdentityRepository:
         user.token_version += 1
         self.session.commit()
 
-    def set_default_subject(self, user: User, subject: str) -> User:
+    def set_learning_preferences(self, user: User, subject: str, topics: list[str]) -> User:
         user.default_subject = subject
+        user.default_topics = topics
         self.session.commit()
         self.session.refresh(user)
         return user

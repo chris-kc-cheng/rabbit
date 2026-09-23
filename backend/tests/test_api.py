@@ -126,6 +126,44 @@ def test_parent_can_choose_each_default_bank_impersonate_child_and_practice_last
     ).status_code == 200
 
 
+def test_parent_can_choose_multiple_topics_and_sessions_use_only_that_plan():
+    parent_headers, learner_headers, learner = family()
+    subjects = client.get("/api/v1/subjects", headers=parent_headers).json()
+    math = next(subject for subject in subjects if subject["id"] == "math.elementary")
+    selected_topics = [math["topics"][0]["id"], math["topics"][3]["id"]]
+
+    saved = client.put(
+        f"/api/v1/parents/learners/{learner['id']}/learning-preferences",
+        headers=parent_headers,
+        json={"subject": "math.elementary", "topics": selected_topics},
+    )
+    assert saved.status_code == 200, saved.text
+    assert saved.json()["default_topics"] == selected_topics
+
+    session = client.post("/api/v1/sessions", headers=learner_headers, json={
+        "learner_id": learner["id"], "subject": "math.elementary", "seed": 44, "count": 6,
+    })
+    assert session.status_code == 201, session.text
+    assert {question["skill"] for question in session.json()["questions"]} == set(selected_topics)
+
+    duplicate = client.put(
+        f"/api/v1/parents/learners/{learner['id']}/learning-preferences",
+        headers=parent_headers,
+        json={"subject": "math.elementary", "topics": [selected_topics[0], selected_topics[0]]},
+    )
+    assert duplicate.status_code == 400
+    assert client.put(
+        f"/api/v1/parents/learners/{learner['id']}/learning-preferences",
+        headers=parent_headers,
+        json={"subject": "math.elementary", "topics": ["math.not-real"]},
+    ).status_code == 400
+    assert client.put(
+        f"/api/v1/parents/learners/{learner['id']}/learning-preferences",
+        headers=learner_headers,
+        json={"subject": "math.elementary", "topics": selected_topics},
+    ).status_code == 403
+
+
 def test_identity_records_are_relational_and_learner_has_one_family():
     from sqlalchemy import select
     from sqlalchemy.orm import Session

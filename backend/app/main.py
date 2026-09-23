@@ -24,6 +24,7 @@ from .models import (
     AdminQuestionPreview,
     ContentSettings,
     DefaultSubjectUpdate,
+    LearningPreferencesUpdate,
     LearnerCreate,
     LoginRequest,
     ParentCreate,
@@ -198,6 +199,7 @@ def error_suggestion(error) -> str:
         "enum": f"Choose one of: {', '.join(map(str, error.validator_value))}.",
         "const": f"Set this value to {error.validator_value!r}.",
         "minItems": f"Add items until this array contains at least {error.validator_value}.",
+        "maxItems": f"Remove items until this array contains at most {error.validator_value}.",
         "oneOf": "Check the template type and include only the fields required for that template shape.",
     }
     return suggestions.get(error.validator, "Check this value against the schema constraint shown in the message.")
@@ -334,7 +336,10 @@ def subjects(_: dict = Depends(require_role("learner", "parent", "admin")),
     include_drafts = repository.include_drafts()
     return [
         {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"]),
-         "publication_status": bank["publicationStatus"]}
+         "publication_status": bank["publicationStatus"], "topics": [
+             {"id": skill, "title": topic_title(skill)}
+             for skill in dict.fromkeys(template["skill"] for template in bank["templates"])
+         ]}
         for bank in {**load_banks(include_drafts), **repository.banks()}.values()
         if include_drafts or bank["publicationStatus"] == "published"
     ]
@@ -354,6 +359,13 @@ def create_session(request: SessionCreate, user: dict = Depends(require_role("le
         raise HTTPException(status_code=400, detail="Subject is not currently visible")
     session_id = secrets.token_urlsafe(12)
     seed = request.seed if request.seed is not None else time.time_ns()
+    learner = IdentityRepository(db).get_by_id(request.learner_id)
+    selected_topics = list(learner.default_topics or []) if learner and learner.default_subject == request.subject else []
+    if selected_topics:
+        templates = [template for template in bank["templates"] if template["skill"] in selected_topics]
+        if not templates:
+            raise HTTPException(status_code=400, detail="Selected topics are not currently available")
+        bank = {**bank, "templates": templates}
     generated = generate_session(seed, request.count, bank)
     PracticeRepository(db).create_session(session_id, request.learner_id, request.subject, seed, generated)
     return SessionResponse(id=session_id, learner_id=request.learner_id, questions=[q.public for q in generated])
@@ -438,8 +450,8 @@ def parent_impersonate_learner(learner_id: str, parent: dict = Depends(require_r
             "user": public_user(record)}
 
 
-@app.put("/api/v1/parents/learners/{learner_id}/default-subject")
-def update_default_subject(learner_id: str, request: DefaultSubjectUpdate,
+@app.put("/api/v1/parents/learners/{learner_id}/learning-preferences")
+def update_learning_preferences(learner_id: str, request: LearningPreferencesUpdate,
                            parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> dict:
     user = IdentityRepository(db).get_by_id(learner_id)
     if user is None or user.family_id != parent["family_id"] or (user.role != "learner" and user.id != parent["id"]):
@@ -448,7 +460,22 @@ def update_default_subject(learner_id: str, request: DefaultSubjectUpdate,
     bank = banks.get(request.subject)
     if bank is None or (bank["publicationStatus"] != "published" and not include_drafts):
         raise HTTPException(400, "Subject is not currently available")
-    return public_user(IdentityRepository(db).set_default_subject(user, request.subject))
+    available_topics = {template["skill"] for template in bank["templates"]}
+    if len(request.topics) != len(set(request.topics)):
+        raise HTTPException(400, "Choose each topic only once")
+    unknown = set(request.topics) - available_topics
+    if unknown:
+        raise HTTPException(400, "One or more selected topics are not available for this subject")
+    return public_user(IdentityRepository(db).set_learning_preferences(user, request.subject, request.topics))
+
+
+@app.put("/api/v1/parents/learners/{learner_id}/default-subject", deprecated=True)
+def update_default_subject(learner_id: str, request: DefaultSubjectUpdate,
+                           parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> dict:
+    """Compatibility route: changing the bank resets its topic filter to all topics."""
+    return update_learning_preferences(
+        learner_id, LearningPreferencesUpdate(subject=request.subject, topics=[]), parent, db
+    )
 
 
 @app.post("/api/v1/parents/learners", status_code=201)

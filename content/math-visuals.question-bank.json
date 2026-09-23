@@ -1,0 +1,512 @@
+{
+  "schemaVersion": 2,
+  "generatorVersion": "2.1.0",
+  "publicationStatus": "draft",
+  "subject": "math.visuals",
+  "title": "Math Visuals Review",
+  "locale": "en-CA",
+  "templates": [
+    {
+      "id": "math.addition.place-value.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.addition.multi-digit",
+      "difficulty": 2,
+      "parameters": {
+        "a": {
+          "type": "integer",
+          "min": 320,
+          "max": 760,
+          "step": 10
+        },
+        "b": {
+          "type": "integer",
+          "min": 120,
+          "max": 280,
+          "step": 10
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "What is {{a}} + {{b}}?"
+        }
+      ],
+      "answer": {
+        "expression": "a + b",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "missed-hundred",
+          "misconception": "math.place-value.missed-hundred",
+          "expression": "a + b - 100",
+          "feedback": "Line up the hundreds, tens, and ones before adding."
+        },
+        {
+          "id": "missed-ten",
+          "misconception": "math.place-value.missed-ten",
+          "expression": "a + b - 10",
+          "feedback": "Recheck the tens column and include every place value."
+        },
+        {
+          "id": "extra-ten",
+          "misconception": "math.addition.extra-regroup",
+          "expression": "a + b + 10",
+          "feedback": "Only regroup when a column total reaches ten or more."
+        }
+      ],
+      "hint": "Line up digits with the same place value.",
+      "explanation": "Adding the matching place-value columns gives {{a + b}}.",
+      "accessibility": {
+        "screenReaderText": "Add two three-digit numbers."
+      },
+      "visual": {
+        "type": "data-table",
+        "caption": "Addends by place value",
+        "columns": [
+          "Number",
+          "Hundreds",
+          "Tens"
+        ],
+        "rows": [
+          [
+            "First addend",
+            "{{a // 100}}",
+            "{{(a % 100) // 10}}"
+          ],
+          [
+            "Second addend",
+            "{{b // 100}}",
+            "{{(b % 100) // 10}}"
+          ]
+        ],
+        "alt": "A place-value table for {{a}} and {{b}}."
+      }
+    },
+    {
+      "id": "math.measurement.area.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.measurement.area",
+      "difficulty": 2,
+      "parameters": {
+        "width": {
+          "type": "integer",
+          "min": 4,
+          "max": 10
+        },
+        "height": {
+          "type": "integer",
+          "min": 3,
+          "max": 8
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "A rectangular floor is {{width}} m by {{height}} m. What is its area?"
+        }
+      ],
+      "answer": {
+        "expression": "width * height",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "calculated-perimeter",
+          "misconception": "math.measurement.area-vs-perimeter",
+          "expression": "2 * width + 2 * height",
+          "feedback": "Perimeter goes around the edge. Area counts square units covering the floor."
+        },
+        {
+          "id": "added-sides",
+          "misconception": "math.area.added-dimensions",
+          "expression": "width + height",
+          "feedback": "To count rows of square units, multiply length by width."
+        },
+        {
+          "id": "missed-row",
+          "misconception": "math.area.missed-row",
+          "expression": "width * height - width",
+          "feedback": "Include all {{height}} rows of {{width}} square metres."
+        }
+      ],
+      "hint": "Multiply the number of rows by the number of squares in each row.",
+      "explanation": "{{width}} \u00d7 {{height}} = {{width * height}} square metres.",
+      "accessibility": {
+        "screenReaderText": "Find the area of a rectangle from its dimensions."
+      },
+      "visual": {
+        "type": "rectangle-grid",
+        "width": "width",
+        "height": "height",
+        "unit": "m",
+        "alt": "A {{width}} metre by {{height}} metre rectangle divided into square metres."
+      }
+    },
+    {
+      "id": "math.measurement.perimeter.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.measurement.perimeter",
+      "difficulty": 2,
+      "parameters": {
+        "width": {
+          "type": "integer",
+          "min": 3,
+          "max": 9
+        },
+        "height": {
+          "type": "integer",
+          "min": 2,
+          "max": 7
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "A rectangle is {{width}} m long and {{height}} m wide. What is its perimeter?"
+        }
+      ],
+      "answer": {
+        "expression": "2 * width + 2 * height",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "calculated-area",
+          "misconception": "math.measurement.perimeter-vs-area",
+          "expression": "width * height",
+          "feedback": "Area covers the inside. Perimeter is the distance around all four sides."
+        },
+        {
+          "id": "only-two-sides",
+          "misconception": "math.perimeter.only-two-sides",
+          "expression": "width + height",
+          "feedback": "A rectangle has two lengths and two widths, so include all four sides."
+        },
+        {
+          "id": "missed-one-side",
+          "misconception": "math.perimeter.missed-side",
+          "expression": "2 * width + height",
+          "feedback": "Include both width sides as well as both length sides."
+        }
+      ],
+      "hint": "Add all four outside edges.",
+      "explanation": "{{width}} + {{height}} + {{width}} + {{height}} = {{2 * width + 2 * height}} metres.",
+      "accessibility": {
+        "screenReaderText": "Find the perimeter of a rectangle from its length and width."
+      },
+      "visual": {
+        "type": "scene-2d",
+        "points": [
+          {
+            "id": "a",
+            "x": "10",
+            "y": "10",
+            "label": "A"
+          },
+          {
+            "id": "b",
+            "x": "10 + width * 5",
+            "y": "10",
+            "label": "B"
+          },
+          {
+            "id": "c",
+            "x": "10 + width * 5",
+            "y": "10 + height * 5",
+            "label": "C"
+          },
+          {
+            "id": "d",
+            "x": "10",
+            "y": "10 + height * 5",
+            "label": "D"
+          }
+        ],
+        "segments": [
+          {
+            "from": "a",
+            "to": "b",
+            "label": "{{width}} m"
+          },
+          {
+            "from": "b",
+            "to": "c",
+            "label": "{{height}} m"
+          },
+          {
+            "from": "c",
+            "to": "d",
+            "label": "{{width}} m"
+          },
+          {
+            "from": "d",
+            "to": "a",
+            "label": "{{height}} m"
+          }
+        ],
+        "polygons": [
+          {
+            "points": [
+              "a",
+              "b",
+              "c",
+              "d"
+            ]
+          }
+        ],
+        "alt": "Rectangle ABCD is {{width}} metres wide and {{height}} metres high."
+      }
+    },
+    {
+      "id": "math.fractions.fraction-of-set.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.fractions.of-a-set",
+      "difficulty": 3,
+      "parameters": {
+        "denominator": {
+          "type": "integer",
+          "min": 3,
+          "max": 6
+        },
+        "each": {
+          "type": "integer",
+          "min": 3,
+          "max": 8
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "What is 1/{{denominator}} of {{denominator * each}}?"
+        }
+      ],
+      "answer": {
+        "expression": "each",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "used-denominator",
+          "misconception": "math.fractions.used-denominator",
+          "expression": "denominator",
+          "feedback": "The denominator tells how many equal groups to make; it is not the answer by itself."
+        },
+        {
+          "id": "used-whole",
+          "misconception": "math.fractions.used-whole",
+          "expression": "denominator * each",
+          "feedback": "That is the whole amount. Divide it into {{denominator}} equal parts."
+        },
+        {
+          "id": "added-instead",
+          "misconception": "math.fractions.added-instead-of-divided",
+          "expression": "each + denominator",
+          "feedback": "To find one equal part, divide the whole by the denominator."
+        }
+      ],
+      "hint": "Divide the whole amount into {{denominator}} equal groups.",
+      "explanation": "{{denominator * each}} \u00f7 {{denominator}} = {{each}}.",
+      "visual": {
+        "type": "fraction-bar",
+        "numerator": "1",
+        "denominator": "denominator",
+        "alt": "One of several equal parts is highlighted."
+      },
+      "accessibility": {
+        "screenReaderText": "Find one equal fractional part of a set."
+      }
+    },
+    {
+      "id": "math.geometry.identify-angle.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.geometry.angles",
+      "difficulty": 2,
+      "parameters": {
+        "angle": {
+          "type": "integer",
+          "min": 30,
+          "max": 70,
+          "step": 10
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "What is the measure of the angle shown?"
+        }
+      ],
+      "answer": {
+        "expression": "angle",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "ten-less",
+          "misconception": "math.angle.underestimated",
+          "expression": "angle - 10",
+          "feedback": "Compare the opening with the labelled arc and count the full turn carefully."
+        },
+        {
+          "id": "ten-more",
+          "misconception": "math.angle.overestimated",
+          "expression": "angle + 10",
+          "feedback": "The angle ends at the upper ray; avoid extending the opening farther."
+        },
+        {
+          "id": "supplement",
+          "misconception": "math.angle.used-supplement",
+          "expression": "180 - angle",
+          "feedback": "Measure the smaller marked opening rather than the angle on the other side."
+        }
+      ],
+      "hint": "Read the opening between the two rays.",
+      "explanation": "The marked opening measures {{angle}} degrees.",
+      "visual": {
+        "type": "angle",
+        "degrees": "angle",
+        "label": "?",
+        "alt": "Two rays form an angle measuring {{angle}} degrees, with the measure hidden by a question mark."
+      },
+      "accessibility": {
+        "screenReaderText": "Identify the measure of an angle from its diagram."
+      }
+    },
+    {
+      "id": "math.geometry.triangle-area.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.geometry.triangle-area",
+      "difficulty": 3,
+      "parameters": {
+        "base": {
+          "type": "integer",
+          "min": 8,
+          "max": 14,
+          "step": 2
+        },
+        "height": {
+          "type": "integer",
+          "min": 3,
+          "max": 6
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "What is the area of the right triangle?"
+        }
+      ],
+      "answer": {
+        "expression": "base * height // 2",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "rectangle-area",
+          "misconception": "math.triangle.used-full-rectangle",
+          "expression": "base * height",
+          "feedback": "A triangle occupies half of a rectangle with the same base and height."
+        },
+        {
+          "id": "forgot-base-halving",
+          "misconception": "math.triangle.halved-height-only",
+          "expression": "base * height // 2 + base",
+          "feedback": "Multiply the base and perpendicular height, then divide that product by two."
+        },
+        {
+          "id": "added-height",
+          "misconception": "math.triangle.added-height",
+          "expression": "base * height // 2 + height",
+          "feedback": "The height is part of the product; do not add it again after halving."
+        }
+      ],
+      "hint": "Use area = base \u00d7 height \u00f7 2.",
+      "explanation": "{{base}} \u00d7 {{height}} \u00f7 2 = {{base * height // 2}} square centimetres.",
+      "visual": {
+        "type": "triangle",
+        "kind": "right",
+        "base": "base",
+        "height": "height",
+        "unit": "cm",
+        "alt": "A right triangle with base {{base}} centimetres and perpendicular height {{height}} centimetres."
+      },
+      "accessibility": {
+        "screenReaderText": "Find the area of a right triangle from its base and perpendicular height."
+      }
+    },
+    {
+      "id": "math.measurement.prism-volume.visual-draft",
+      "version": 1,
+      "type": "single-select",
+      "skill": "math.measurement.volume",
+      "difficulty": 3,
+      "parameters": {
+        "length": {
+          "type": "integer",
+          "min": 5,
+          "max": 8
+        },
+        "width": {
+          "type": "integer",
+          "min": 3,
+          "max": 4
+        },
+        "height": {
+          "type": "integer",
+          "min": 2,
+          "max": 3
+        }
+      },
+      "prompt": [
+        {
+          "type": "text",
+          "value": "What is the volume of the rectangular prism?"
+        }
+      ],
+      "answer": {
+        "expression": "length * width * height",
+        "format": "number"
+      },
+      "distractors": [
+        {
+          "id": "base-only",
+          "misconception": "math.volume.used-base-area",
+          "expression": "length * width",
+          "feedback": "That is the base area. Multiply it by the prism height too."
+        },
+        {
+          "id": "added-dimensions",
+          "misconception": "math.volume.added-dimensions",
+          "expression": "length + width + height",
+          "feedback": "Volume counts cubic units, so multiply all three dimensions."
+        },
+        {
+          "id": "one-cube-short",
+          "misconception": "math.volume.missed-cube",
+          "expression": "length * width * height - 1",
+          "feedback": "Count every cubic unit in all {{height}} complete layers."
+        }
+      ],
+      "hint": "Multiply length \u00d7 width \u00d7 height.",
+      "explanation": "{{length}} \u00d7 {{width}} \u00d7 {{height}} = {{length * width * height}} cubic centimetres.",
+      "visual": {
+        "type": "solid",
+        "kind": "rectangular-prism",
+        "length": "length",
+        "width": "width",
+        "height": "height",
+        "unit": "cm",
+        "alt": "A rectangular prism measuring {{length}} by {{width}} by {{height}} centimetres."
+      },
+      "accessibility": {
+        "screenReaderText": "Find the volume of a rectangular prism from its three dimensions."
+      }
+    }
+  ]
+}

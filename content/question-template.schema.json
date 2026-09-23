@@ -5,115 +5,783 @@
   "$comment": "Normative published computed and fact-collection single-select contract. Fixed multi-type demonstrations live in demo-pack.schema.json and are not published v2 templates.",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "generatorVersion", "publicationStatus", "subject", "title", "locale", "templates"],
+  "required": [
+    "schemaVersion",
+    "generatorVersion",
+    "publicationStatus",
+    "subject",
+    "title",
+    "locale",
+    "templates"
+  ],
   "properties": {
-    "schemaVersion": { "const": 2 },
-    "generatorVersion": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$", "description": "Semantic version of the deterministic server generator, for example 2.0.0." },
-    "publicationStatus": { "enum": ["draft", "published"] },
-    "subject": { "$ref": "#/$defs/stableId" },
-    "title": { "type": "string", "minLength": 1, "maxLength": 100 },
-    "locale": { "type": "string", "pattern": "^[a-z]{2}-[A-Z]{2}$" },
-    "templates": { "type": "array", "minItems": 1, "items": { "oneOf": [
-      { "$ref": "#/$defs/computedTemplate" },
-      { "$ref": "#/$defs/factCollectionTemplate" }
-    ] } }
+    "schemaVersion": {
+      "const": 2
+    },
+    "generatorVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Semantic version of the deterministic server generator, for example 2.0.0."
+    },
+    "publicationStatus": {
+      "enum": [
+        "draft",
+        "published"
+      ]
+    },
+    "subject": {
+      "$ref": "#/$defs/stableId"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 100
+    },
+    "locale": {
+      "type": "string",
+      "pattern": "^[a-z]{2}-[A-Z]{2}$"
+    },
+    "templates": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/computedTemplate"
+          },
+          {
+            "$ref": "#/$defs/factCollectionTemplate"
+          }
+        ]
+      }
+    }
   },
   "$defs": {
-    "stableId": { "type": "string", "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$" },
-    "expression": { "type": "string", "minLength": 1, "maxLength": 200, "description": "Rabbit arithmetic DSL: declared variables, numeric constants, parentheses, unary +/- and binary +, -, *, /, //, %. No calls, powers, indexing, attributes, or code." },
+    "stableId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(?:[.-][a-z0-9]+)*$"
+    },
+    "expression": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 200,
+      "description": "Rabbit arithmetic DSL: declared variables, numeric constants, parentheses, unary +/- and binary +, -, *, /, //, %. No calls, powers, indexing, attributes, or code."
+    },
     "parameter": {
-      "type": "object", "additionalProperties": false, "required": ["type", "min", "max"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "min",
+        "max"
+      ],
       "properties": {
-        "type": { "const": "integer", "description": "v2 generates whole-number parameters only." },
-        "min": { "type": "integer", "description": "Inclusive lower bound; must be no greater than max." },
-        "max": { "type": "integer", "description": "Inclusive upper bound." },
-        "step": { "type": "integer", "minimum": 1, "description": "Optional positive spacing from min; defaults to 1." }
+        "type": {
+          "const": "integer",
+          "description": "v2 generates whole-number parameters only."
+        },
+        "min": {
+          "type": "integer",
+          "description": "Inclusive lower bound; must be no greater than max."
+        },
+        "max": {
+          "type": "integer",
+          "description": "Inclusive upper bound."
+        },
+        "step": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Optional positive spacing from min; defaults to 1."
+        }
       }
     },
     "block": {
-      "type": "object", "additionalProperties": false, "required": ["type", "value"],
-      "properties": { "type": { "enum": ["text", "math"] }, "value": { "type": "string", "minLength": 1, "maxLength": 500 } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "enum": [
+            "text",
+            "math"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        }
+      }
     },
     "accessibility": {
-      "type": "object", "additionalProperties": false, "required": ["screenReaderText"],
-      "properties": { "screenReaderText": { "type": "string", "minLength": 5, "maxLength": 500 } }
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "screenReaderText"
+      ],
+      "properties": {
+        "screenReaderText": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 500
+        }
+      }
     },
     "computedDistractor": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "misconception", "expression", "feedback"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "misconception",
+        "expression",
+        "feedback"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/stableId" }, "misconception": { "$ref": "#/$defs/stableId" },
-        "expression": { "$ref": "#/$defs/expression" }, "feedback": { "type": "string", "minLength": 10, "maxLength": 300 }
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "misconception": {
+          "$ref": "#/$defs/stableId"
+        },
+        "expression": {
+          "$ref": "#/$defs/expression"
+        },
+        "feedback": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 300
+        }
       }
     },
     "computedTemplate": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "version", "type", "skill", "difficulty", "parameters", "prompt", "answer", "distractors", "hint", "explanation", "accessibility"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "type",
+        "skill",
+        "difficulty",
+        "parameters",
+        "prompt",
+        "answer",
+        "distractors",
+        "hint",
+        "explanation",
+        "accessibility"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/stableId" }, "version": { "type": "integer", "minimum": 1 },
-        "type": { "const": "single-select" }, "skill": { "$ref": "#/$defs/stableId" },
-        "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "const": "single-select"
+        },
+        "skill": {
+          "$ref": "#/$defs/stableId"
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
         "parameters": {
-          "type": "object", "minProperties": 1, "propertyNames": { "pattern": "^[a-z][a-z0-9_]*$" },
-          "additionalProperties": { "$ref": "#/$defs/parameter" }
-        },
-        "prompt": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/block" } },
-        "answer": {
-          "type": "object", "additionalProperties": false, "required": ["expression", "format"],
-          "properties": { "expression": { "$ref": "#/$defs/expression" }, "format": { "enum": ["number", "decimal", "money"] } }
-        },
-        "distractors": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/computedDistractor" } },
-        "hint": { "type": "string", "minLength": 5, "maxLength": 250 },
-        "explanation": { "type": "string", "minLength": 10, "maxLength": 500 },
-        "visual": {
-          "type": "object", "additionalProperties": false, "required": ["type", "numerator", "denominator", "alt"],
-          "properties": {
-            "type": { "const": "fraction-bar" }, "numerator": { "$ref": "#/$defs/expression" },
-            "denominator": { "$ref": "#/$defs/expression" }, "alt": { "type": "string", "minLength": 5, "maxLength": 200 }
+          "type": "object",
+          "minProperties": 1,
+          "propertyNames": {
+            "pattern": "^[a-z][a-z0-9_]*$"
+          },
+          "additionalProperties": {
+            "$ref": "#/$defs/parameter"
           }
         },
-        "accessibility": { "$ref": "#/$defs/accessibility" }
+        "prompt": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        },
+        "answer": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "expression",
+            "format"
+          ],
+          "properties": {
+            "expression": {
+              "$ref": "#/$defs/expression"
+            },
+            "format": {
+              "enum": [
+                "number",
+                "decimal",
+                "money"
+              ]
+            }
+          }
+        },
+        "distractors": {
+          "type": "array",
+          "minItems": 3,
+          "items": {
+            "$ref": "#/$defs/computedDistractor"
+          }
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 250
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 500
+        },
+        "visual": {
+          "$ref": "#/$defs/visual"
+        },
+        "accessibility": {
+          "$ref": "#/$defs/accessibility"
+        }
       }
     },
     "fact": {
-      "type": "object", "additionalProperties": { "type": ["string", "integer"] },
-      "required": ["id"], "properties": { "id": { "$ref": "#/$defs/stableId" } }, "minProperties": 3
+      "type": "object",
+      "additionalProperties": {
+        "type": [
+          "string",
+          "integer"
+        ]
+      },
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        }
+      },
+      "minProperties": 3
     },
     "factVariant": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "difficulty", "prompt", "answerField", "distractorPoolField", "misconception", "feedback", "hint", "explanation", "accessibility"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "difficulty",
+        "prompt",
+        "answerField",
+        "distractorPoolField",
+        "misconception",
+        "feedback",
+        "hint",
+        "explanation",
+        "accessibility"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/stableId" }, "difficulty": { "type": "integer", "minimum": 1, "maximum": 5 },
-        "prompt": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/block" } },
-        "answerField": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" },
-        "distractorPoolField": { "type": "string", "pattern": "^[a-z][a-zA-Z0-9]*$" },
-        "misconception": { "$ref": "#/$defs/stableId" },
-        "feedback": { "type": "string", "minLength": 10, "maxLength": 300 },
-        "hint": { "type": "string", "minLength": 5, "maxLength": 250 },
-        "explanation": { "type": "string", "minLength": 10, "maxLength": 500 },
-        "accessibility": { "$ref": "#/$defs/accessibility" }
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 5
+        },
+        "prompt": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/block"
+          }
+        },
+        "answerField": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$"
+        },
+        "distractorPoolField": {
+          "type": "string",
+          "pattern": "^[a-z][a-zA-Z0-9]*$"
+        },
+        "misconception": {
+          "$ref": "#/$defs/stableId"
+        },
+        "feedback": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 300
+        },
+        "hint": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 250
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 500
+        },
+        "accessibility": {
+          "$ref": "#/$defs/accessibility"
+        }
       }
     },
     "source": {
-      "type": "object", "additionalProperties": false, "required": ["title", "url", "locator", "reviewStatus"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "title",
+        "url",
+        "locator",
+        "reviewStatus"
+      ],
       "properties": {
-        "title": { "type": "string", "minLength": 1 }, "url": { "type": "string", "format": "uri" },
-        "locator": { "type": "string", "minLength": 1 }, "reviewStatus": { "enum": ["draft", "reviewed"] }
+        "title": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "format": "uri"
+        },
+        "locator": {
+          "type": "string",
+          "minLength": 1
+        },
+        "reviewStatus": {
+          "enum": [
+            "draft",
+            "reviewed"
+          ]
+        }
       }
     },
     "factCollectionTemplate": {
-      "type": "object", "additionalProperties": false,
-      "required": ["id", "version", "type", "skill", "knowledge", "variants", "source"],
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "version",
+        "type",
+        "skill",
+        "knowledge",
+        "variants",
+        "source"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/stableId" }, "version": { "type": "integer", "minimum": 1 },
-        "type": { "const": "fact-collection-single-select" }, "skill": { "$ref": "#/$defs/stableId" },
-        "knowledge": {
-          "type": "object", "additionalProperties": false, "required": ["type", "facts"],
-          "properties": { "type": { "const": "historical-events" }, "facts": { "type": "array", "minItems": 4, "items": { "$ref": "#/$defs/fact" } } }
+        "id": {
+          "$ref": "#/$defs/stableId"
         },
-        "variants": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/factVariant" } },
-        "source": { "$ref": "#/$defs/source" }
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "type": {
+          "const": "fact-collection-single-select"
+        },
+        "skill": {
+          "$ref": "#/$defs/stableId"
+        },
+        "knowledge": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "type",
+            "facts"
+          ],
+          "properties": {
+            "type": {
+              "const": "historical-events"
+            },
+            "facts": {
+              "type": "array",
+              "minItems": 4,
+              "items": {
+                "$ref": "#/$defs/fact"
+              }
+            }
+          }
+        },
+        "variants": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/factVariant"
+          }
+        },
+        "source": {
+          "$ref": "#/$defs/source"
+        }
       }
+    },
+    "tableVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "caption",
+        "columns",
+        "rows",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "data-table"
+        },
+        "caption": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "columns": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 8,
+          "items": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          }
+        },
+        "rows": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 20,
+          "items": {
+            "type": "array",
+            "minItems": 2,
+            "maxItems": 8,
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 200
+            }
+          }
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 500
+        }
+      }
+    },
+    "rectangleVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "width",
+        "height",
+        "unit",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "rectangle-grid"
+        },
+        "width": {
+          "$ref": "#/$defs/expression"
+        },
+        "height": {
+          "$ref": "#/$defs/expression"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "shaded": {
+          "$ref": "#/$defs/expression"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300
+        }
+      }
+    },
+    "angleVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "degrees",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "angle"
+        },
+        "degrees": {
+          "$ref": "#/$defs/expression"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300
+        }
+      }
+    },
+    "triangleVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "kind",
+        "base",
+        "height",
+        "unit",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "triangle"
+        },
+        "kind": {
+          "enum": [
+            "right",
+            "isosceles"
+          ]
+        },
+        "base": {
+          "$ref": "#/$defs/expression"
+        },
+        "height": {
+          "$ref": "#/$defs/expression"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "unknown": {
+          "enum": [
+            "base",
+            "height"
+          ]
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300
+        }
+      }
+    },
+    "solidVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "kind",
+        "length",
+        "width",
+        "height",
+        "unit",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "solid"
+        },
+        "kind": {
+          "enum": [
+            "rectangular-prism",
+            "cube"
+          ]
+        },
+        "length": {
+          "$ref": "#/$defs/expression"
+        },
+        "width": {
+          "$ref": "#/$defs/expression"
+        },
+        "height": {
+          "$ref": "#/$defs/expression"
+        },
+        "unit": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 300
+        }
+      }
+    },
+    "scenePoint": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "x",
+        "y"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/stableId"
+        },
+        "x": {
+          "$ref": "#/$defs/expression"
+        },
+        "y": {
+          "$ref": "#/$defs/expression"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "sceneSegment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "from",
+        "to"
+      ],
+      "properties": {
+        "from": {
+          "$ref": "#/$defs/stableId"
+        },
+        "to": {
+          "$ref": "#/$defs/stableId"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200
+        }
+      }
+    },
+    "scenePolygon": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "points"
+      ],
+      "properties": {
+        "points": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 12,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/stableId"
+          }
+        },
+        "shaded": {
+          "type": "boolean"
+        }
+      }
+    },
+    "sceneVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "points",
+        "segments",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "scene-2d"
+        },
+        "points": {
+          "type": "array",
+          "minItems": 2,
+          "maxItems": 24,
+          "items": {
+            "$ref": "#/$defs/scenePoint"
+          }
+        },
+        "segments": {
+          "type": "array",
+          "maxItems": 36,
+          "items": {
+            "$ref": "#/$defs/sceneSegment"
+          }
+        },
+        "polygons": {
+          "type": "array",
+          "maxItems": 12,
+          "items": {
+            "$ref": "#/$defs/scenePolygon"
+          }
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 500
+        }
+      }
+    },
+    "fractionBarVisual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "type",
+        "numerator",
+        "denominator",
+        "alt"
+      ],
+      "properties": {
+        "type": {
+          "const": "fraction-bar"
+        },
+        "numerator": {
+          "$ref": "#/$defs/expression"
+        },
+        "denominator": {
+          "$ref": "#/$defs/expression"
+        },
+        "alt": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 200
+        }
+      }
+    },
+    "visual": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/fractionBarVisual"
+        },
+        {
+          "$ref": "#/$defs/tableVisual"
+        },
+        {
+          "$ref": "#/$defs/rectangleVisual"
+        },
+        {
+          "$ref": "#/$defs/angleVisual"
+        },
+        {
+          "$ref": "#/$defs/triangleVisual"
+        },
+        {
+          "$ref": "#/$defs/solidVisual"
+        },
+        {
+          "$ref": "#/$defs/sceneVisual"
+        }
+      ]
     }
   }
 }

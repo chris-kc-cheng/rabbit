@@ -11,7 +11,7 @@ from reportlab.lib.enums import TA_CENTER
 from reportlab.lib.pagesizes import letter
 from reportlab.lib.styles import ParagraphStyle, getSampleStyleSheet
 from reportlab.lib.units import inch
-from reportlab.graphics.shapes import Drawing, Polygon, Rect, String
+from reportlab.graphics.shapes import Circle, Drawing, Line, Polygon, Rect, String
 from reportlab.platypus import Image, KeepTogether, PageBreak, Paragraph, SimpleDocTemplate, Spacer, Table, TableStyle
 
 from .engine import GeneratedQuestion
@@ -29,6 +29,67 @@ def _question_prompt(question: GeneratedQuestion) -> str:
     # The PDF consumes the same already-resolved blocks as the web client.  We
     # deliberately show restricted-LaTeX source as text until print KaTeX is added.
     return " ".join(block.value for block in question.public.prompt)
+
+
+def _question_visual(visual: dict[str, Any] | None, body_style: ParagraphStyle) -> list[Any]:
+    if not visual:
+        return []
+    if visual["type"] == "data-table":
+        data = [[Paragraph(escape(cell), body_style) for cell in visual["columns"]]]
+        data += [[Paragraph(escape(cell), body_style) for cell in row] for row in visual["rows"]]
+        table = Table(data, colWidths=[6.8 * inch / len(visual["columns"])] * len(visual["columns"]), repeatRows=1)
+        table.setStyle(TableStyle([
+            ("GRID", (0, 0), (-1, -1), .5, colors.HexColor("#6c5ce7")),
+            ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#f1effb")),
+            ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ]))
+        return [Paragraph(escape(visual["caption"]), body_style), table]
+    drawing = Drawing(330, 150)
+    purple = colors.HexColor("#6c5ce7")
+    pale = colors.HexColor("#f1effb")
+    if visual["type"] == "fraction-bar":
+        width = 300 / visual["denominator"]
+        for index in range(visual["denominator"]):
+            drawing.add(Rect(15 + index * width, 45, width - 2, 55,
+                             fillColor=purple if index < visual["numerator"] else pale,
+                             strokeColor=purple))
+    elif visual["type"] == "rectangle-grid":
+        cell_width, cell_height = 260 / visual["width"], 105 / visual["height"]
+        for index in range(visual["width"] * visual["height"]):
+            drawing.add(Rect(35 + (index % visual["width"]) * cell_width,
+                             25 + (index // visual["width"]) * cell_height,
+                             cell_width, cell_height, fillColor=purple if index < visual.get("shaded", 0) else pale,
+                             strokeColor=purple))
+    elif visual["type"] == "angle":
+        import math
+        radians = math.radians(visual["degrees"])
+        drawing.add(Line(165, 25, 285, 25, strokeColor=purple, strokeWidth=2))
+        drawing.add(Line(165, 25, 165 + 115 * math.cos(radians), 25 + 115 * math.sin(radians), strokeColor=purple, strokeWidth=2))
+        drawing.add(String(205, 45, visual.get("label", f'{visual["degrees"]} degrees'), fontSize=9))
+    elif visual["type"] == "triangle":
+        apex = 165 if visual["kind"] == "isosceles" else 285
+        drawing.add(Polygon([35, 20, 285, 20, apex, 130], fillColor=pale, strokeColor=purple, strokeWidth=2))
+        drawing.add(String(135, 5, f'{visual["base"]} {visual["unit"]}', fontSize=9))
+        drawing.add(String(290, 70, f'{visual["height"]} {visual["unit"]}', fontSize=9))
+    elif visual["type"] == "solid":
+        drawing.add(Rect(65, 20, 180, 90, fillColor=pale, strokeColor=purple, strokeWidth=2))
+        drawing.add(Polygon([65, 110, 100, 135, 280, 135, 245, 110], fillColor=colors.white, strokeColor=purple))
+        drawing.add(Polygon([245, 20, 280, 45, 280, 135, 245, 110], fillColor=pale, strokeColor=purple))
+    else:
+        points = {point["id"]: (15 + point["x"] * 3, 15 + point["y"] * 1.2) for point in visual["points"]}
+        for polygon in visual.get("polygons", []):
+            drawing.add(Polygon([coordinate for point in polygon["points"] for coordinate in points[point]],
+                                fillColor=pale if polygon.get("shaded") else None, strokeColor=purple))
+        for segment in visual["segments"]:
+            start, end = points[segment["from"]], points[segment["to"]]
+            drawing.add(Line(*start, *end, strokeColor=purple, strokeWidth=2))
+        for point in visual["points"]:
+            x, y = points[point["id"]]
+            drawing.add(Circle(x, y, 2.5, fillColor=purple, strokeColor=purple))
+            if point.get("label"):
+                drawing.add(String(x + 4, y + 4, point["label"], fontSize=8))
+    drawing.add(String(12, 140, visual["alt"], fontSize=7, fillColor=colors.HexColor("#555555")))
+    return [drawing]
 
 
 def build_worksheet_pdf(
@@ -59,13 +120,7 @@ def build_worksheet_pdf(
     for number, question in enumerate(questions, 1):
         choices = [Paragraph(f"{chr(65 + index)}. {escape(choice.value)}", choice_style)
                    for index, choice in enumerate(question.public.choices)]
-        visual = question.public.visual
-        visual_note = []
-        if visual and visual.get("type") == "fraction-bar":
-            visual_note = [Paragraph(
-                f"Fraction bar: {visual['numerator']} of {visual['denominator']} equal parts are shaded.",
-                choice_style,
-            )]
+        visual_note = _question_visual(question.public.visual, choice_style)
         story.append(KeepTogether([
             Paragraph(f"<b>{number}.</b> {escape(_question_prompt(question))}", question_style),
             *visual_note, *choices, Spacer(1, 13),

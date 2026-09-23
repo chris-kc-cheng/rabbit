@@ -5,6 +5,38 @@ The fixed multi-type examples in `content/demo-pack.json` are prototypes under
 `content/demo-pack.schema.json` and still need human review; do not use this prompt to
 publish questions of those types.
 
+## Broad subjects with multiple topics
+
+A question bank is a subject-level document, not a one-topic file. For a broad
+subject such as Grade 5 mathematics, prefer one complete bank whose `templates`
+array contains templates for all reviewed subtopics. Give every subtopic a stable,
+namespaced `skill` such as `math.grade-5.fractions.equivalent-fractions`. Multiple
+templates may share a skill when they provide different question forms or levels
+of difficulty.
+
+Before drafting JSON, turn the supplied curriculum into a reviewable coverage
+plan: list the subtopics, their stable skill IDs, the intended difficulty range,
+and the number of templates needed for each. Do not invent curriculum outcomes.
+Ask the author for the governing curriculum or source material when it is not
+provided. Generate and validate templates in small batches, then combine them in
+one bank envelope only after every template passes schema validation, seeded
+generation tests, accessibility review, and human curriculum review.
+
+Split a broad subject into multiple bank files only when there is a real publishing
+boundary—for example a different grade, locale, curriculum authority, review
+owner, or release schedule. File boundaries are not topic selectors: Rabbit uses
+each template's `skill` value to let a parent choose one, several, or all topics.
+
+For a multi-topic bank, use this planning request before the template prompt:
+
+```text
+Using only the attached curriculum, propose a coverage plan for <BROAD_SUBJECT>.
+Return a table with subtopic, stable namespaced skill ID, curriculum reference,
+difficulty range, and proposed template count. Do not write question JSON yet.
+Do not add outcomes that are absent from the supplied curriculum. Flag overlaps,
+prerequisites, and any outcome that the current Rabbit schema cannot represent.
+```
+
 Attach `content/question-template.schema.json`, then replace the angle-bracketed
 values and send the following prompt to a model:
 
@@ -24,6 +56,15 @@ Requirements:
   SVG, a URL, or an untrusted LaTeX command.
 - Provide structured text/math prompt blocks, exactly one answer expression, a
   useful hint, a worked explanation, and meaningful screen-reader text.
+- When the question needs structured data or a diagram, use exactly one supported
+  declarative `visual`: `data-table`, `fraction-bar`, `rectangle-grid`, `angle`,
+  `triangle`, `solid`, or `scene-2d`. Use expressions only in fields marked as
+  expressions by the schema, keep scene points inside the 0–100 view box, and
+  provide an `alt` description that includes every fact needed to answer without
+  seeing the graphic. Prefer a specific visual type over `scene-2d`.
+- For `data-table`, keep every row the same length as `columns`, use the caption
+  to identify the data, and interpolate only declared parameters. For `scene-2d`,
+  declare unique point IDs before referencing them from segments or polygons.
 - Provide at least three plausible and mathematically distinct wrong-answer
   expressions. Each needs a stable id, stable misconception id, and supportive
   feedback explaining the next step without labeling or shaming the learner.

@@ -13,14 +13,17 @@ working in this repository, not production-ready at population scale.
   and runs the Vite and Uvicorn development reloaders; production continues to
   use independently built immutable images.
 - [x] JSON Schema v2 and Git-managed question banks with ten published
-  elementary-math templates plus a draft Discover Canada historical-event example.
+  elementary-math templates, a draft visual-capability review bank, and a draft
+  Discover Canada historical-event example.
 - [x] Reusable fact collections with stable fact/variant IDs, restricted dotted
   interpolation, seeded selection, and other-fact distractor pools.
 - [x] Seeded parameter generation, server-side grading, answer shuffling, hints,
   explanations, and duplicate-choice rejection.
 - [x] Wrong answers mapped to stable misconception IDs and supportive feedback.
 - [x] Correct answers and misconception metadata withheld until submission.
-- [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
+- [x] Strict KaTeX formula rendering plus accessible formatted tables and
+  declarative fraction-bar, rectangle-grid, angle, triangle, solid, and bounded
+  2D scene visuals shared by web and PDF output.
 - [x] Learner practice loop with progress, positive feedback, and points.
 - [x] Learner race presentation with a rabbit and matching tortoise climbing toward
   a trophy: correct answers move the rabbit in larger steps, misses show
@@ -92,6 +95,10 @@ working in this repository, not production-ready at population scale.
   not accept parent credentials.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
+- [x] Parents can choose one, several, or all topics from a learner's default
+  question bank; the saved plan filters that learner's next online sessions.
+- [x] Parent progress includes an accessible topic radar with a text alternative,
+  while evidence callouts continue to describe strengths and practice opportunities.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
   Alembic migrations for families, guardians, users, and learner profiles.
 - [x] PostgreSQL persistence for generated practice sessions, private grading
@@ -121,7 +128,7 @@ working in this repository, not production-ready at population scale.
 - [~] **Vector rendering:** the fraction bar is real accessible SVG, but the general
   declarative geometry scene language is not implemented.
 - [~] **Adaptivity:** misconception evidence is captured for later selection, but
-  question sequencing currently presents all ten templates rather than adapting.
+  question sequencing currently cycles through available templates rather than adapting.
 - [~] **Infrastructure:** local/production Compose and CI deployment definitions
   exist, but no actual Hostinger credentials, domain, TLS proxy, or live deployment
   can be verified from this repository.
