@@ -155,6 +155,21 @@ def admin_reset_password(user_id: str, request: PasswordRequest, _: dict = Depen
     repository.reset_password(user, request.password)
 
 
+@app.post("/api/v1/admin/users/{user_id}/impersonate")
+def impersonate_managed_user(user_id: str, _: dict = Depends(require_role("admin")),
+                             db: Session = Depends(get_db)) -> dict:
+    """Create a user session while the browser retains its administrator session."""
+    model = IdentityRepository(db).get_by_id(user_id)
+    if model is None or model.role not in {"parent", "learner"}:
+        raise HTTPException(404, "Parent or learner not found")
+    if model.disabled:
+        raise HTTPException(409, "Activate this account before viewing as this user")
+    user = user_record(model)
+    token, expires_at = issue_token(user)
+    return {"access_token": token, "token_type": "bearer", "expires_at": expires_at,
+            "user": public_user(user)}
+
+
 SCHEMA_PATH = BANK_DIRECTORY / "question-template.schema.json"
 QUESTION_VALIDATOR = Draft202012Validator(json.loads(SCHEMA_PATH.read_text(encoding="utf-8")))
 

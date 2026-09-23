@@ -212,6 +212,33 @@ def test_admin_can_edit_and_pause_managed_user():
     assert client.post("/api/v1/auth/login", json={"username": "updated.parent", "password": "welcome12"}).status_code == 401
 
 
+def test_admin_lists_created_user_and_can_impersonate_active_accounts():
+    admin_headers, _ = login()
+    created = client.post("/api/v1/admin/parents", headers=admin_headers,
+                          json={"username": "visible.parent", "password": "welcome12",
+                                "display_name": "Visible Parent"}).json()
+
+    listed = client.get("/api/v1/admin/users", headers=admin_headers)
+    assert listed.status_code == 200
+    assert [(user["display_name"], user["username"]) for user in listed.json()] == [
+        ("Visible Parent", "visible.parent")
+    ]
+
+    viewed = client.post(f"/api/v1/admin/users/{created['id']}/impersonate", headers=admin_headers)
+    assert viewed.status_code == 200
+    assert viewed.json()["user"] == created
+    viewed_headers = {"Authorization": f"Bearer {viewed.json()['access_token']}"}
+    assert client.get("/api/v1/auth/me", headers=viewed_headers).json() == created
+    assert client.get("/api/v1/admin/users", headers=viewed_headers).status_code == 403
+
+    paused = client.put(f"/api/v1/admin/users/{created['id']}", headers=admin_headers,
+                        json={"username": "visible.parent", "display_name": "Visible Parent",
+                              "disabled": True})
+    assert paused.status_code == 200
+    blocked = client.post(f"/api/v1/admin/users/{created['id']}/impersonate", headers=admin_headers)
+    assert blocked.status_code == 409
+
+
 def test_public_question_validation_checks_schema_and_generation_without_importing():
     invalid = client.post("/api/v1/questions/validate", json={"document": {"schemaVersion": 2}})
     assert invalid.status_code == 422
