@@ -54,6 +54,7 @@ export const api = {
     body: JSON.stringify({ session_id: sessionId, question_id: questionId, choice_id: choiceId, hint_used: hintUsed, time_spent_ms: timeSpentMs }),
   }),
   getOwnProgress: () => request<Progress>("/api/v1/learners/me/progress"),
+  getParentLearnerProgress: (learnerId: string) => request<Progress>(`/api/v1/parents/learners/${learnerId}/progress`),
   getLearners: () => request<FamilyLearner[]>("/api/v1/parents/learners"),
   createLearner: (display_name: string, username: string, password: string) => request<User>("/api/v1/parents/learners", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   resetLearner: (id: string, password: string) => request<void>(`/api/v1/parents/learners/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),

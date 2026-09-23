@@ -84,7 +84,9 @@ working in this repository, not production-ready at population scale.
   can enter a child’s learner experience without the
   child password. Each child has an independently saved default next question
   bank. A parent can also practice under their own profile, listed after the
-  children, with an explicit route back to the family dashboard.
+  children, with an explicit route back to the family dashboard. Parent-owned
+  progress remains on a parent-authorized route; learner-only progress routes do
+  not accept parent credentials.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
