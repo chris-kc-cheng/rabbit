@@ -3,7 +3,7 @@ import { api } from "./api";
 import { AttemptHistory } from "./AttemptHistory";
 import { FractionBar } from "./FractionBar";
 import { MathBlock } from "./MathBlock";
-import { correctAnswersNeeded, reachedAccuracyTarget } from "./raceRules";
+import { correctAnswersNeeded, reachedAccuracyTarget, trophyForCompletedTrail } from "./raceRules";
 import type { AttemptResult, Progress, Session, Subject } from "./types";
 
 export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "math.elementary", loadProgress = api.getOwnProgress }: { learnerId: string; onAttemptsChanged: () => void; defaultSubject?: string; loadProgress?: () => Promise<Progress> }) {
@@ -40,16 +40,19 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
   const accuracy = answered ? Math.round((correctAnswers / answered) * 100) : 0;
   const rabbitWon = index >= session.questions.length && reachedAccuracyTarget(correctAnswers, session.questions.length, targetAccuracy);
 
-  if (index >= session.questions.length) return (
+  if (index >= session.questions.length) {
+    const trophy = trophyForCompletedTrail(correctAnswers, session.questions.length);
+    return (
     <main className="learner-column"><section className={`card finish race-finish ${rabbitWon ? "rabbit-winner" : "tortoise-winner"}`}>
-      <div className="winner-trophy" aria-hidden="true">🏆</div><img className="finish-mascot mascot-celebrate" src={rabbitWon ? "/rabbit-excited.png" : "/tortoise-steady.png"} alt={rabbitWon ? "The rabbit celebrating with the trophy" : "The tortoise celebrating with the trophy"} />
-      <p className="eyebrow">Race complete</p><h1>{rabbitWon ? "Rabbit wins the trophy!" : "Tortoise wins this race!"}</h1>
-      <p>{rabbitWon ? `You finished with ${accuracy}% accuracy and reached the ${targetAccuracy}% target.` : `You finished with ${accuracy}% accuracy. The trophy target was ${targetAccuracy}%. Keep practicing and race again!`}</p>
+      <div className={`winner-trophy ${trophy}`} role="img" aria-label={`${trophy} trophy`}>🏆</div><img className="finish-mascot mascot-celebrate" src={rabbitWon ? "/rabbit-excited.png" : "/tortoise-steady.png"} alt={rabbitWon ? `The rabbit celebrating with the ${trophy} trophy` : "The tortoise celebrating with the silver trophy"} />
+      <p className="eyebrow">Achievement unlocked</p><h1>{trophy === "gold" ? "Perfect trail — Gold Trophy!" : rabbitWon ? "Rabbit wins a Silver Trophy!" : "Tortoise wins a Silver Trophy!"}</h1>
+      <p>{trophy === "gold" ? `Every answer was correct — a perfect ${accuracy}% score!` : rabbitWon ? `You finished with ${accuracy}% accuracy and reached the ${targetAccuracy}% target. Keep growing toward gold!` : `You finished with ${accuracy}% accuracy. Steady effort earned silver; keep practicing toward a perfect gold!`}</p>
       <div className="trophy-points"><span>✨ EXP earned</span><strong>+{points}</strong></div>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
       <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
     </main>
   );
+  }
 
   const question = session.questions[index];
   const submit = async () => {
@@ -65,6 +68,7 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
 
   return <main className="learner-column">
     <div className="subject-picker"><label htmlFor="subject">Practice subject</label><select id="subject" value={subject} onChange={event => setSubject(event.target.value)}>{subjects.map(item => <option key={item.id} value={item.id}>{item.title}{item.publication_status === "draft" ? " — Draft" : ""}</option>)}</select></div>
+    <Achievement answered={answered} correct={correctAnswers} total={session.questions.length} />
     <RaceTrack answered={answered} total={session.questions.length} correct={correctAnswers} wrong={wrongAnswers} target={targetAccuracy} sleeping={Boolean(result && !result.correct)} />
     <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
     <article className="card question-card">
@@ -87,6 +91,15 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
       {result ? <button className="primary" onClick={next}>Next question ▶</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer ▶</button>}</footer>
     <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
   </main>;
+}
+
+export function Achievement({ answered, correct, total, compact = false }: { answered: number; correct: number; total: number; compact?: boolean }) {
+  const perfectStillPossible = answered === correct;
+  return <section className={`achievement-card ${compact ? "compact" : ""}`} aria-label="Trail achievement">
+    <span className={`achievement-trophy ${perfectStillPossible ? "gold" : "silver"}`} aria-hidden="true">🏆</span>
+    <div><span className="race-kicker">Your achievement</span><strong>{perfectStillPossible ? "Gold is in reach" : "Silver trophy at the finish"}</strong><small>{perfectStillPossible ? "Finish with every answer correct to earn gold." : "Every finished trail earns silver. Keep learning and finish strong!"}</small></div>
+    <span className="achievement-score">{correct}<small>/{total} correct</small></span>
+  </section>;
 }
 
 export function RaceTrack({ answered, total, correct, wrong, target, sleeping }: { answered: number; total: number; correct: number; wrong: number; target: number; sleeping: boolean }) {
