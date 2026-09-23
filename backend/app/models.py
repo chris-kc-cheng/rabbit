@@ -57,7 +57,7 @@ class AttemptResult(BaseModel):
 
 class RewardSettings(BaseModel):
     enabled: bool = False
-    target_accuracy: int = Field(default=80, ge=50, le=100)
+    target_accuracy: int = Field(default=70, ge=50, le=100)
     reward: str = Field(default="A trip to the bookshop", min_length=1, max_length=80)
 
 

@@ -86,6 +86,18 @@ def test_role_login_family_isolation_password_reset_and_progress():
     assert client.post("/api/v1/auth/login",json={"username":"learner.one","password":"practice12"}).status_code == 401
 
 
+def test_new_learners_default_to_a_seventy_percent_reward_target():
+    parent_headers, learner_headers, learner = family()
+
+    parent_progress = client.get(
+        f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers
+    ).json()
+    learner_progress = client.get("/api/v1/learners/me/progress", headers=learner_headers).json()
+
+    assert parent_progress["reward"]["target_accuracy"] == 70
+    assert learner_progress["reward"]["target_accuracy"] == 70
+
+
 def test_identity_records_are_relational_and_learner_has_one_family():
     from sqlalchemy import select
     from sqlalchemy.orm import Session

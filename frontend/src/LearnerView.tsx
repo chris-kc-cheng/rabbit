@@ -3,6 +3,7 @@ import { api } from "./api";
 import { AttemptHistory } from "./AttemptHistory";
 import { FractionBar } from "./FractionBar";
 import { MathBlock } from "./MathBlock";
+import { correctAnswersNeeded, reachedAccuracyTarget } from "./raceRules";
 import type { AttemptResult, Progress, Session, Subject } from "./types";
 
 export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: string; onAttemptsChanged: () => void }) {
@@ -34,18 +35,17 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
 
   if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
   if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
-  const targetAccuracy = progress?.reward.target_accuracy ?? 80;
+  const targetAccuracy = progress?.reward.target_accuracy ?? 70;
   const answered = index + (result ? 1 : 0);
   const accuracy = answered ? Math.round((correctAnswers / answered) * 100) : 0;
-  const rabbitWon = index >= session.questions.length && accuracy > targetAccuracy;
-  const trophyPoints = rabbitWon ? points : 0;
+  const rabbitWon = index >= session.questions.length && reachedAccuracyTarget(correctAnswers, session.questions.length, targetAccuracy);
 
   if (index >= session.questions.length) return (
     <main className="learner-column"><section className={`card finish race-finish ${rabbitWon ? "rabbit-winner" : "tortoise-winner"}`}>
       <div className="winner-trophy" aria-hidden="true">🏆</div><img className="finish-mascot mascot-celebrate" src={rabbitWon ? "/rabbit-excited.png" : "/tortoise-steady.png"} alt={rabbitWon ? "The rabbit celebrating with the trophy" : "The tortoise celebrating with the trophy"} />
       <p className="eyebrow">Race complete</p><h1>{rabbitWon ? "Rabbit wins the trophy!" : "Tortoise wins this race!"}</h1>
-      <p>{rabbitWon ? `You finished with ${accuracy}% accuracy and beat the ${targetAccuracy}% target.` : `You finished with ${accuracy}% accuracy. The target was more than ${targetAccuracy}%. Keep practicing and race again!`}</p>
-      <div className="trophy-points"><span>🏆 Trophy points</span><strong>+{trophyPoints}</strong></div>
+      <p>{rabbitWon ? `You finished with ${accuracy}% accuracy and reached the ${targetAccuracy}% target.` : `You finished with ${accuracy}% accuracy. The trophy target was ${targetAccuracy}%. Keep practicing and race again!`}</p>
+      <div className="trophy-points"><span>✨ EXP earned</span><strong>+{points}</strong></div>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
       <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
     </main>
@@ -68,7 +68,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
     <RaceTrack answered={answered} total={session.questions.length} correct={correctAnswers} wrong={wrongAnswers} target={targetAccuracy} sleeping={Boolean(result && !result.correct)} />
     <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
     <article className="card question-card">
-      <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 accuracy points</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">{subject === "canadian-citizenship" ? "Discover Canada · Draft" : "Math explorer"}</span></header>
+      <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 EXP for a correct answer</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">{subject === "canadian-citizenship" ? "Discover Canada · Draft" : "Math explorer"}</span></header>
       <section className="prompt">{question.prompt.map((block, blockIndex) => block.type === "math" ? <MathBlock key={blockIndex} value={block.value} /> : <p key={blockIndex}>{block.value}</p>)}</section>
       {question.visual && <FractionBar {...question.visual} />}
       <div className="choices" role="radiogroup" aria-label="Answer choices">
@@ -90,13 +90,13 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
 }
 
 function RaceTrack({ answered, total, correct, wrong, target, sleeping }: { answered: number; total: number; correct: number; wrong: number; target: number; sleeping: boolean }) {
-  const neededToWin = Math.floor((target / 100) * total) + 1;
+  const neededToWin = correctAnswersNeeded(total, target);
   const rabbitProgress = Math.min(1, correct / neededToWin);
   const tortoiseProgress = Math.min(1, answered / total);
   const sleepSeconds = 2 + wrong * 2;
   const position = (progress: number) => ({ "--race-x": `${progress * 70}%`, "--race-y": `${progress * 48}%` } as React.CSSProperties);
-  return <section className="race-card" aria-label={`Rabbit versus tortoise race. Accuracy target is more than ${target} percent.`}>
-    <header><div><span className="race-kicker">Rabbit vs. Tortoise</span><strong>Race to the trophy!</strong></div><span className="target-chip">Target: &gt; {target}%</span></header>
+  return <section className="race-card" aria-label={`Rabbit versus tortoise race. Accuracy target is ${target} percent or higher.`}>
+    <header><div><span className="race-kicker">Rabbit vs. Tortoise</span><strong>Race to the trophy!</strong></div><span className="target-chip">Target: ≥ {target}%</span></header>
     <div className="hill-track">
       <div className="finish-flag" aria-label="Finish line"><span>🏆</span><i>⚑</i></div>
       <div className={`racer rabbit-racer ${sleeping ? "is-sleeping" : ""}`} style={{ ...position(rabbitProgress), "--sleep-time": `${sleepSeconds}s` } as React.CSSProperties}>

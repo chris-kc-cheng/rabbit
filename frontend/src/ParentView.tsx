@@ -40,7 +40,7 @@ export function ParentView({ refreshKey }: { refreshKey: number }) {
   const [learners, setLearners] = useState<FamilyLearner[]>([]); const [openId, setOpenId] = useState(""); const [notice, setNotice] = useState(""); const [showAdd, setShowAdd] = useState(false);
   const [openTool, setOpenTool] = useState<"reward" | "worksheet" | "history" | null>(null);
   const [topics, setTopics] = useState<WorksheetTopic[]>([]); const [topicKey, setTopicKey] = useState(""); const [questionCount, setQuestionCount] = useState(10); const [generating, setGenerating] = useState(false);
-  const [reward, setReward] = useState<Reward>({ enabled: false, target_accuracy: 80, reward: "A trip to the bookshop" });
+  const [reward, setReward] = useState<Reward>({ enabled: false, target_accuracy: 70, reward: "A trip to the bookshop" });
   const refresh = async () => { const data = await api.getLearners(); setLearners(data); setOpenId(id => data.some(x => x.id === id) ? id : data[0]?.id ?? ""); };
   useEffect(() => { void refresh(); void api.getWorksheetTopics().then(data => { setTopics(data); setTopicKey(current => data.some(topic => `${topic.subject}:${topic.id}` === current) ? current : (data[0] ? `${data[0].subject}:${data[0].id}` : "")); }).catch(error => setNotice(error instanceof Error ? error.message : "Could not load worksheet topics")); }, [refreshKey]);
   const selected = learners.find(item => item.id === openId);
