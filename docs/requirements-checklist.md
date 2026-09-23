@@ -25,9 +25,11 @@ working in this repository, not production-ready at population scale.
 - [x] Learner race presentation with a rabbit and matching tortoise climbing toward
   a trophy: correct answers move the rabbit in larger steps, misses show
   progressively longer sleep, and the tortoise advances consistently. The
-  parent-configured accuracy target determines the displayed winner and whether
-  the session displays trophy points; durable points are still governed by the
-  prototype per-attempt counter pending the rewards ledger described below.
+  parent-configured accuracy target (70% by default, inclusive) determines the
+  displayed winner and trophy outcome. Correct answers always award EXP,
+  including when the learner does not win the trophy; durable points are still
+  governed by the prototype per-attempt counter pending the rewards ledger
+  described below.
 - [x] Password hashing uses an explicit scrypt memory allowance and round-trip tests
   for administrator, parent, and learner credential shapes.
 - [x] Reader-comfort typography with a consistent 14px minimum for supporting
