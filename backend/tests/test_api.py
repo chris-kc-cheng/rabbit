@@ -169,6 +169,7 @@ def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():
         "id": "canada.history.milestones", "version": 1,
         "type": "fact-collection-single-select", "skill": "canada.history.milestones",
         "difficulty": None, "fact_count": 6, "variant_count": 1, "generation_space": 6,
+        "variants": ["identify-year"],
     }]
 
     first_preview = client.post(
@@ -182,6 +183,14 @@ def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():
     assert first_preview.status_code == 200 and first_preview.json() == second_preview.json()
     question = first_preview.json()["questions"][0]
     assert "correct_choice_id" not in question and "misconception" not in json.dumps(question)
+
+    template_preview = client.post(
+        f"/api/v1/admin/question-banks/{bank['subject']}/preview", headers=headers,
+        json={"seed": 123, "template_id": "canada.history.milestones", "variant_id": "identify-year"},
+    )
+    assert template_preview.status_code == 200
+    assert len(template_preview.json()["questions"]) == 6
+    assert {item["variant_id"] for item in template_preview.json()["questions"]} == {"identify-year"}
 
     assert client.delete(f"/api/v1/admin/question-banks/{bank['subject']}", headers=headers).status_code == 204
     restored = client.get("/api/v1/admin/question-banks", headers=headers).json()

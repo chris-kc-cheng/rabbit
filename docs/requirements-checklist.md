@@ -51,7 +51,8 @@ working in this repository, not production-ready at population scale.
   (removing one restores the bundled baseline), while published banks remain
   immutable. The curriculum inspector distinguishes authored templates from
   their fact/variant/parameter generation space, exposes exact stored JSON, and
-  produces seeded server-side question previews.
+  opens seeded, server-side previews for each template and variant, with controls
+  to rotate through every authored fact without exposing answers.
 - [x] Authenticated parent dashboard for creating learners, resetting their
   passwords, reviewing progress/answer and misconception evidence, and setting
   individual accuracy reward goals, with family-boundary authorization tests.

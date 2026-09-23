@@ -206,10 +206,13 @@ def _generate_computed_question(template: dict[str, Any], rng: random.Random, in
     )
 
 
-def _generate_fact_question(template: dict[str, Any], rng: random.Random, index: int) -> GeneratedQuestion:
+def _generate_fact_question(
+    template: dict[str, Any], rng: random.Random, index: int,
+    fact: dict[str, Any] | None = None, variant: dict[str, Any] | None = None,
+) -> GeneratedQuestion:
     facts = template["knowledge"]["facts"]
-    fact = rng.choice(facts)
-    variant = rng.choice(template["variants"])
+    fact = fact or rng.choice(facts)
+    variant = variant or rng.choice(template["variants"])
     field = variant["answerField"]
     pool_field = variant["distractorPoolField"]
     answer_value = str(fact[field])
@@ -281,3 +284,31 @@ def generate_session(seed: int, count: int, bank: dict[str, Any] | None = None) 
         })
         generated.append(question)
     return generated
+
+
+def generate_template_preview(
+    seed: int, bank: dict[str, Any], template_id: str, variant_id: str | None = None,
+) -> list[GeneratedQuestion]:
+    """Generate a review set for one template, with every fact for a selected variant."""
+    template = next((item for item in bank["templates"] if item["id"] == template_id), None)
+    if template is None:
+        raise ValueError("Question template not found")
+    rng = random.Random(seed)
+    if template["type"] != "fact-collection-single-select":
+        if variant_id not in (None, "default"):
+            raise ValueError("Question variant not found")
+        questions = [_generate_computed_question(template, rng, 0)]
+    else:
+        variants = template["variants"]
+        variant = next((item for item in variants if item["id"] == variant_id), None)
+        if variant is None:
+            raise ValueError("Question variant not found")
+        questions = [
+            _generate_fact_question(template, rng, index, fact=fact, variant=variant)
+            for index, fact in enumerate(template["knowledge"]["facts"])
+        ]
+    for question in questions:
+        question.generation.update({
+            "generatorVersion": bank["generatorVersion"], "seed": seed, "templateId": template_id,
+        })
+    return questions

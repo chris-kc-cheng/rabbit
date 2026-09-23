@@ -71,7 +71,7 @@ export const api = {
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number; status: "imported" | "replaced" }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
   getQuestionBanks: () => request<QuestionBankAdmin[]>("/api/v1/admin/question-banks"),
-  previewQuestionBank: (subject: string, seed = Date.now()) => request<AdminBankPreview>(`/api/v1/admin/question-banks/${encodeURIComponent(subject)}/preview`, { method: "POST", body: JSON.stringify({ seed, count: 1 }) }),
+  previewQuestionBank: (subject: string, templateId: string, variantId: string, seed = Date.now()) => request<AdminBankPreview>(`/api/v1/admin/question-banks/${encodeURIComponent(subject)}/preview`, { method: "POST", body: JSON.stringify({ seed, template_id: templateId, variant_id: variantId }) }),
   publishQuestionBank: (subject: string) => request<{ subject: string; publication_status: "published" }>(`/api/v1/admin/question-banks/${encodeURIComponent(subject)}/publish`, { method: "POST" }),
   deleteQuestionBank: (subject: string) => request<void>(`/api/v1/admin/question-banks/${encodeURIComponent(subject)}`, { method: "DELETE" }),
   getQuestionSchema: () => request<object>("/api/v1/questions/schema"),

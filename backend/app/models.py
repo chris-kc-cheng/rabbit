@@ -105,6 +105,8 @@ class QuestionImport(BaseModel):
 class AdminQuestionPreview(BaseModel):
     seed: int | None = None
     count: int = Field(default=1, ge=1, le=10)
+    template_id: str | None = Field(default=None, min_length=1, max_length=120)
+    variant_id: str | None = Field(default=None, min_length=1, max_length=120)
 
 
 class ContentSettings(BaseModel):

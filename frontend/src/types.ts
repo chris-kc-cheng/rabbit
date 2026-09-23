@@ -66,6 +66,7 @@ export type QuestionBankAdmin = {
     fact_count: number;
     variant_count: number;
     generation_space: number;
+    variants: string[];
   }>;
   document: { generatorVersion: string; templates: Array<{ id: string; skill: string; difficulty: number; type: string }> } & Record<string, unknown>;
 };
