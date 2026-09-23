@@ -5,6 +5,7 @@ import { Landing, Login } from "./AuthViews";
 import { DemoPack } from "./DemoPack";
 import { Documentation } from "./Documentation";
 import { LearnerView } from "./LearnerView";
+import { LearnerChrome } from "./LearnerChrome";
 import { ParentView } from "./ParentView";
 import type { User } from "./types";
 
@@ -73,6 +74,6 @@ export default function App() {
   return <div className="app-shell">
     {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Administrator is viewing as user {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username} · {impersonatedUser.role}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to administration</button></div>}
     <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace" onClick={() => setShowDocs(false)}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Your learning space"><button className={!showDocs ? "active" : ""} onClick={() => setShowDocs(false)}>Workspace</button><button className={showDocs ? "active" : ""} onClick={() => setShowDocs(true)}>Docs</button></nav><div className="header-tools">{themeButton}<div className="account"><span>Hi, <strong>{user.display_name}</strong></span><button className="quiet" onClick={logout}>Log out</button></div></div></header>
-    {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} /> : <div className="learner-layout"><aside className="trail"><p className="eyebrow">Your path</p><h2>Math Explorer</h2><ol><li className="done">✓ <span>Ready<small>Signed in</small></span></li><li className="active">✦ <span>Mixed practice<small>In progress</small></span></li></ol></aside><LearnerView learnerId={user.id} onAttemptsChanged={() => {}} /><aside className="coach"><img className="mascot" src="/rabbit-encouraging.png" alt="A friendly guide giving an encouraging thumbs-up" /><div><strong>You&apos;ve got this!</strong><p>Every thoughtful try makes your learning stronger.</p></div></aside></div>}
+    {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} /> : <LearnerChrome><LearnerView learnerId={user.id} onAttemptsChanged={() => {}} /></LearnerChrome>}
   </div>;
 }
