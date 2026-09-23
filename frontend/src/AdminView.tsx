@@ -83,7 +83,7 @@ export function AdminView() {
   };
   const remove = async (bank: QuestionBankAdmin) => {
     const prompt = bank.replaces_builtin
-      ? `Remove the imported “${bank.title}” draft? Rabbit will restore the bundled draft for this subject.`
+      ? `Remove the imported “${bank.title}” draft? The bundled draft for this subject will be restored.`
       : `Delete the draft “${bank.title}”?`;
     if (!window.confirm(prompt)) return;
     try { await api.deleteQuestionBank(bank.subject); setNotice(bank.replaces_builtin ? `${bank.title} restored to its bundled draft.` : `${bank.title} draft deleted.`); await refreshBanks(); }
@@ -102,7 +102,7 @@ export function AdminView() {
   };
 
   return <main className="admin-workspace">
-    <aside className="admin-sidebar"><div><p className="eyebrow">Rabbit admin</p><h1>Control room</h1></div><nav aria-label="Administration sections">
+    <aside className="admin-sidebar"><div><p className="eyebrow">Administration</p><h1>Control room</h1></div><nav aria-label="Administration sections">
       {([['overview','Overview','⌂'],['curriculum','Curriculum','▤'],['users','People','♙'],['settings','Settings','⚙']] as const).map(([id,label,icon]) => <button key={id} className={section === id ? "active" : ""} onClick={() => setSection(id)}><span aria-hidden="true">{icon}</span>{label}{id === "curriculum" && draftCount > 0 && <b>{draftCount}</b>}</button>)}
     </nav><p className="sidebar-help">Changes to published learning content are locked to protect learner history.</p></aside>
     <div className="admin-main">

@@ -33,7 +33,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
   if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
   if (index >= session.questions.length) return (
-    <main className="learner-column"><section className="card finish"><img className="finish-mascot mascot-celebrate" src="/rabbit-excited.png" alt="Rabbit celebrating" /><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
+    <main className="learner-column"><section className="card finish"><img className="finish-mascot mascot-celebrate" src="/rabbit-excited.png" alt="A friendly guide celebrating" /><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
       <p>You completed this practice trail and earned <strong>{points} accuracy points</strong>.</p>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
       <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
