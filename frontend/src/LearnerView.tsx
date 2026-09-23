@@ -12,6 +12,8 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   const [result, setResult] = useState<AttemptResult | null>(null);
   const [hintVisible, setHintVisible] = useState(false);
   const [points, setPoints] = useState(0);
+  const [correctAnswers, setCorrectAnswers] = useState(0);
+  const [wrongAnswers, setWrongAnswers] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -22,7 +24,7 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
   const refreshHistory = () => api.getOwnProgress().then(setProgress);
 
   const start = async () => {
-    setLoading(true); setError(""); setIndex(0); setSelected(null); setResult(null); setPoints(0);
+    setLoading(true); setError(""); setIndex(0); setSelected(null); setResult(null); setPoints(0); setCorrectAnswers(0); setWrongAnswers(0);
     try { setSession(await api.createSession(learnerId, subject)); questionStartedAt.current = Date.now(); } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not start practice"); }
     finally { setLoading(false); }
   };
@@ -32,9 +34,18 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
 
   if (loading) return <main className="card loading"><div className="spinner" /><p>Preparing your trail…</p></main>;
   if (error || !session) return <main className="card error"><h1>We hit a small bump.</h1><p>{error}</p><button className="primary" onClick={start}>Try again</button></main>;
+  const targetAccuracy = progress?.reward.target_accuracy ?? 80;
+  const answered = index + (result ? 1 : 0);
+  const accuracy = answered ? Math.round((correctAnswers / answered) * 100) : 0;
+  const rabbitWon = index >= session.questions.length && accuracy > targetAccuracy;
+  const trophyPoints = rabbitWon ? points : 0;
+
   if (index >= session.questions.length) return (
-    <main className="learner-column"><section className="card finish"><img className="finish-mascot mascot-celebrate" src="/rabbit-excited.png" alt="A friendly guide celebrating" /><p className="eyebrow">Trail complete</p><h1>You kept going!</h1>
-      <p>You completed this practice trail and earned <strong>{points} accuracy points</strong>.</p>
+    <main className="learner-column"><section className={`card finish race-finish ${rabbitWon ? "rabbit-winner" : "tortoise-winner"}`}>
+      <div className="winner-trophy" aria-hidden="true">🏆</div><img className="finish-mascot mascot-celebrate" src={rabbitWon ? "/rabbit-excited.png" : "/tortoise-steady.png"} alt={rabbitWon ? "The rabbit celebrating with the trophy" : "The tortoise celebrating with the trophy"} />
+      <p className="eyebrow">Race complete</p><h1>{rabbitWon ? "Rabbit wins the trophy!" : "Tortoise wins this race!"}</h1>
+      <p>{rabbitWon ? `You finished with ${accuracy}% accuracy and beat the ${targetAccuracy}% target.` : `You finished with ${accuracy}% accuracy. The target was more than ${targetAccuracy}%. Keep practicing and race again!`}</p>
+      <div className="trophy-points"><span>🏆 Trophy points</span><strong>+{trophyPoints}</strong></div>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
       <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
     </main>
@@ -45,13 +56,16 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
     if (!selected) return;
     try {
       const answer = await api.submitAttempt(session.id, question.id, selected, hintVisible, Date.now() - questionStartedAt.current);
-      setResult(answer); setPoints((value) => value + answer.points_earned); onAttemptsChanged(); await refreshHistory();
+      setResult(answer); setPoints((value) => value + answer.points_earned);
+      if (answer.correct) setCorrectAnswers(value => value + 1); else setWrongAnswers(value => value + 1);
+      onAttemptsChanged(); await refreshHistory();
     } catch (caught) { setError(caught instanceof Error ? caught.message : "Could not check answer"); }
   };
   const next = () => { setIndex((value) => value + 1); setSelected(null); setResult(null); setHintVisible(false); questionStartedAt.current = Date.now(); };
 
   return <main className="learner-column">
     <div className="subject-picker"><label htmlFor="subject">Practice subject</label><select id="subject" value={subject} onChange={event => setSubject(event.target.value)}>{subjects.map(item => <option key={item.id} value={item.id}>{item.title}{item.publication_status === "draft" ? " — Draft" : ""}</option>)}</select></div>
+    <RaceTrack answered={answered} total={session.questions.length} correct={correctAnswers} wrong={wrongAnswers} target={targetAccuracy} sleeping={Boolean(result && !result.correct)} />
     <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
     <article className="card question-card">
       <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 accuracy points</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">{subject === "canadian-citizenship" ? "Discover Canada · Draft" : "Math explorer"}</span></header>
@@ -73,4 +87,25 @@ export function LearnerView({ learnerId, onAttemptsChanged }: { learnerId: strin
       {result ? <button className="primary" onClick={next}>Next question ▶</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer ▶</button>}</footer>
     <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
   </main>;
+}
+
+function RaceTrack({ answered, total, correct, wrong, target, sleeping }: { answered: number; total: number; correct: number; wrong: number; target: number; sleeping: boolean }) {
+  const neededToWin = Math.floor((target / 100) * total) + 1;
+  const rabbitProgress = Math.min(1, correct / neededToWin);
+  const tortoiseProgress = Math.min(1, answered / total);
+  const sleepSeconds = 2 + wrong * 2;
+  const position = (progress: number) => ({ "--race-x": `${progress * 70}%`, "--race-y": `${progress * 48}%` } as React.CSSProperties);
+  return <section className="race-card" aria-label={`Rabbit versus tortoise race. Accuracy target is more than ${target} percent.`}>
+    <header><div><span className="race-kicker">Rabbit vs. Tortoise</span><strong>Race to the trophy!</strong></div><span className="target-chip">Target: &gt; {target}%</span></header>
+    <div className="hill-track">
+      <div className="finish-flag" aria-label="Finish line"><span>🏆</span><i>⚑</i></div>
+      <div className={`racer rabbit-racer ${sleeping ? "is-sleeping" : ""}`} style={{ ...position(rabbitProgress), "--sleep-time": `${sleepSeconds}s` } as React.CSSProperties}>
+        <img src={sleeping ? "/rabbit-sleeping.png" : "/rabbit-encouraging.png"} alt={sleeping ? `Rabbit sleeping for ${sleepSeconds} seconds after a wrong answer` : "Rabbit racing uphill"} />
+        {sleeping && <span className="sleep-cloud">Zzz · {sleepSeconds}s</span>}
+      </div>
+      <div className="racer tortoise-racer" style={position(tortoiseProgress)}><img src="/tortoise-steady.png" alt="Tortoise walking steadily uphill" /></div>
+      <div className="start-sign">START</div>
+    </div>
+    <footer><span>🐇 {correct} big hops</span><span>🐢 steady every turn</span></footer>
+  </section>;
 }

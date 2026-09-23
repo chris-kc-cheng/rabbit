@@ -20,6 +20,12 @@ working in this repository, not production-ready at population scale.
 - [x] Correct answers and misconception metadata withheld until submission.
 - [x] Strict KaTeX formula rendering and an accessible vector fraction-bar visual.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Learner race presentation with a rabbit and matching tortoise climbing toward
+  a trophy: correct answers move the rabbit in larger steps, misses show
+  progressively longer sleep, and the tortoise advances consistently. The
+  parent-configured accuracy target determines the displayed winner and whether
+  the session displays trophy points; durable points are still governed by the
+  prototype per-attempt counter pending the rewards ledger described below.
 - [x] Password hashing uses an explicit scrypt memory allowance and round-trip tests
   for administrator, parent, and learner credential shapes.
 - [x] Reader-comfort typography with a consistent 14px minimum for supporting
@@ -36,7 +42,9 @@ working in this repository, not production-ready at population scale.
   The workflow deploys to `~/rabbit`, preserves server-managed `.env.prod` settings,
   and writes image tags separately to `.env.deploy` for Compose.
 - [x] Public product landing page with an illustrative product preview and a
-  prominent, non-persistent reviewed-demo entry point.
+  prominent, non-persistent reviewed-demo entry point. The hero and supporting
+  content introduce the rabbit-versus-tortoise accuracy race, its adjustable
+  target, steady-progress mechanic, and trophy outcome before sign-in.
 - [x] Prototype password login/logout with expiring signed JWT access tokens,
   automatic return to login after a 401, and admin/parent/learner role guards.
 - [x] Production Compose refuses to start the prototype identity service without

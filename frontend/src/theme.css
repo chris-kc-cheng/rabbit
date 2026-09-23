@@ -27,7 +27,8 @@ button, input { font-family: inherit; }
 button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
 .topbar { background: var(--topbar); }
 .brand { color: var(--ink); font-size: 28px; letter-spacing: -.055em; font-weight: 900; gap: 5px; }
-.brand-logo { width: 51px; height: 51px; object-fit: contain; }
+.brand-logo { width: 86px; height: 86px; object-fit: contain; position: relative; z-index: 2; filter: drop-shadow(0 5px 9px var(--shadow)); }
+.topbar { min-height: 82px; overflow: visible; }
 .topbar nav { background: var(--nav-bg); }
 .topbar nav button { font-size: 14px; }
 .topbar nav button.active { color: var(--purple); }
@@ -145,7 +146,7 @@ p, li, label, small, time, figcaption { font-weight: 400; }
 
 @media(max-width:760px) {
   .brand { font-size: 0; }
-  .brand-logo { width: 45px; height: 45px; }
+  .brand-logo { width: 64px; height: 64px; }
   .header-tools { gap: 6px; }
   .theme-toggle { width: 42px; padding: 0; justify-content: center; }
   .theme-toggle span:last-child { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
