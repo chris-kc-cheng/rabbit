@@ -26,3 +26,22 @@
 .mascot-correct,.mascot-celebrate,.moment-celebrate img{animation:rabbit-celebrate .75s cubic-bezier(.2,.9,.25,1.25)}
 @keyframes rabbit-celebrate{0%{opacity:0;transform:translateY(18px) scale(.72) rotate(-7deg)}45%{opacity:1;transform:translateY(-8px) scale(1.08) rotate(5deg)}70%{transform:translateY(2px) scale(.96) rotate(-2deg)}100%{transform:translateY(0) scale(1) rotate(0)}}
 @media(max-width:760px){.mascot-moments{margin-top:55px;padding:28px 18px;grid-template-columns:1fr;gap:24px}.moment-grid{gap:7px}.moment-grid article{padding:8px 5px 12px}.moment-grid strong{font-size:14px}}
+
+/* Keep administration calm and scannable: reserve heavier weights for headings and key values. */
+.admin-workspace button,.admin-workspace label,.admin-workspace .status,.admin-workspace .table-head,.admin-workspace .eyebrow,.admin-stats span,.bank-facts span{font-weight:500}
+.admin-workspace strong,.admin-workspace h1,.admin-workspace h2,.admin-workspace h3{font-weight:600}
+.bank-icon{width:52px;height:52px;border-radius:14px;font-size:16px;font-weight:600}
+.review-row{grid-template-columns:56px 1fr auto}
+.bank-list button{grid-template-columns:56px 1fr auto;padding:12px 8px}
+.bank-detail>header{gap:18px}
+.bank-header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+.preview-bank-button{border:1px solid var(--purple);background:var(--soft);color:var(--purple);border-radius:9px;padding:8px 12px;font-size:14px;cursor:pointer}
+.preview-bank-button:hover{background:#e6e1ff}
+.preview-bank-button:disabled{opacity:.45;cursor:wait}
+.template-table.detailed>div{grid-template-columns:minmax(210px,1.6fr) minmax(130px,1fr)}
+.preview-seed{font-size:14px;line-height:1.45}
+
+@media(max-width:680px){
+  .bank-header-actions{align-items:flex-end;flex-direction:column}
+  .template-table.detailed>div{min-width:430px;grid-template-columns:minmax(250px,1.6fr) minmax(150px,1fr)}
+}
