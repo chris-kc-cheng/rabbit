@@ -14,6 +14,7 @@ export function AdminView() {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [preview, setPreview] = useState<AdminBankPreview | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
+  const [previewTargetIndex, setPreviewTargetIndex] = useState(0);
   const [previewIndex, setPreviewIndex] = useState(0);
   const [previewing, setPreviewing] = useState(false);
   const [notice, setNotice] = useState("");
@@ -93,12 +94,31 @@ export function AdminView() {
     try { const value = await api.saveContentSettings(enabled); setIncludeDrafts(value.include_drafts); setNotice(value.include_drafts ? "Draft subjects are visible to learners." : "Draft subjects are hidden from learners."); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not update draft visibility"); }
   };
-  const generatePreview = async (bank: QuestionBankAdmin, templateId: string, variantId: string) => {
+  const previewTargets = useMemo(() => selectedBank?.template_summaries.flatMap(template =>
+    template.variants.map(variant => ({ templateId: template.id, variantId: variant })),
+  ) ?? [], [selectedBank]);
+  const generatePreview = async (bank: QuestionBankAdmin, targetIndex = 0, showLastQuestion = false, seed = Date.now()) => {
+    const target = previewTargets[targetIndex];
+    if (!target) return;
     setPreviewing(true);
-    setPreviewTitle(`${templateId} · ${variantId}`); setPreviewIndex(0);
-    try { setPreview(await api.previewQuestionBank(bank.subject, templateId, variantId)); }
+    setPreviewTitle(`${target.templateId} · ${target.variantId}`);
+    try {
+      const result = await api.previewQuestionBank(bank.subject, target.templateId, target.variantId, seed);
+      setPreview(result); setPreviewTargetIndex(targetIndex); setPreviewIndex(showLastQuestion ? result.questions.length - 1 : 0);
+    }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not generate a preview"); }
     finally { setPreviewing(false); }
+  };
+  const movePreview = (direction: -1 | 1) => {
+    if (!selectedBank || !preview) return;
+    const nextQuestionIndex = previewIndex + direction;
+    if (nextQuestionIndex >= 0 && nextQuestionIndex < preview.questions.length) {
+      setPreviewIndex(nextQuestionIndex); return;
+    }
+    const nextTargetIndex = previewTargetIndex + direction;
+    if (nextTargetIndex >= 0 && nextTargetIndex < previewTargets.length) {
+      void generatePreview(selectedBank, nextTargetIndex, direction === -1, preview.seed);
+    }
   };
 
   return <main className="admin-workspace">
@@ -115,10 +135,10 @@ export function AdminView() {
       {section === "curriculum" && <div className="library-layout">
         <section className="admin-card bank-list"><div className="list-title"><h2>Question banks</h2><span>{banks.length}</span></div>{banks.map(bank => <button key={bank.subject} className={selectedSubject === bank.subject ? "selected" : ""} onClick={() => setSelectedSubject(bank.subject)}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} authored {bank.template_count === 1 ? "template" : "templates"}</small></span><i className={`status ${bank.publication_status}`}>{bank.publication_status}</i></button>)}</section>
         {selectedBank && <section className="admin-card bank-detail">
-          <header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i></header>
+          <header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><div className="bank-header-actions"><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i><button className="preview-bank-button" disabled={previewing || previewTargets.length === 0} onClick={() => void generatePreview(selectedBank)}>Preview bank</button></div></header>
           <div className="bank-facts"><div><span>Authored templates</span><strong>{selectedBank.template_count}</strong></div><div><span>Skills</span><strong>{skills}</strong></div><div><span>Generator</span><strong>{selectedBank.document.generatorVersion}</strong></div></div>
           <p className="count-explainer">A template is a reusable recipe, not one question. Facts, variants, and parameters let one template generate many distinct questions.</p>
-          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span><span>Preview by variant</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span><span className="variant-actions">{template.variants.map(variant => <button key={variant} disabled={previewing} onClick={() => void generatePreview(selectedBank, template.id, variant)}>{variant === "default" ? "Preview" : variant}</button>)}</span></div>)}</div>
+          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span></div>)}</div>
           <details className="raw-bank"><summary>View exact {selectedBank.source === "imported" ? "database JSON" : "bundled JSON"}</summary><p>{selectedBank.source === "imported" ? "This is the complete document currently stored in the database." : "This bank comes from the deployed content files, not the database."}</p><pre>{JSON.stringify(selectedBank.document, null, 2)}</pre></details>
           <footer>{selectedBank.source === "built-in" ? <p>Built-in content is read-only and updated through reviewed source releases.</p> : selectedBank.publication_status === "published" ? <p>Published content is application-locked to preserve reproducible learner records; this is not a database foreign-key restriction.</p> : <><button className="danger-button" onClick={() => void remove(selectedBank)}>Delete draft</button><button className="primary" onClick={() => void publish(selectedBank)}>Publish bank</button></>}</footer>
         </section>}
@@ -129,6 +149,6 @@ export function AdminView() {
       {section === "settings" && <section className="admin-card settings-card"><div><p className="eyebrow">Learner access</p><h2>Draft curriculum visibility</h2><p>Draft banks are hidden by default. Turn this on only for supervised testing; drafts will become available to every signed-in learner.</p></div><label className="switch"><input type="checkbox" checked={includeDrafts} onChange={event => void updateDrafts(event.target.checked)} /><span aria-hidden="true" /><b>{includeDrafts ? "Visible" : "Hidden"}</b></label></section>}
     </div>
     {editingUser && <div className="modal-backdrop" role="presentation" onMouseDown={() => setEditingUser(null)}><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setEditingUser(null)} aria-label="Close">×</button><p className="eyebrow">Account details</p><h2 id="edit-user-title">Edit {editingUser.role}</h2><form className="stack-form" onSubmit={saveUser}><label>Display name<input value={editingUser.display_name} onChange={event => setEditingUser({...editingUser, display_name: event.target.value})} required /></label><label>Username<input value={editingUser.username} onChange={event => setEditingUser({...editingUser, username: event.target.value})} minLength={3} required /></label><label className="status-check"><input type="checkbox" checked={!editingUser.disabled} onChange={event => setEditingUser({...editingUser, disabled: !event.target.checked})} /><span><strong>Account active</strong><small>Paused accounts cannot sign in.</small></span></label><button className="primary">Save changes</button></form></section></div>}
-    {preview && preview.questions[previewIndex] && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPreview(null)}><section className="admin-modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setPreview(null)} aria-label="Close preview">×</button><p className="eyebrow">Template preview</p><h2 id="preview-title">{previewTitle}</h2><p className="preview-seed">Fact {previewIndex + 1} of {preview.questions.length} · Seed {preview.seed}</p>{(() => { const question = preview.questions[previewIndex]; return <article className="admin-question-preview"><p className="eyebrow">Difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <FractionBar {...question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>; })()}<div className="preview-rotation"><button className="quiet" disabled={previewIndex === 0} onClick={() => setPreviewIndex(index => index - 1)}>← Previous fact</button><div role="group" aria-label="Choose fact">{preview.questions.map((_, index) => <button key={index} className={index === previewIndex ? "active" : ""} aria-label={`Show fact ${index + 1}`} aria-current={index === previewIndex ? "true" : undefined} onClick={() => setPreviewIndex(index)} />)}</div><button className="quiet" disabled={previewIndex === preview.questions.length - 1} onClick={() => setPreviewIndex(index => index + 1)}>Next fact →</button></div><p className="preview-privacy">Answers and misconception metadata stay server-side.</p></section></div>}
+    {preview && preview.questions[previewIndex] && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPreview(null)}><section className="admin-modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setPreview(null)} aria-label="Close preview">×</button><p className="eyebrow">Question bank preview</p><h2 id="preview-title">{previewTitle}</h2><p className="preview-seed">Template &amp; variant {previewTargetIndex + 1} of {previewTargets.length} · Question {previewIndex + 1} of {preview.questions.length} · Seed {preview.seed}</p>{(() => { const question = preview.questions[previewIndex]; return <article className="admin-question-preview"><p className="eyebrow">Difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <FractionBar {...question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>; })()}<div className="preview-rotation"><button className="quiet" disabled={previewing || (previewTargetIndex === 0 && previewIndex === 0)} onClick={() => movePreview(-1)}>← Previous</button><div role="group" aria-label="Questions in this variant">{preview.questions.map((_, index) => <button key={index} className={index === previewIndex ? "active" : ""} aria-label={`Show question ${index + 1}`} aria-current={index === previewIndex ? "true" : undefined} onClick={() => setPreviewIndex(index)} />)}</div><button className="quiet" disabled={previewing || (previewTargetIndex === previewTargets.length - 1 && previewIndex === preview.questions.length - 1)} onClick={() => movePreview(1)}>Next →</button></div><p className="preview-privacy">Answers and misconception metadata stay server-side.</p></section></div>}
   </main>;
 }
