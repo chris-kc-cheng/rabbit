@@ -54,7 +54,9 @@ def test_health_demo_and_protected_catalogue():
     assert [item["id"] for item in subjects] == ["math.elementary"]
     assert client.get("/api/v1/admin/content").status_code == 401
     assert client.put("/api/v1/admin/content", headers=headers, json={"include_drafts": True}).json() == {"include_drafts": True}
-    assert {item["id"] for item in client.get("/api/v1/subjects", headers=headers).json()} == {"math.elementary", "canadian-citizenship"}
+    assert {item["id"] for item in client.get("/api/v1/subjects", headers=headers).json()} == {
+        "math.elementary", "canadian-citizenship", "math.visuals",
+    }
 
 
 def test_role_login_family_isolation_password_reset_and_progress():
