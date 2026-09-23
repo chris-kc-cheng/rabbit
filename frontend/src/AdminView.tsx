@@ -13,6 +13,8 @@ export function AdminView() {
   const [selectedSubject, setSelectedSubject] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [preview, setPreview] = useState<AdminBankPreview | null>(null);
+  const [previewTitle, setPreviewTitle] = useState("");
+  const [previewIndex, setPreviewIndex] = useState(0);
   const [previewing, setPreviewing] = useState(false);
   const [notice, setNotice] = useState("");
   const [errors, setErrors] = useState<ImportError[]>([]);
@@ -32,6 +34,12 @@ export function AdminView() {
   const draftCount = banks.filter(bank => bank.publication_status === "draft").length;
   const skills = useMemo(() => selectedBank ? new Set(selectedBank.document.templates.map(template => template.skill)).size : 0, [selectedBank]);
   useEffect(() => setPreview(null), [selectedSubject]);
+  useEffect(() => {
+    if (!preview) return;
+    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setPreview(null); };
+    window.addEventListener("keydown", close);
+    return () => window.removeEventListener("keydown", close);
+  }, [preview]);
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); const form = event.currentTarget; const data = new FormData(form);
@@ -85,9 +93,10 @@ export function AdminView() {
     try { const value = await api.saveContentSettings(enabled); setIncludeDrafts(value.include_drafts); setNotice(value.include_drafts ? "Draft subjects are visible to learners." : "Draft subjects are hidden from learners."); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not update draft visibility"); }
   };
-  const generatePreview = async (bank: QuestionBankAdmin) => {
+  const generatePreview = async (bank: QuestionBankAdmin, templateId: string, variantId: string) => {
     setPreviewing(true);
-    try { setPreview(await api.previewQuestionBank(bank.subject)); }
+    setPreviewTitle(`${templateId} · ${variantId}`); setPreviewIndex(0);
+    try { setPreview(await api.previewQuestionBank(bank.subject, templateId, variantId)); }
     catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not generate a preview"); }
     finally { setPreviewing(false); }
   };
@@ -109,8 +118,7 @@ export function AdminView() {
           <header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i></header>
           <div className="bank-facts"><div><span>Authored templates</span><strong>{selectedBank.template_count}</strong></div><div><span>Skills</span><strong>{skills}</strong></div><div><span>Generator</span><strong>{selectedBank.document.generatorVersion}</strong></div></div>
           <p className="count-explainer">A template is a reusable recipe, not one question. Facts, variants, and parameters let one template generate many distinct questions.</p>
-          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span><span>Possible inputs</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span><span>{template.generation_space.toLocaleString()}</span></div>)}</div>
-          <section className="preview-panel"><div className="card-heading"><div><p className="eyebrow">Live generator</p><h3>Random question preview</h3></div><button className="primary" disabled={previewing} onClick={() => void generatePreview(selectedBank)}>{previewing ? "Generating…" : preview ? "Generate another" : "Generate preview"}</button></div>{preview ? <><p className="preview-seed">Seed {preview.seed} · generated server-side from the selected bank</p>{preview.questions.map(question => <article className="admin-question-preview" key={question.id}><p className="eyebrow">{question.template_id} · difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <FractionBar {...question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>)}</> : <p className="empty">Generate a reproducible example to verify how this stored template renders. Correct answers remain server-side.</p>}</section>
+          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span><span>Preview by variant</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span><span className="variant-actions">{template.variants.map(variant => <button key={variant} disabled={previewing} onClick={() => void generatePreview(selectedBank, template.id, variant)}>{variant === "default" ? "Preview" : variant}</button>)}</span></div>)}</div>
           <details className="raw-bank"><summary>View exact {selectedBank.source === "imported" ? "database JSON" : "bundled JSON"}</summary><p>{selectedBank.source === "imported" ? "This is the complete document currently stored in the database." : "This bank comes from the deployed content files, not the database."}</p><pre>{JSON.stringify(selectedBank.document, null, 2)}</pre></details>
           <footer>{selectedBank.source === "built-in" ? <p>Built-in content is read-only and updated through reviewed source releases.</p> : selectedBank.publication_status === "published" ? <p>Published content is application-locked to preserve reproducible learner records; this is not a database foreign-key restriction.</p> : <><button className="danger-button" onClick={() => void remove(selectedBank)}>Delete draft</button><button className="primary" onClick={() => void publish(selectedBank)}>Publish bank</button></>}</footer>
         </section>}
@@ -121,5 +129,6 @@ export function AdminView() {
       {section === "settings" && <section className="admin-card settings-card"><div><p className="eyebrow">Learner access</p><h2>Draft curriculum visibility</h2><p>Draft banks are hidden by default. Turn this on only for supervised testing; drafts will become available to every signed-in learner.</p></div><label className="switch"><input type="checkbox" checked={includeDrafts} onChange={event => void updateDrafts(event.target.checked)} /><span aria-hidden="true" /><b>{includeDrafts ? "Visible" : "Hidden"}</b></label></section>}
     </div>
     {editingUser && <div className="modal-backdrop" role="presentation" onMouseDown={() => setEditingUser(null)}><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setEditingUser(null)} aria-label="Close">×</button><p className="eyebrow">Account details</p><h2 id="edit-user-title">Edit {editingUser.role}</h2><form className="stack-form" onSubmit={saveUser}><label>Display name<input value={editingUser.display_name} onChange={event => setEditingUser({...editingUser, display_name: event.target.value})} required /></label><label>Username<input value={editingUser.username} onChange={event => setEditingUser({...editingUser, username: event.target.value})} minLength={3} required /></label><label className="status-check"><input type="checkbox" checked={!editingUser.disabled} onChange={event => setEditingUser({...editingUser, disabled: !event.target.checked})} /><span><strong>Account active</strong><small>Paused accounts cannot sign in.</small></span></label><button className="primary">Save changes</button></form></section></div>}
+    {preview && preview.questions[previewIndex] && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPreview(null)}><section className="admin-modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setPreview(null)} aria-label="Close preview">×</button><p className="eyebrow">Template preview</p><h2 id="preview-title">{previewTitle}</h2><p className="preview-seed">Fact {previewIndex + 1} of {preview.questions.length} · Seed {preview.seed}</p>{(() => { const question = preview.questions[previewIndex]; return <article className="admin-question-preview"><p className="eyebrow">Difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <FractionBar {...question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>; })()}<div className="preview-rotation"><button className="quiet" disabled={previewIndex === 0} onClick={() => setPreviewIndex(index => index - 1)}>← Previous fact</button><div role="group" aria-label="Choose fact">{preview.questions.map((_, index) => <button key={index} className={index === previewIndex ? "active" : ""} aria-label={`Show fact ${index + 1}`} aria-current={index === previewIndex ? "true" : undefined} onClick={() => setPreviewIndex(index)} />)}</div><button className="quiet" disabled={previewIndex === preview.questions.length - 1} onClick={() => setPreviewIndex(index => index + 1)}>Next fact →</button></div><p className="preview-privacy">Answers and misconception metadata stay server-side.</p></section></div>}
   </main>;
 }

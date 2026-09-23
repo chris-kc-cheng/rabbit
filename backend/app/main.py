@@ -17,7 +17,7 @@ from .auth import bearer, decode_token, issue_token, require_role, verify_passwo
 from .demo_pack import DemoAttempt, create_demo_session, demo_questions, grade_demo_attempt
 from .database import get_db
 from .db_models import User
-from .engine import BANK_DIRECTORY, generate_session, load_banks
+from .engine import BANK_DIRECTORY, generate_session, generate_template_preview, load_banks
 from .models import (
     AttemptCreate,
     AttemptResult,
@@ -262,6 +262,7 @@ def admin_question_banks(_: dict = Depends(require_role("admin")), db: Session =
                 "id": template["id"], "version": template["version"], "type": template["type"],
                 "skill": template["skill"], "difficulty": template.get("difficulty"),
                 "fact_count": facts, "variant_count": variants, "generation_space": generation_space,
+                "variants": [item["id"] for item in template.get("variants", [])] or ["default"],
             })
         records.append({"subject": subject, "title": bank["title"], "publication_status": bank["publicationStatus"],
                         "template_count": len(bank["templates"]), "source": "imported" if subject in imported else "built-in",
@@ -279,7 +280,15 @@ def preview_question_bank(subject: str, request: AdminQuestionPreview,
     if bank is None:
         raise HTTPException(404, "Question bank not found")
     seed = request.seed if request.seed is not None else secrets.randbits(63)
-    generated = generate_session(seed, request.count, bank)
+    if request.template_id:
+        try:
+            generated = generate_template_preview(seed, bank, request.template_id, request.variant_id)
+        except ValueError as error:
+            raise HTTPException(404, str(error)) from None
+    elif request.variant_id:
+        raise HTTPException(422, "Select a template before selecting a variant")
+    else:
+        generated = generate_session(seed, request.count, bank)
     return {"subject": subject, "seed": seed, "questions": [question.public for question in generated]}
 
 
