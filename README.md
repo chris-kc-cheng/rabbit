@@ -117,6 +117,25 @@ tests neither require nor consume production environment secrets. The CI workflo
 separately applies every migration to a fresh PostgreSQL service before running
 the test suite.
 
+## Local environment configuration
+
+The backend reads configuration from environment variables; it does not contain
+an API key. A safe template is provided at `backend/.env.example`. For Docker
+Compose development, copy it to the repository root, where Compose loads `.env`
+automatically:
+
+```bash
+cp backend/.env.example .env
+```
+
+The copied `.env` and all other `.env*` files are ignored by Git, while the exact
+sample path is explicitly allowed so the template stays versioned. Add a real
+`RESEND_API_KEY` only to your untracked `.env` when activation-email delivery is
+needed. For direct host execution, export the same variables into the shell (for
+example, `set -a; . ./.env; set +a`) before starting FastAPI. Do not reuse the
+sample passwords or placeholder signing secret in a shared or production
+environment.
+
 ## Question content and AI authoring
 
 - Normative schema: [`content/question-template.schema.json`](content/question-template.schema.json)

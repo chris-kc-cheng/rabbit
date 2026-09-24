@@ -60,7 +60,9 @@ working in this repository, not production-ready at population scale.
   automatic return to login after a 401, and admin/parent/learner role guards.
 - [x] Production Compose refuses to start the prototype identity service without
   configured admin-password and JWT-signing secrets; local Compose also requires
-  an explicitly configured admin password.
+  an explicitly configured admin password. Backend environment variables are
+  documented in a safe, versioned example while real `.env*` files remain
+  excluded from Git.
 - [x] Authenticated, responsive administrator workspace with overview,
   curriculum, people, and settings navigation. Administrators can create,
   edit, pause, reset access for, and temporarily view the application as active
