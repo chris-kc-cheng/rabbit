@@ -12,11 +12,13 @@ import type { AttemptResult, Progress, Session, Subject } from "./types";
 export function LearnerView({
   learnerId,
   onAttemptsChanged,
+  onProgressChanged,
   defaultSubject = "math.elementary",
   loadProgress = api.getOwnProgress,
 }: {
   learnerId: string;
   onAttemptsChanged: () => void;
+  onProgressChanged?: (progress: Progress) => void;
   defaultSubject?: string;
   loadProgress?: () => Promise<Progress>;
 }) {
@@ -35,7 +37,12 @@ export function LearnerView({
   const [progress, setProgress] = useState<Progress | null>(null);
   const questionStartedAt = useRef(Date.now());
 
-  const refreshHistory = () => loadProgress().then(setProgress);
+  const refreshHistory = () =>
+    loadProgress().then((nextProgress) => {
+      setProgress(nextProgress);
+      onProgressChanged?.(nextProgress);
+      return nextProgress;
+    });
 
   const start = async () => {
     setLoading(true);
@@ -102,7 +109,6 @@ export function LearnerView({
     );
     return (
       <main className="learner-column">
-        <AchievementSummary progress={progress} />
         <section
           className={`card finish race-finish ${rabbitWon ? "rabbit-winner" : "tortoise-winner"}`}
         >
@@ -182,21 +188,37 @@ export function LearnerView({
 
   return (
     <main className="learner-column">
-      <AchievementSummary progress={progress} />
-      <div className="subject-picker">
-        <label htmlFor="subject">Practice subject</label>
-        <select
-          id="subject"
-          value={subject}
-          onChange={(event) => setSubject(event.target.value)}
-        >
-          {subjects.map((item) => (
-            <option key={item.id} value={item.id}>
-              {item.title}
-              {item.publication_status === "draft" ? " — Draft" : ""}
-            </option>
-          ))}
-        </select>
+      <div className="practice-toolbar">
+        <div className="lesson-progress">
+          <div>
+            <span>Today&apos;s trail</span>
+            <strong>
+              {index + 1} / {session.questions.length}
+            </strong>
+          </div>
+          <i>
+            <b
+              style={{
+                width: `${(index / session.questions.length) * 100}%`,
+              }}
+            />
+          </i>
+        </div>
+        <div className="subject-picker">
+          <label htmlFor="subject">Practice subject</label>
+          <select
+            id="subject"
+            value={subject}
+            onChange={(event) => setSubject(event.target.value)}
+          >
+            {subjects.map((item) => (
+              <option key={item.id} value={item.id}>
+                {item.title}
+                {item.publication_status === "draft" ? " — Draft" : ""}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
       <div className="practice-grid">
         <aside className="practice-race">
@@ -321,21 +343,6 @@ export function LearnerView({
               </button>
             )}
           </footer>
-          <div className="lesson-progress">
-            <div>
-              <span>Today&apos;s trail</span>
-              <strong>
-                {index + 1} / {session.questions.length}
-              </strong>
-            </div>
-            <i>
-              <b
-                style={{
-                  width: `${(index / session.questions.length) * 100}%`,
-                }}
-              />
-            </i>
-          </div>
         </section>
         <aside className="practice-achievement">
           <Achievement
@@ -349,7 +356,7 @@ export function LearnerView({
   );
 }
 
-function AchievementSummary({ progress }: { progress: Progress | null }) {
+export function AchievementSummary({ progress }: { progress: Progress | null }) {
   const achievements = progress?.achievements ?? {
     correct_answers: 0,
     silver_trophies: 0,
@@ -360,21 +367,21 @@ function AchievementSummary({ progress }: { progress: Progress | null }) {
       className="lifetime-achievements"
       aria-label="All-time achievements"
     >
-      <h2>All-time achievements</h2>
-      <div>
-        <span>
-          <strong>{achievements.correct_answers}</strong>
-          <small>Correct answers</small>
-        </span>
-        <span>
-          <strong>🥈 {achievements.silver_trophies}</strong>
-          <small>Silver trophies</small>
-        </span>
-        <span>
-          <strong>🥇 {achievements.gold_trophies}</strong>
-          <small>Gold trophies</small>
-        </span>
-      </div>
+      <span title="Correct answers">
+        <i aria-hidden="true">✓</i>
+        <strong>{achievements.correct_answers}</strong>
+        <span className="sr-only"> correct answers</span>
+      </span>
+      <span title="Silver trophies">
+        <i aria-hidden="true">🥈</i>
+        <strong>{achievements.silver_trophies}</strong>
+        <span className="sr-only"> silver trophies</span>
+      </span>
+      <span title="Gold trophies">
+        <i aria-hidden="true">🥇</i>
+        <strong>{achievements.gold_trophies}</strong>
+        <span className="sr-only"> gold trophies</span>
+      </span>
     </section>
   );
 }
