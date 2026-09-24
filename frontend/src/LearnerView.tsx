@@ -482,8 +482,8 @@ export function RaceTrack({
           <path className="far-hill" d="M0 126 Q104 83 205 111 T500 64 V240 H0Z" />
           <path className="near-hill" d="M0 172 Q112 132 224 111 Q326 91 500 72 V240 H0Z" />
           <g className="finish-flag" aria-label="Red finish flag">
-            <path className="flag-pole" d="M444 76 V24" />
-            <path className="flag-cloth" d="M444 25 L484 38 L444 51Z" />
+            <path className="flag-pole" d="M444 94 V48" />
+            <path className="flag-cloth" d="M444 49 L476 60 L444 71Z" />
           </g>
         </svg>
         <div
