@@ -205,3 +205,5 @@ working in this repository, not production-ready at population scale.
 - Offline support means printable question-and-answer PDFs only. Offline
   interactive practice, answer checking, PWA sessions, and synchronization are
   out of scope.
+- [x] Administrators can delete imported draft or published question banks while
+  retained attempt snapshots preserve prior learner evidence.

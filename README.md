@@ -181,7 +181,8 @@ question types are private by default until explicitly added to it.
 
 The admin import control accepts a complete question-bank JSON document, reports
 schema failures with JSON paths and suggested checks, and runs a generation smoke
-test. Valid imports persist in PostgreSQL and published banks are immutable.
+test. Valid imports persist in PostgreSQL. Published banks cannot be edited, but
+administrators may delete them; existing attempts retain their immutable snapshots.
 The public **Docs** page remains available before and after login and provides a
 non-publishing validator with the same schema and generation checks.
 

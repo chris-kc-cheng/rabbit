@@ -362,12 +362,10 @@ class ContentRepository:
         self.session.commit()
         return row.document
 
-    def delete_draft(self, subject: str) -> None:
+    def delete_bank(self, subject: str) -> None:
         row = self.session.get(ImportedQuestionBank, subject)
         if row is None:
             raise ValueError("Question bank not found")
-        if row.document["publicationStatus"] != "draft":
-            raise ValueError("Published content is immutable")
         self.session.delete(row)
         self.session.commit()
 
