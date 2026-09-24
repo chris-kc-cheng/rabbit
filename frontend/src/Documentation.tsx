@@ -14,6 +14,7 @@ const schemaDefinition = {
   subject: "math",
   title: "My question bank",
   locale: "en-CA",
+  practiceQuestionCount: 10,
   templates: ["computed single-select or fact-collection-single-select"]
 };
 
@@ -77,6 +78,7 @@ const bankFields: FieldRow[] = [
   { path: "subject", required: "Yes", accepted: "Stable ID", meaning: "Namespaced catalogue key, using lowercase letters, digits, dots, or hyphens." },
   { path: "title", required: "Yes", accepted: "1–100 characters", meaning: "Human-readable subject title shown in the interface." },
   { path: "locale", required: "Yes", accepted: "xx-YY, e.g. en-CA", meaning: "Language and region used by wording and formatting." },
+  { path: "practiceQuestionCount", required: "No", accepted: "Integer, 1–20 (default 10)", meaning: "Normal learner practice-session length for this bank." },
   { path: "templates[]", required: "Yes", accepted: "1 or more templates", meaning: "Computed single-select or fact-collection-single-select definitions." },
 ];
 

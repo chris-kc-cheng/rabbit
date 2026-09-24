@@ -58,6 +58,23 @@ def test_health_demo_and_protected_catalogue():
     assert {item["id"] for item in client.get("/api/v1/subjects", headers=headers).json()} == {
         "math.elementary", "canadian-citizenship", "math.visuals",
     }
+    counts = {item["id"]: item["practice_question_count"]
+              for item in client.get("/api/v1/subjects", headers=headers).json()}
+    assert counts == {"math.elementary": 10, "canadian-citizenship": 20, "math.visuals": 10}
+
+
+def test_learner_can_start_a_twenty_question_discover_canada_session():
+    _, learner_headers, learner = family()
+    admin_headers, _ = login()
+    client.put("/api/v1/admin/content", headers=admin_headers, json={"include_drafts": True})
+
+    response = client.post("/api/v1/sessions", headers=learner_headers, json={
+        "learner_id": learner["id"], "subject": "canadian-citizenship",
+        "seed": 8675309,
+    })
+
+    assert response.status_code == 201, response.text
+    assert len(response.json()["questions"]) == 20
 
 
 def test_learner_can_start_a_twenty_question_discover_canada_session():

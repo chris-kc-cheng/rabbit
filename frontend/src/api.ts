@@ -49,7 +49,7 @@ export const api = {
   createSession: (learnerId: string, subject = "math.elementary", seed = Date.now()) => request<Session>("/api/v1/sessions", {
     method: "POST",
     headers: JSON_HEADERS,
-    body: JSON.stringify({ learner_id: learnerId, subject, seed, count: subject === "canadian-citizenship" ? 20 : 10 }),
+    body: JSON.stringify({ learner_id: learnerId, subject, seed }),
   }),
   submitAttempt: (sessionId: string, questionId: string, choiceId: string, hintUsed: boolean, timeSpentMs: number) => request<AttemptResult>("/api/v1/attempts", {
     method: "POST",
