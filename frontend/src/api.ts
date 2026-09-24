@@ -58,6 +58,7 @@ export const api = {
   }),
   getOwnProgress: () => request<Progress>("/api/v1/learners/me/progress"),
   getParentLearnerProgress: (learnerId: string) => request<Progress>(`/api/v1/parents/learners/${learnerId}/progress`),
+  deleteLearnerTest: (learnerId: string, sessionId: string) => request<void>(`/api/v1/parents/learners/${learnerId}/tests/${sessionId}`, { method: "DELETE" }),
   getLearners: () => request<FamilyLearner[]>("/api/v1/parents/learners"),
   createLearner: (display_name: string, username: string, password: string) => request<User>("/api/v1/parents/learners", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
   resetLearner: (id: string, password: string) => request<void>(`/api/v1/parents/learners/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),

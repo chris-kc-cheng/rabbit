@@ -5,7 +5,7 @@ import secrets
 from collections import Counter
 from datetime import UTC, datetime, timedelta
 
-from sqlalchemy import select
+from sqlalchemy import delete, func, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
@@ -79,7 +79,7 @@ class IdentityRepository:
                 self.session.delete(old)
                 self.session.flush()
         self.session.add(AccountActivation(token_hash=token_hash, user_id=existing.id,
-                                           expires_at=datetime.now(UTC) + timedelta(minutes=30)))
+                                           expires_at=datetime.now(UTC) + timedelta(days=7)))
         self.session.commit()
         return existing, token
 
@@ -273,7 +273,20 @@ class PracticeRepository:
         rows = list(self.session.scalars(
             select(Attempt).where(Attempt.learner_id == learner_id).order_by(Attempt.answered_at.desc(), Attempt.id.desc())
         ))
-        attempts = [{**row.snapshot, "answered_at": row.answered_at.isoformat()} for row in rows]
+        attempts = [{**row.snapshot, "session_id": row.session_id,
+                     "answered_at": row.answered_at.isoformat()} for row in rows]
+        session_counts = dict(self.session.execute(
+            select(SessionQuestion.session_id, func.count(SessionQuestion.question_id))
+            .join(PracticeSession, PracticeSession.id == SessionQuestion.session_id)
+            .where(PracticeSession.learner_id == learner_id)
+            .group_by(SessionQuestion.session_id)
+        ).all())
+        by_session: dict[str, list[dict]] = {}
+        for attempt in attempts:
+            by_session.setdefault(attempt["session_id"], []).append(attempt)
+        completed = [items for session_id, items in by_session.items()
+                     if len(items) == session_counts.get(session_id, 0)]
+        gold_trophies = sum(all(item["correct"] for item in items) for items in completed)
         misconceptions = Counter(item["misconception_id"] for item in attempts if item.get("misconception_id"))
         correct = sum(bool(item["correct"]) for item in attempts)
         reward = self.session.get(RewardSetting, learner_id)
@@ -284,8 +297,23 @@ class PracticeRepository:
             "hints_used": sum(bool(item.get("hint_used")) for item in attempts),
             "misconceptions": dict(misconceptions), "recent_attempts": attempts[:10],
             "attempt_history": attempts,
+            "achievements": {"correct_answers": correct, "gold_trophies": gold_trophies,
+                             "silver_trophies": len(completed) - gold_trophies},
             "reward": RewardSettings.model_validate(reward.settings) if reward else RewardSettings(),
         }
+
+    def delete_session_results(self, learner_id: str, session_id: str) -> bool:
+        practice = self.session.get(PracticeSession, session_id)
+        if practice is None or practice.learner_id != learner_id:
+            return False
+        result = self.session.execute(delete(Attempt).where(
+            Attempt.learner_id == learner_id, Attempt.session_id == session_id
+        ))
+        if not result.rowcount:
+            self.session.rollback()
+            return False
+        self.session.commit()
+        return True
 
     def set_reward(self, learner_id: str, reward: RewardSettings) -> RewardSettings:
         row = self.session.get(RewardSetting, learner_id)

@@ -49,7 +49,8 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
       <p>{trophy === "gold" ? `Every answer was correct — a perfect ${accuracy}% score!` : rabbitWon ? `You finished with ${accuracy}% accuracy and reached the ${targetAccuracy}% target. Keep growing toward gold!` : `You finished with ${accuracy}% accuracy. Steady effort earned silver; keep practicing toward a perfect gold!`}</p>
       <div className="trophy-points"><span>✨ EXP earned</span><strong>+{points}</strong></div>
       <button className="primary" onClick={start}>Practice a new trail</button></section>
-      <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
+      <AchievementSummary progress={progress} />
+      <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" showAnswers={false} />
     </main>
   );
   }
@@ -67,10 +68,6 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
   const next = () => { setIndex((value) => value + 1); setSelected(null); setResult(null); setHintVisible(false); questionStartedAt.current = Date.now(); };
 
   return <main className="learner-column">
-    <div className="subject-picker"><label htmlFor="subject">Practice subject</label><select id="subject" value={subject} onChange={event => setSubject(event.target.value)}>{subjects.map(item => <option key={item.id} value={item.id}>{item.title}{item.publication_status === "draft" ? " — Draft" : ""}</option>)}</select></div>
-    <Achievement answered={answered} correct={correctAnswers} total={session.questions.length} />
-    <RaceTrack answered={answered} total={session.questions.length} correct={correctAnswers} wrong={wrongAnswers} target={targetAccuracy} sleeping={Boolean(result && !result.correct)} />
-    <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
     <article className="card question-card">
       <header className="question-header"><div><p className="eyebrow">Difficulty {question.difficulty} · +10 EXP for a correct answer</p><h1>{question.skill.split(".").slice(1).join(" ")}</h1></div><span className="skill">{subject === "canadian-citizenship" ? "Discover Canada · Draft" : "Math explorer"}</span></header>
       <section className="prompt">{question.prompt.map((block, blockIndex) => block.type === "math" ? <MathBlock key={blockIndex} value={block.value} /> : <p key={blockIndex}>{block.value}</p>)}</section>
@@ -89,8 +86,18 @@ export function LearnerView({ learnerId, onAttemptsChanged, defaultSubject = "ma
     </article>
     <footer className="actions"><button className="quiet" disabled={Boolean(result)} onClick={() => setHintVisible(!hintVisible)}>💡 {hintVisible ? "Hide hint" : "Need a hint?"}</button>
       {result ? <button className="primary" onClick={next}>Next question ▶</button> : <button className="primary" disabled={!selected} onClick={submit}>Check answer ▶</button>}</footer>
-    <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" />
+    <div className="lesson-progress"><div><span>Today&apos;s trail</span><strong>{index + 1} / {session.questions.length}</strong></div><i><b style={{ width: `${(index / session.questions.length) * 100}%` }} /></i></div>
+    <Achievement answered={answered} correct={correctAnswers} total={session.questions.length} />
+    <AchievementSummary progress={progress} />
+    <RaceTrack answered={answered} total={session.questions.length} correct={correctAnswers} wrong={wrongAnswers} target={targetAccuracy} sleeping={Boolean(result && !result.correct)} />
+    <div className="subject-picker"><label htmlFor="subject">Practice subject</label><select id="subject" value={subject} onChange={event => setSubject(event.target.value)}>{subjects.map(item => <option key={item.id} value={item.id}>{item.title}{item.publication_status === "draft" ? " — Draft" : ""}</option>)}</select></div>
+    <AttemptHistory attempts={progress?.attempt_history ?? []} title="Your question history" showAnswers={false} />
   </main>;
+}
+
+function AchievementSummary({ progress }: { progress: Progress | null }) {
+  const achievements = progress?.achievements ?? { correct_answers: 0, silver_trophies: 0, gold_trophies: 0 };
+  return <section className="lifetime-achievements" aria-label="All-time achievements"><h2>All-time achievements</h2><div><span><strong>{achievements.correct_answers}</strong><small>Correct answers</small></span><span><strong>🥈 {achievements.silver_trophies}</strong><small>Silver trophies</small></span><span><strong>🥇 {achievements.gold_trophies}</strong><small>Gold trophies</small></span></div></section>;
 }
 
 export function Achievement({ answered, correct, total, compact = false }: { answered: number; correct: number; total: number; compact?: boolean }) {

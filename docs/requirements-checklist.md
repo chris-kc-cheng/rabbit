@@ -26,6 +26,9 @@ working in this repository, not production-ready at population scale.
   declarative fraction-bar, rectangle-grid, angle, triangle, solid, and bounded
   2D scene visuals shared by web and PDF output.
 - [x] Learner practice loop with progress, positive feedback, and points.
+- [x] Learner practice puts the active question first, keeps submitted historical
+  choices private from the learner view, and summarizes lifetime correct answers
+  plus completed silver and gold trails.
 - [x] Learner race presentation with a rabbit and matching tortoise climbing toward
   a trophy: correct answers move the rabbit in larger steps, misses show
   progressively longer sleep, and the tortoise advances consistently. The
@@ -48,7 +51,7 @@ working in this repository, not production-ready at population scale.
 - [x] API, schema, generator, safety, and question-bank property tests.
 - [x] In-app and written JSON schema documentation, per-type examples, an AI-ready schema download, responsive field-by-field tree tables, parameter and formula boundaries, a live fraction-bar playground, and a self-contained Discover Canada AI
   structured-output prompt, with a public schema and generation validator that
-  remains available from signed-in workspaces.
+  remains available from the public landing experience rather than signed-in workspaces.
 - [x] Isolated Hostinger deployment workflow for frontend/backend container images.
   The workflow deploys to `~/rabbit`, preserves server-managed `.env.prod` settings,
   and writes image tags separately to `.env.deploy` for Compose.
@@ -58,6 +61,10 @@ working in this repository, not production-ready at population scale.
   target, steady-progress mechanic, and trophy outcome before sign-in.
 - [x] Prototype password login/logout with expiring signed JWT access tokens,
   automatic return to login after a 401, and admin/parent/learner role guards.
+- [x] Parent email activation links remain valid for seven days; an unactivated
+  email can request a fresh link after expiry, while active email addresses remain
+  unavailable without revealing account existence. Signed-in headers use an
+  avatar account menu for logout, and technical documentation is public-only.
 - [x] Production Compose refuses to start the prototype identity service without
   configured admin-password and JWT-signing secrets; local Compose also requires
   an explicitly configured admin password. Backend environment variables are
@@ -87,8 +94,9 @@ working in this repository, not production-ready at population scale.
   The compact family overview shows every learner in an accordion with question,
   accuracy, streak, time, and seven-day activity summaries; creation and detailed
   evidence/tools remain available on demand through explicit icon buttons. Answer
-  history supports seven- and thirty-day windows, correct/needs-practice filters,
-  and pagination, while dashboard callouts identify evidence-backed strengths and
+  history is grouped latest-first by date and whole test, and parents may delete
+  an old test result only as a complete unit. Topic checkboxes are alphabetized
+  in a consistent grid, while dashboard callouts identify evidence-backed strengths and
   supportive next-focus areas. The administrator people view groups learners
   beneath their managing parent and consolidates row actions in menus. Parents
   can enter a child’s learner experience without the
@@ -106,7 +114,7 @@ working in this repository, not production-ready at population scale.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
   Alembic migrations for families, guardians, users, and learner profiles.
 - [x] PostgreSQL persistence for generated practice sessions, private grading
-  snapshots, append-only attempts, exact public question snapshots, reward
+  snapshots, immutable retained attempts with whole-test parent deletion, exact public question snapshots, reward
   settings, imported banks, draft visibility, logout revocations, and anonymous
   demo sessions/attempts. Database uniqueness makes one logical answer durable
   even when multiple API workers receive it concurrently.
@@ -119,9 +127,10 @@ working in this repository, not production-ready at population scale.
 - [~] **Rewards:** parents can durably enable a target and name a
   present/experience, but there is not yet a lifetime transaction ledger,
   deduction policy, approval, or fulfillment workflow.
-- [~] **Progress and exact results:** each attempt preserves the resolved question
+- [~] **Progress and exact results:** each retained attempt preserves the resolved question
   snapshot, chosen and correct answers, timing, and hint evidence. Learners and
-  their parent can review the complete PostgreSQL-backed history. Mastery and
+  their parent can review the PostgreSQL-backed history; parent-requested deletion
+  removes all attempt evidence for a selected test together. Mastery and
   report aggregates are still computed on read rather than maintained as durable,
   recomputable projections.
 - [~] **Question templates:** v2 supports bounded-integer computed questions and
@@ -158,7 +167,7 @@ working in this repository, not production-ready at population scale.
   change. Basic parent-created learner accounts and role/family authorization are
   implemented in PostgreSQL; a learner must not belong to multiple families.
 - [ ] PostgreSQL row-level security, database triggers/privilege separation that
-  make attempts physically append-only, a transactional outbox, Redis-backed
+  make attempts physically append-only outside audited whole-test/privacy deletion, a transactional outbox, Redis-backed
   jobs/rate limits, and S3-compatible artifact storage. Application code currently
   only inserts attempts, but database credentials still permit mutation.
 - [ ] A real adaptive policy using mastery, recency decay, prerequisites, spaced

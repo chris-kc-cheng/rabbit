@@ -1,5 +1,6 @@
 import json
 import os
+from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from unittest.mock import patch
 
@@ -98,6 +99,34 @@ def test_new_learners_default_to_a_seventy_percent_reward_target():
 
     assert parent_progress["reward"]["target_accuracy"] == 70
     assert learner_progress["reward"]["target_accuracy"] == 70
+
+
+def test_parent_deletes_a_whole_test_and_cannot_delete_another_familys_results():
+    parent_headers, learner_headers, learner = family()
+    practice = client.post("/api/v1/sessions", headers=learner_headers,
+                           json={"learner_id": learner["id"], "seed": 91, "count": 2}).json()
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.repositories import PracticeRepository
+    with Session(engine) as db:
+        repository = PracticeRepository(db)
+        correct = [repository.question(practice["id"], question["id"]).correct_choice_id
+                   for question in practice["questions"]]
+    for question, choice in zip(practice["questions"], correct):
+        assert client.post("/api/v1/attempts", headers=learner_headers, json={
+            "session_id": practice["id"], "question_id": question["id"],
+            "choice_id": choice, "time_spent_ms": 1000,
+        }).status_code == 200
+    progress = client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()
+    assert {item["session_id"] for item in progress["attempt_history"]} == {practice["id"]}
+    assert progress["achievements"] == {"correct_answers": 2, "gold_trophies": 1, "silver_trophies": 0}
+
+    admin, _ = login()
+    assert client.post("/api/v1/admin/parents", headers=admin, json={"username": "parent.two", "password": "welcome12", "display_name": "Other Parent"}).status_code == 201
+    other_parent, _ = login("parent.two", "welcome12")
+    assert client.delete(f"/api/v1/parents/learners/{learner['id']}/tests/{practice['id']}", headers=other_parent).status_code == 404
+    assert client.delete(f"/api/v1/parents/learners/{learner['id']}/tests/{practice['id']}", headers=parent_headers).status_code == 204
+    assert client.get(f"/api/v1/parents/learners/{learner['id']}/progress", headers=parent_headers).json()["attempts"] == 0
 
 
 def test_parent_can_choose_each_default_bank_impersonate_child_and_practice_last():
@@ -470,6 +499,15 @@ def test_parent_signup_requires_email_activation_and_password_setup(monkeypatch)
     signup = client.post("/api/v1/auth/signup", json={"email": "Parent@Example.com", "display_name": "Pat Parent"})
     assert signup.status_code == 202
     assert delivered["email"] == "parent@example.com"
+    from sqlalchemy import select
+    from sqlalchemy.orm import Session
+    from app.database import engine
+    from app.db_models import AccountActivation
+    with Session(engine) as db:
+        expires_at = db.scalar(select(AccountActivation.expires_at))
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+        assert datetime.now(UTC) + timedelta(days=6, hours=23) < expires_at <= datetime.now(UTC) + timedelta(days=7, minutes=1)
     assert client.post("/api/v1/auth/login", json={"email": "parent@example.com", "password": "new-password"}).status_code == 401
 
     inspection = client.get(f"/api/v1/auth/activate/{delivered['token']}")

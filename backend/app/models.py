@@ -76,6 +76,7 @@ class ProgressResponse(BaseModel):
     misconceptions: dict[str, int]
     recent_attempts: list[dict]
     attempt_history: list[dict]
+    achievements: dict[str, int]
     reward: RewardSettings
 
 
