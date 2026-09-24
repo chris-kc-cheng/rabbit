@@ -89,14 +89,20 @@ Before responding, re-check JSON syntax and every schema requirement. The output
 will remain an AI draft until a human curriculum reviewer validates it.
 ```
 
-## Historical-event collection prompt
+## Reviewed fact-collection prompt
 
 Attach the schema and authoritative source material. Ask the model for one
 `fact-collection-single-select` template containing at least four closely related
-events, stable IDs, scalar `year` and `event` fields, and at least one variant.
+facts and at least one variant. Choose the precise `knowledge.type`:
+`entity-attributes`, `relationships`, `category-membership`, `process-steps`, or
+`scenario-rules` (`historical-events` remains available for timeline content).
+Give facts stable IDs and string, integer, or non-empty unique string-list values;
+lists are appropriate only when authored order and multiple values are meaningful.
 The variant must use a declared `answerField` and `distractorPoolField`, supportive
 feedback, a stable misconception ID, and `{{fact.<field>}}` interpolation only.
-Require exact source title, URL, and section locator. Set `source.reviewStatus` to
+Every fact must contain those fields, and the pool must provide at least three
+distinct alternatives after lists are rendered as comma-separated text. Require
+exact source title, URL, and section locator. Set `source.reviewStatus` to
 `draft`; only a human curriculum reviewer may change it to `reviewed` and publish
 the containing bank. Never ask the model to invent missing facts or citations.
 
