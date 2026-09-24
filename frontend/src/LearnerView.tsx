@@ -444,7 +444,7 @@ export function RaceTrack({
   const sleepSeconds = 2 + wrong * 2;
   const position = (progress: number) =>
     ({
-      "--race-x": `${progress * 70}%`,
+      "--race-x": `${progress * 78}%`,
       "--race-y": `${progress * 48}%`,
     }) as React.CSSProperties;
   return (
@@ -455,15 +455,27 @@ export function RaceTrack({
       <header>
         <div>
           <span className="race-kicker">Rabbit vs. Tortoise</span>
-          <strong>Race to the trophy!</strong>
+          <strong>Race to the finish!</strong>
         </div>
         <span className="target-chip">Target: ≥ {target}%</span>
       </header>
       <div className="hill-track">
-        <div className="finish-flag" aria-label="Finish line">
-          <span>🏆</span>
-          <i>⚑</i>
-        </div>
+        <svg
+          className="race-landscape"
+          viewBox="0 0 500 240"
+          preserveAspectRatio="none"
+          aria-hidden="true"
+        >
+          <path className="far-hill" d="M0 126 Q104 83 205 111 T500 64 V240 H0Z" />
+          <path className="near-hill" d="M0 172 Q112 132 224 111 Q326 91 500 72 V240 H0Z" />
+          <path className="race-road-edge" d="M18 234 C94 194 70 153 163 143 S221 96 286 92 S393 91 444 76" />
+          <path className="race-road" d="M18 234 C94 194 70 153 163 143 S221 96 286 92 S393 91 444 76" />
+          <g className="finish-flag" aria-label="Finish flag">
+            <path className="flag-pole" d="M444 76 V20" />
+            <path className="flag-cloth" d="M444 21 Q463 29 483 20 V48 Q463 57 444 48Z" />
+            <path className="flag-check" d="M444 21h10v14h-10zm20 0h10v14h-10zm-10 14h10v14h-10zm20 0h9v13q-5 3-9 3z" />
+          </g>
+        </svg>
         <div
           className={`racer rabbit-racer ${sleeping ? "is-sleeping" : ""}`}
           style={
@@ -494,7 +506,6 @@ export function RaceTrack({
             alt="Tortoise walking steadily uphill"
           />
         </div>
-        <div className="start-sign">START</div>
       </div>
       <footer>
         <span>🐇 {correct} big hops</span>
