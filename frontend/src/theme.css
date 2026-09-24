@@ -28,6 +28,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--focus); out
 .topbar { background: var(--topbar); }
 .brand { color: var(--ink); font-size: 28px; letter-spacing: -.055em; font-weight: 900; gap: 5px; }
 .brand-logo { width: 86px; height: 86px; object-fit: contain; position: relative; z-index: 2; filter: drop-shadow(0 5px 9px var(--shadow)); }
+.brand-story { position: relative; width: max-content; }
+.brand-story-popover { position: absolute; z-index: 30; top: calc(100% - 4px); left: 20px; width: min(310px, calc(100vw - 40px)); padding: 14px 16px; border: 1px solid var(--line); border-radius: 16px; background: var(--paper); box-shadow: 0 14px 38px var(--shadow); display: grid; gap: 4px; font-size: 13px; line-height: 1.45; }
+.brand-story-popover::before { content: ""; position: absolute; top: -7px; left: 25px; width: 12px; height: 12px; border-left: 1px solid var(--line); border-top: 1px solid var(--line); background: var(--paper); transform: rotate(45deg); }
+.brand-story-popover strong { color: var(--purple); font-size: 14px; }
+.brand-story-popover span { color: var(--muted); }
 .topbar { min-height: 82px; overflow: visible; }
 .topbar nav { background: var(--nav-bg); }
 .topbar nav button { font-size: 14px; }

@@ -14,6 +14,36 @@ const ORIGINAL_TOKEN_KEY = "rabbit_original_token";
 const IMPERSONATED_USER_KEY = "rabbit_impersonated_user";
 const PARENT_SELF_PRACTICE_KEY = "rabbit_parent_self_practice";
 
+function BrandLogo({ onClick }: { onClick?: () => void }) {
+  const [showNameStory, setShowNameStory] = useState(false);
+
+  return (
+    <div className="brand-story">
+      <button
+        className="brand"
+        type="button"
+        aria-label="Rabbit logo — discover why we are called Rabbit"
+        aria-expanded={showNameStory}
+        onClick={() => {
+          onClick?.();
+          setShowNameStory((visible) => !visible);
+        }}
+      >
+        <img className="brand-logo" src="/rabbit-reading-logo.png" alt="" />
+      </button>
+      {showNameStory && (
+        <aside className="brand-story-popover" role="status">
+          <strong>Rabbit is all ears!</strong>
+          <span>
+            That&apos;s why we&apos;re called Rabbit: we listen carefully and learn
+            something new in every class.
+          </span>
+        </aside>
+      )}
+    </div>
+  );
+}
+
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
   const activationToken = new URLSearchParams(window.location.search).get(
@@ -198,13 +228,7 @@ export default function App() {
     return (
       <div className="app-shell">
         <header className="topbar public-top">
-          <button
-            className="brand"
-            aria-label="Go to home"
-            onClick={() => setView("landing")}
-          >
-            <img className="brand-logo" src="/rabbit-reading-logo.png" alt="" />
-          </button>
+          <BrandLogo onClick={() => setView("landing")} />
           <nav aria-label="Explore">
             <button
               className={view === "landing" ? "active" : ""}
@@ -278,9 +302,7 @@ export default function App() {
         </div>
       )}
       <header className="topbar signed-in">
-        <button className="brand" aria-label="Go to workspace">
-          <img className="brand-logo" src="/rabbit-reading-logo.png" alt="" />
-        </button>
+        <BrandLogo />
         {(user.role === "learner" || parentSelfPractice) ? (
           <AchievementSummary progress={learnerProgress} />
         ) : (
