@@ -131,9 +131,11 @@ module paths differ from the source-repository layout.
 ```
 
 A bank wraps templates with `schemaVersion`, `generatorVersion`,
-`publicationStatus`, `subject`, `title`, and `locale`. Validate the
-whole file, then property-test many seeds because JSON Schema cannot prove that
-computed options remain distinct.
+`publicationStatus`, `subject`, `title`, and `locale`. The optional
+`practiceQuestionCount` sets the normal learner-session length for that bank from
+1 to 20; omitting it keeps the 10-question default. Validate the whole file, then
+property-test many seeds because JSON Schema cannot prove that computed options
+remain distinct.
 
 Use one bank for a coherent broad subject or course, even when it contains many
 subtopics. Each template's stable `skill` is the topic-selection boundary used by

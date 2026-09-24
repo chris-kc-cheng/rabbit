@@ -60,7 +60,7 @@ export type AuthSession = { access_token: string; expires_at: number; user: User
 export type FamilyLearner = User & { progress: Progress; is_self: boolean };
 export type ImportError = { path: string; message: string; suggestion: string };
 export type FamilyProgress = { family_id: string; learners: Array<{ id: string; name: string; progress: Progress }> };
-export type Subject = { id: string; title: string; template_count: number; publication_status: "draft" | "published"; topics: Array<{ id: string; title: string }> };
+export type Subject = { id: string; title: string; template_count: number; practice_question_count: number; publication_status: "draft" | "published"; topics: Array<{ id: string; title: string }> };
 export type QuestionBankAdmin = {
   subject: string;
   title: string;

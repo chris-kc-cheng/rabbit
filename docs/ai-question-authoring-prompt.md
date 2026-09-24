@@ -26,6 +26,9 @@ Split a broad subject into multiple bank files only when there is a real publish
 boundary—for example a different grade, locale, curriculum authority, review
 owner, or release schedule. File boundaries are not topic selectors: Rabbit uses
 each template's `skill` value to let a parent choose one, several, or all topics.
+Set the optional bank-level `practiceQuestionCount` only when the reviewed bank
+needs a learner session length other than the default of 10, and keep it between
+1 and 20.
 
 For a multi-topic bank, use this planning request before the template prompt:
 

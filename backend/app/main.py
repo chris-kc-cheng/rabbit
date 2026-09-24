@@ -373,6 +373,7 @@ def subjects(_: dict = Depends(require_role("learner", "parent", "admin")),
     include_drafts = repository.include_drafts()
     return [
         {"id": bank["subject"], "title": bank["title"], "template_count": len(bank["templates"]),
+         "practice_question_count": bank.get("practiceQuestionCount", 10),
          "publication_status": bank["publicationStatus"], "topics": [
              {"id": skill, "title": topic_title(skill)}
              for skill in dict.fromkeys(template["skill"] for template in bank["templates"])
@@ -403,7 +404,8 @@ def create_session(request: SessionCreate, user: dict = Depends(require_role("le
         if not templates:
             raise HTTPException(status_code=400, detail="Selected topics are not currently available")
         bank = {**bank, "templates": templates}
-    generated = generate_session(seed, request.count, bank)
+    question_count = request.count if request.count is not None else bank.get("practiceQuestionCount", 10)
+    generated = generate_session(seed, question_count, bank)
     PracticeRepository(db).create_session(session_id, request.learner_id, request.subject, seed, generated)
     return SessionResponse(id=session_id, learner_id=request.learner_id, questions=[q.public for q in generated])
 

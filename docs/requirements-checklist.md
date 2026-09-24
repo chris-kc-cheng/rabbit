@@ -111,6 +111,8 @@ working in this repository, not production-ready at population scale.
   questions, with a separate answer key and worked explanations.
 - [x] Parents can choose one, several, or all topics from a learner's default
   question bank; the saved plan filters that learner's next online sessions.
+- [x] Question banks can set a `practiceQuestionCount` of up to 20; Discover Canada
+  uses 20-question learner sessions while banks without the setting default to 10.
 - [x] Parent progress includes an accessible topic radar with a text alternative,
   while evidence callouts continue to describe strengths and practice opportunities.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and

@@ -5,6 +5,7 @@
   "subject": "canadian-citizenship",
   "title": "Canadian Citizenship",
   "locale": "en-CA",
+  "practiceQuestionCount": 20,
   "templates": [
     {
       "id": "canada.history.milestones",
