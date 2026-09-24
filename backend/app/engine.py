@@ -64,9 +64,23 @@ def _resolve_path(path: str, variables: dict[str, Any]) -> Any:
         if not isinstance(value, dict) or part not in value:
             raise UnsafeExpression(f"Unknown value path: {path}")
         value = value[part]
-    if not isinstance(value, (str, int, float)) or isinstance(value, bool):
+    invalid_list = isinstance(value, list) and (
+        not value or any(not isinstance(item, str) for item in value)
+    )
+    if not isinstance(value, (str, int, float, list)) or isinstance(value, bool) or invalid_list:
         raise UnsafeExpression(f"Value path is not renderable: {path}")
     return value
+
+
+def _display_fact_value(value: Any) -> str:
+    """Render the closed set of schema-approved fact values consistently."""
+    if isinstance(value, list):
+        if not value or any(not isinstance(item, str) for item in value):
+            raise ValueError("Fact lists must contain renderable values")
+        return ", ".join(str(item) for item in value)
+    if not isinstance(value, (str, int)) or isinstance(value, bool):
+        raise ValueError("Fact values must be strings, integers, or lists")
+    return str(value)
 
 
 def render_text(text: str, variables: dict[str, Any]) -> str:
@@ -74,7 +88,7 @@ def render_text(text: str, variables: dict[str, Any]) -> str:
         expression = match.group(1)
         if "." in expression or any(isinstance(value, dict) for value in variables.values()):
             try:
-                return str(_resolve_path(expression, variables))
+                return _display_fact_value(_resolve_path(expression, variables))
             except UnsafeExpression:
                 if "." in expression:
                     raise
@@ -267,12 +281,14 @@ def _generate_fact_question(
     variant = variant or rng.choice(template["variants"])
     field = variant["answerField"]
     pool_field = variant["distractorPoolField"]
-    answer_value = str(fact[field])
+    if any(field not in item or pool_field not in item for item in facts):
+        raise ValueError(f"Template {template['id']} references a missing fact field")
+    answer_value = _display_fact_value(fact[field])
     other_values = list(
         dict.fromkeys(
-            str(item[pool_field])
+            _display_fact_value(item[pool_field])
             for item in facts
-            if str(item[pool_field]) != answer_value
+            if pool_field in item and _display_fact_value(item[pool_field]) != answer_value
         )
     )
     if len(other_values) < 3:
@@ -295,7 +311,8 @@ def _generate_fact_question(
     public, correct_choice_id, choices = _public_question(template, variant, variables, candidates, rng, index)
     return GeneratedQuestion(
         public=public, correct_choice_id=correct_choice_id, explanation=explanation, choices=choices,
-        generation={"templateVersion": template["version"], "variantId": variant["id"], "factId": fact["id"]},
+        generation={"templateVersion": template["version"], "variantId": variant["id"],
+                    "factId": fact["id"], "knowledgeType": template["knowledge"]["type"]},
     )
 
 

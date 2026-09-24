@@ -175,11 +175,28 @@ only the arithmetic DSL inside braces. Fact templates accept only a declared
 dotted value path such as `{{fact.event}}`; calls, indexing, filters, and arbitrary
 code are rejected.
 
-Fact collections currently require at least four facts and support text or
-integer scalar fields. A variant identifies one answer field and one distractor
-pool field. All distractors currently share one timeline-confusion route;
-future content versions may add per-fact misconception mappings and other fact
-types. Selection and option shuffling use the session's seeded random generator.
+Fact collections currently require at least four facts. Each collection declares
+one of the following semantic knowledge shapes (the earlier `historical-events`
+value remains valid for existing v2 banks):
+
+| `knowledge.type` | Stores | Example question |
+| --- | --- | --- |
+| `entity-attributes` | A named thing and its properties, such as province → capital, symbol → meaning, or institution → role | “What is the capital of Manitoba?” |
+| `relationships` | Linked facts, such as person → contribution, government level → responsibility, or right → protection | “Which level of government is responsible for this service?” |
+| `category-membership` | Items assigned to one or more groups, such as province → region or action → citizenship responsibility | “Which province belongs to the Atlantic region?” |
+| `process-steps` | Ordered steps with actors and outcomes, such as a federal election, a bill becoming law, or a citizenship application | “What happens after this step?” |
+| `scenario-rules` | A short situation, its applicable principle, and an explanation | “A citizen is called for jury duty. Which responsibility applies?” |
+
+Fact fields may be non-empty text, integers, or a non-empty, unique list of text
+values. Lists preserve authored order and render as comma-separated text, which
+lets `category-membership` represent an item in more than one group. A variant
+identifies one answer field and one distractor-pool field; both fields must be
+present on every fact. The engine derives three distinct choices from
+other facts and rejects a collection that cannot supply them. All distractors in
+a variant currently share one misconception route; future content versions may
+add per-fact misconception mappings. Selection and option shuffling use the
+session's seeded random generator. Internal generation metadata records the
+collection's knowledge type as well as its template, variant, and fact IDs.
 
 ## Publishing rules
 

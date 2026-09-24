@@ -126,3 +126,44 @@ def test_fact_collection_selects_a_fact_and_hides_answer_metadata():
         assert "generation" not in payload
         assert question.generation["generatorVersion"] == "2.0.0"
         assert question.generation["seed"] == 8675309
+
+
+def test_all_fact_collection_types_generate_and_lists_render_consistently():
+    schema = json.loads((ROOT / "content/question-template.schema.json").read_text())
+    collection_types = [
+        "entity-attributes", "relationships", "category-membership", "process-steps", "scenario-rules"
+    ]
+    templates = []
+    for collection_type in collection_types:
+        facts = [
+            {"id": f"item-{index}", "subject": f"Subject {index}",
+             "answer": [f"Group {index}", f"Shared {index}"] if index == 1 else [f"Group {index}"]}
+            for index in range(1, 5)
+        ]
+        templates.append({
+            "id": f"knowledge.{collection_type}", "version": 1,
+            "type": "fact-collection-single-select", "skill": f"knowledge.{collection_type}",
+            "knowledge": {"type": collection_type, "facts": facts},
+            "variants": [{
+                "id": "identify", "difficulty": 2,
+                "prompt": [{"type": "text", "value": "Which groups match {{fact.subject}}?"}],
+                "answerField": "answer", "distractorPoolField": "answer",
+                "misconception": "knowledge.nearby-fact", "feedback": "That choice belongs to another fact.",
+                "hint": "Recall the matching reviewed fact.",
+                "explanation": "{{fact.subject}} matches {{fact.answer}}.",
+                "accessibility": {"screenReaderText": "Choose the matching groups for the named subject."},
+            }],
+            "source": {"title": "Reviewed source", "url": "https://example.ca/facts",
+                       "locator": "Facts", "reviewStatus": "draft"},
+        })
+    bank = {"schemaVersion": 2, "generatorVersion": "2.0.0", "publicationStatus": "draft",
+            "subject": "knowledge", "title": "Knowledge collections", "locale": "en-CA",
+            "templates": templates}
+
+    jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker()).validate(bank)
+    questions = generate_session(12, len(templates), bank)
+    assert {item.generation["knowledgeType"] for item in questions} == set(collection_types)
+    for question in questions:
+        assert len(question.public.choices) == 4
+        assert all("[" not in choice.value for choice in question.public.choices)
+        assert "[" not in question.explanation

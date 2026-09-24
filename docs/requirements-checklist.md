@@ -15,7 +15,9 @@ working in this repository, not production-ready at population scale.
 - [x] JSON Schema v2 and Git-managed question banks with ten published
   elementary-math templates, a draft visual-capability review bank, and a draft
   Discover Canada historical-event example.
-- [x] Reusable fact collections with stable fact/variant IDs, restricted dotted
+- [x] Reusable fact collections for entity attributes, relationships, category
+  membership, process steps, scenario rules, and historical events, with stable
+  fact/variant IDs, restricted dotted
   interpolation, seeded selection, and other-fact distractor pools.
 - [x] Seeded parameter generation, server-side grading, answer shuffling, hints,
   explanations, and duplicate-choice rejection after documented learner-visible
@@ -134,8 +136,8 @@ working in this repository, not production-ready at population scale.
   report aggregates are still computed on read rather than maintained as durable,
   recomputable projections.
 - [~] **Question templates:** v2 supports bounded-integer computed questions and
-  scalar historical-event fact collections. The admin workspace supports bank
-  preview and a draft review/publish lifecycle, but field-level template
+  typed fact collections with scalar or ordered text-list values. The admin
+  workspace supports bank preview and a draft review/publish lifecycle, but field-level template
   authoring, richer parameter/fact types, and separately addressable immutable
   database versions are absent.
 - [~] **Vector rendering:** the fraction bar is real accessible SVG, but the general

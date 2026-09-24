@@ -98,8 +98,8 @@ const computedFields: FieldRow[] = [
 const factFields: FieldRow[] = [
   { path: "id / version / skill", required: "Yes", accepted: "Stable IDs; version ≥ 1", meaning: "Identity, immutable revision, and evidence skill." },
   { path: "type", required: "Yes", accepted: "fact-collection-single-select", meaning: "Selects the reusable reviewed-facts template shape." },
-  { path: "knowledge.type", required: "Yes", accepted: "historical-events", meaning: "Current v2 fact collection category." },
-  { path: "knowledge.facts[]", required: "Yes", accepted: "At least 4 objects", meaning: "Each needs stable id plus at least two scalar string/integer fields; distractor values must be distinct." },
+  { path: "knowledge.type", required: "Yes", accepted: "entity-attributes | relationships | category-membership | process-steps | scenario-rules | historical-events", meaning: "Declares the semantic shape of the reviewed facts; historical-events remains valid for timeline banks." },
+  { path: "knowledge.facts[]", required: "Yes", accepted: "At least 4 objects", meaning: "Each needs a stable id plus at least two string, integer, or unique non-empty string-list fields. Lists render in authored order, separated by commas." },
   { path: "variants[]", required: "Yes", accepted: "At least 1 variant", meaning: "Defines prompt, difficulty 1–5, answer field, distractor pool, feedback, hint, explanation, and accessibility." },
   { path: "answerField", required: "Yes", accepted: "Fact field name", meaning: "Field containing the correct answer, such as year." },
   { path: "distractorPoolField", required: "Yes", accepted: "Fact field name", meaning: "Field used to draw three answers from other facts." },
