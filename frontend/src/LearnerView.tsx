@@ -473,13 +473,7 @@ export function RaceTrack({
           preserveAspectRatio="none"
           aria-hidden="true"
         >
-          <g className="race-cloud" transform="translate(52 38)">
-            <circle cx="20" cy="16" r="14" />
-            <circle cx="38" cy="12" r="20" />
-            <circle cx="59" cy="18" r="15" />
-            <rect x="20" y="16" width="39" height="17" rx="8" />
-          </g>
-          <g className="race-cloud" transform="translate(268 24) scale(.72)">
+          <g className="race-cloud" transform="translate(58 32) scale(1.65 1.08)">
             <circle cx="20" cy="16" r="14" />
             <circle cx="38" cy="12" r="20" />
             <circle cx="59" cy="18" r="15" />
@@ -489,10 +483,9 @@ export function RaceTrack({
           <path className="near-hill" d="M0 172 Q112 132 224 111 Q326 91 500 72 V240 H0Z" />
           <g className="finish-flag" aria-label="Red finish flag">
             <path className="flag-pole" d="M444 76 V24" />
-            <path className="flag-cloth" d="M444 25 H482 L471 38 L482 51 H444Z" />
+            <path className="flag-cloth" d="M444 25 L484 38 L444 51Z" />
           </g>
         </svg>
-        <span className="finish-flag" role="img" aria-label="Red finish flag">🚩</span>
         <div
           className={`racer rabbit-racer ${sleeping ? "is-sleeping" : ""}`}
           style={
