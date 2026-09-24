@@ -39,9 +39,11 @@ export type Progress = {
   misconceptions: Record<string, number>;
   recent_attempts: AttemptHistoryItem[];
   attempt_history: AttemptHistoryItem[];
+  achievements: { correct_answers: number; silver_trophies: number; gold_trophies: number };
   reward: Reward;
 };
 export type AttemptHistoryItem = {
+  session_id: string;
   question_id: string;
   skill: string;
   selected_value: string;

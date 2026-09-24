@@ -146,7 +146,7 @@ environment.
 ## Prototype accounts and authentication
 
 Parents can register with an email address from the public site. Rabbit sends a
-single-use activation URL through Resend; the URL expires after 30 minutes and
+single-use activation URL through Resend; the URL expires after 7 days and
 opens the initial-password form. Parent email addresses are normalized before
 storage and login, while parent-created learner profiles continue to use a
 username so children do not need their own email address.

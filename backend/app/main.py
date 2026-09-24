@@ -542,6 +542,16 @@ def learner_progress(learner_id: str, parent: dict = Depends(require_role("paren
     return PracticeRepository(db).progress(learner_id)
 
 
+@app.delete("/api/v1/parents/learners/{learner_id}/tests/{session_id}", status_code=204)
+def delete_learner_test(learner_id: str, session_id: str,
+                        parent: dict = Depends(require_role("parent")), db: Session = Depends(get_db)) -> None:
+    """Delete one whole historical test, never selected individual answers."""
+    if learner_id != parent["id"]:
+        _parent_learner(parent, learner_id, db)
+    if not PracticeRepository(db).delete_session_results(learner_id, session_id):
+        raise HTTPException(404, "Test results not found")
+
+
 @app.get("/api/v1/learners/me/progress", response_model=ProgressResponse)
 def own_progress(learner: dict = Depends(require_role("learner")), db: Session = Depends(get_db)) -> dict:
     """Let a learner review their own evidence without exposing another family."""

@@ -27,7 +27,7 @@ def send_activation_email(email: str, display_name: str, token: str) -> None:
         "html": (
             f"<p>Hello {html.escape(display_name)},</p>"
             "<p>Welcome to Rabbit! Use this private, temporary link to activate your account "
-            "and choose your password. It expires in 30 minutes.</p>"
+            "and choose your password. It expires in 7 days. If it expires, you can sign up again.</p>"
             f'<p><a href="{activation_url}">Activate my Rabbit account</a></p>'
             "<p>If you did not request this account, you can ignore this email.</p>"
         ),

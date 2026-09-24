@@ -18,7 +18,6 @@ export default function App() {
   const activationToken = new URLSearchParams(window.location.search).get("activate");
   const [view, setView] = useState<PublicView>(activationToken ? "activate" : sessionStorage.getItem("rabbit_token") ? "login" : "landing");
   const [checking, setChecking] = useState(Boolean(sessionStorage.getItem("rabbit_token")));
-  const [showDocs, setShowDocs] = useState(false);
   const [impersonatedUser, setImpersonatedUser] = useState<User | null>(() => {
     if (!sessionStorage.getItem(ORIGINAL_TOKEN_KEY)) return null;
     try { return JSON.parse(sessionStorage.getItem(IMPERSONATED_USER_KEY) ?? "null") as User | null; }
@@ -58,7 +57,7 @@ export default function App() {
     sessionStorage.setItem(ORIGINAL_TOKEN_KEY, adminToken);
     sessionStorage.setItem(IMPERSONATED_USER_KEY, JSON.stringify(auth.user));
     sessionStorage.setItem("rabbit_token", auth.access_token);
-    setImpersonatedUser(auth.user); setUser(auth.user); setShowDocs(false);
+    setImpersonatedUser(auth.user); setUser(auth.user);
   };
   const startParentPractice = async (target: User) => {
     const parentToken = sessionStorage.getItem("rabbit_token");
@@ -70,7 +69,7 @@ export default function App() {
     sessionStorage.setItem(ORIGINAL_TOKEN_KEY, returnToken);
     sessionStorage.setItem(IMPERSONATED_USER_KEY, JSON.stringify(auth.user));
     sessionStorage.setItem("rabbit_token", auth.access_token);
-    setImpersonatedUser(auth.user); setUser(auth.user); setShowDocs(false);
+    setImpersonatedUser(auth.user); setUser(auth.user);
   };
   const stopImpersonating = async () => {
     const adminToken = sessionStorage.getItem(ORIGINAL_TOKEN_KEY);
@@ -78,7 +77,7 @@ export default function App() {
     sessionStorage.setItem("rabbit_token", adminToken);
     sessionStorage.removeItem(ORIGINAL_TOKEN_KEY); sessionStorage.removeItem(IMPERSONATED_USER_KEY);
     setImpersonatedUser(null);
-    try { setUser(await api.me()); setShowDocs(false); }
+    try { setUser(await api.me()); }
     catch { await logout(); }
   };
   const toggleTheme = () => setTheme(current => current === "dark" ? "light" : "dark");
@@ -93,7 +92,7 @@ export default function App() {
   </div>;
   return <div className="app-shell">
     {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Viewing the {impersonatedUser.role} experience as {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to dashboard</button></div>}
-    <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace" onClick={() => setShowDocs(false)}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Your learning space"><button className={!showDocs ? "active" : ""} onClick={() => setShowDocs(false)}>Workspace</button><button className={showDocs ? "active" : ""} onClick={() => setShowDocs(true)}>Docs</button></nav><div className="header-tools">{displayButtons}<div className="account"><span>Hi, <strong>{user.display_name}</strong></span><button className="quiet" onClick={logout}>Log out</button></div></div></header>
-    {showDocs ? <Documentation /> : user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} onPractice={startParentPractice} /> : <LearnerChrome><LearnerView learnerId={user.id} defaultSubject={user.default_subject} onAttemptsChanged={() => {}} /></LearnerChrome>}
+    <header className="topbar signed-in"><button className="brand" aria-label="Go to workspace"><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><div /><div className="header-tools">{displayButtons}<details className="account-menu"><summary><span className="user-avatar" aria-hidden="true">{user.display_name.slice(0, 1).toUpperCase()}</span><strong>{user.display_name}</strong><span aria-hidden="true">▾</span></summary><div role="menu"><button role="menuitem" onClick={logout}>Log out</button></div></details></div></header>
+    {user.role === "admin" ? <AdminView onImpersonate={startImpersonating} /> : user.role === "parent" ? <ParentView refreshKey={0} onPractice={startParentPractice} /> : <LearnerChrome><LearnerView learnerId={user.id} defaultSubject={user.default_subject} onAttemptsChanged={() => {}} /></LearnerChrome>}
   </div>;
 }
