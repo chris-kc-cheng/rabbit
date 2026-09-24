@@ -492,6 +492,7 @@ export function RaceTrack({
             <path className="flag-cloth" d="M444 25 H482 L471 38 L482 51 H444Z" />
           </g>
         </svg>
+        <span className="finish-flag" role="img" aria-label="Red finish flag">🚩</span>
         <div
           className={`racer rabbit-racer ${sleeping ? "is-sleeping" : ""}`}
           style={
