@@ -1,0 +1,3374 @@
+{
+  "schemaVersion": 2,
+  "generatorVersion": "2.0.0",
+  "publicationStatus": "draft",
+  "subject": "canadian-citizenship",
+  "title": "Discover Canada — Complete Guide Question Bank (Draft)",
+  "locale": "en-CA",
+  "templates": [
+    {
+      "id": "citizenship.citizenship-responsibilities",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.citizenship-responsibilities",
+      "knowledge": {
+        "type": "scenario-rules",
+        "facts": [
+          {
+            "id": "following-canadian-laws",
+            "subject": "Following Canadian laws",
+            "answer": "Obeying the law"
+          },
+          {
+            "id": "supporting-oneself-and-family-where-able",
+            "subject": "Supporting oneself and family where able",
+            "answer": "Taking responsibility for oneself and family"
+          },
+          {
+            "id": "serving-when-summoned-for-jury-duty",
+            "subject": "Serving when summoned for jury duty",
+            "answer": "Serving on a jury"
+          },
+          {
+            "id": "casting-a-ballot-in-an-election",
+            "subject": "Casting a ballot in an election",
+            "answer": "Voting in elections"
+          },
+          {
+            "id": "volunteering-at-a-food-bank",
+            "subject": "Volunteering at a food bank",
+            "answer": "Helping others in the community"
+          },
+          {
+            "id": "avoiding-waste-and-pollution",
+            "subject": "Avoiding waste and pollution",
+            "answer": "Protecting heritage and the environment"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which citizenship responsibility in the guide best matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.citizenship-responsibilities.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which citizenship responsibility in the guide best matches {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/rights-resonsibilities-citizenship.html",
+        "locator": "Citizenship Responsibilities",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.fundamental-freedoms",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.fundamental-freedoms",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "practising-a-faith-or-holding-a-belief",
+            "subject": "Practising a faith or holding a belief",
+            "answer": "Freedom of conscience and religion"
+          },
+          {
+            "id": "expressing-opinions-including-through-the-press",
+            "subject": "Expressing opinions, including through the press",
+            "answer": "Freedom of thought, belief, opinion and expression"
+          },
+          {
+            "id": "gathering-peacefully-with-others",
+            "subject": "Gathering peacefully with others",
+            "answer": "Freedom of peaceful assembly"
+          },
+          {
+            "id": "joining-a-group-with-others",
+            "subject": "Joining a group with others",
+            "answer": "Freedom of association"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which fundamental freedom covers {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.fundamental-freedoms.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which fundamental freedom covers {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/rights-resonsibilities-citizenship.html",
+        "locator": "Rights and Responsibilities of Citizenship",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.citizenship-rights",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.citizenship-rights",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "living-and-working-in-any-part-of-canada",
+            "subject": "Living and working in any part of Canada",
+            "answer": "Mobility rights"
+          },
+          {
+            "id": "protecting-treaty-rights-and-other-rights-of-indigenous-peoples",
+            "subject": "Protecting treaty rights and other rights of Indigenous peoples",
+            "answer": "Aboriginal Peoples’ rights"
+          },
+          {
+            "id": "equal-status-of-english-and-french-in-parliament-and-the-federal-governm",
+            "subject": "Equal status of English and French in Parliament and the federal government",
+            "answer": "Official language rights"
+          },
+          {
+            "id": "education-rights-for-official-language-minorities",
+            "subject": "Education rights for official-language minorities",
+            "answer": "Minority language educational rights"
+          },
+          {
+            "id": "respecting-the-countrys-cultural-diversity",
+            "subject": "Respecting the country’s cultural diversity",
+            "answer": "Multiculturalism"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which principle or right in the guide matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.citizenship-rights.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which principle or right in the guide matches {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/rights-resonsibilities-citizenship.html",
+        "locator": "Rights and Responsibilities of Citizenship",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.identity-groups",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.identity-groups",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "first-nations",
+            "subject": "First Nations",
+            "answer": "The term that began to be used for Indian peoples in the 1970s"
+          },
+          {
+            "id": "inuit",
+            "subject": "Inuit",
+            "answer": "Indigenous peoples with communities across the Arctic"
+          },
+          {
+            "id": "m-tis",
+            "subject": "Métis",
+            "answer": "A distinct people with both Indigenous and European ancestry"
+          },
+          {
+            "id": "acadians",
+            "subject": "Acadians",
+            "answer": "Descendants of French colonists who settled the Maritime provinces"
+          },
+          {
+            "id": "quebecers",
+            "subject": "Quebecers",
+            "answer": "People of Quebec, most of whom are French-speaking"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to the guide, which description matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.identity-groups.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "According to the guide, which description matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which group matches this guide description: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.identity-groups.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which group matches this guide description: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/who-are-canadians.html",
+        "locator": "Aboriginal Peoples; English and French",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.citizenship-ceremony",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.citizenship-ceremony",
+      "knowledge": {
+        "type": "process-steps",
+        "facts": [
+          {
+            "id": "notice-to-appear-to-take-the-oath-of-citizenship",
+            "subject": "Notice to Appear to Take the Oath of Citizenship",
+            "answer": "The notice gives the date, time, and place of the ceremony"
+          },
+          {
+            "id": "take-the-oath-of-citizenship",
+            "subject": "Take the Oath of Citizenship",
+            "answer": "A required action at the citizenship ceremony"
+          },
+          {
+            "id": "sign-the-oath-form",
+            "subject": "Sign the oath form",
+            "answer": "A form signed at the ceremony"
+          },
+          {
+            "id": "receive-the-citizenship-certificate",
+            "subject": "Receive the citizenship certificate",
+            "answer": "A document received at the ceremony"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.citizenship-ceremony.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which part of the ceremony or notice matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.citizenship-ceremony.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which part of the ceremony or notice matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/applying-citizenship.html",
+        "locator": "After the Test",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.oath-commitments",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.oath-commitments",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "allegiance",
+            "subject": "Allegiance",
+            "answer": "Faithfulness to the Sovereign of Canada and successors"
+          },
+          {
+            "id": "canadian-law",
+            "subject": "Canadian law",
+            "answer": "A commitment to observe the laws of Canada"
+          },
+          {
+            "id": "constitution",
+            "subject": "Constitution",
+            "answer": "The law named in the oath that recognizes and affirms Indigenous and treaty rights"
+          },
+          {
+            "id": "citizenship-duties",
+            "subject": "Citizenship duties",
+            "answer": "Responsibilities the person pledges to fulfil"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What does the guide’s Oath of Citizenship say about {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.oath-commitments.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What does the guide’s Oath of Citizenship say about {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which oath element matches this description: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.oath-commitments.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which oath element matches this description: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/oath-citizenship.html",
+        "locator": "The Oath of Citizenship / Le serment de citoyenneté",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.early-exploration",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.early-exploration",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "john-cabots-expedition-mapped-canadas-eastern-coast",
+            "event": "John Cabot’s expedition mapped Canada’s eastern coast",
+            "year": 1497
+          },
+          {
+            "id": "pierre-de-monts-and-samuel-de-champlain-established-a-settlement-at-st-c",
+            "event": "Pierre de Monts and Samuel de Champlain established a settlement at St. Croix Island",
+            "year": 1604
+          },
+          {
+            "id": "champlain-built-a-fortress-at-what-is-now-qu-bec-city",
+            "event": "Champlain built a fortress at what is now Québec City",
+            "year": 1608
+          },
+          {
+            "id": "the-hudsons-bay-company-received-trading-rights-in-the-hudson-bay-waters",
+            "event": "The Hudson’s Bay Company received trading rights in the Hudson Bay watershed",
+            "year": 1670
+          },
+          {
+            "id": "the-french-and-the-iroquois-made-peace",
+            "event": "The French and the Iroquois made peace",
+            "year": 1701
+          },
+          {
+            "id": "the-british-defeated-the-french-at-the-plains-of-abraham",
+            "event": "The British defeated the French at the Plains of Abraham",
+            "year": 1759
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.early-exploration.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.early-exploration.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "The First Europeans; Exploring a River, Naming Canada; Royal New France; Struggle for a Continent",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.explorers-and-contributions",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.explorers-and-contributions",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "john-cabot",
+            "subject": "John Cabot",
+            "answer": "Mapped Canada’s Atlantic shore in 1497"
+          },
+          {
+            "id": "jacques-cartier",
+            "subject": "Jacques Cartier",
+            "answer": "Explored the St. Lawrence River and heard the word kanata"
+          },
+          {
+            "id": "pierre-de-monts",
+            "subject": "Pierre de Monts",
+            "answer": "Helped establish an early French settlement in Acadia"
+          },
+          {
+            "id": "samuel-de-champlain",
+            "subject": "Samuel de Champlain",
+            "answer": "Built a fortress at what is now Québec City in 1608"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What contribution does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.explorers-and-contributions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What contribution does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Whom does the guide associate with {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.explorers-and-contributions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Whom does the guide associate with {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "The First Europeans; Exploring a River, Naming Canada; Royal New France",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.early-democracy",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.early-democracy",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "the-first-representative-assembly-was-elected-in-halifax",
+            "event": "The first representative assembly was elected in Halifax",
+            "year": 1758
+          },
+          {
+            "id": "the-british-parliament-passed-the-quebec-act",
+            "event": "The British Parliament passed the Quebec Act",
+            "year": 1774
+          },
+          {
+            "id": "the-constitutional-act-divided-the-province-of-quebec-into-upper-and-low",
+            "event": "The Constitutional Act divided the Province of Quebec into Upper and Lower Canada",
+            "year": 1791
+          },
+          {
+            "id": "upper-canada-began-moving-toward-abolishing-slavery",
+            "event": "Upper Canada began moving toward abolishing slavery",
+            "year": 1793
+          },
+          {
+            "id": "the-british-parliament-prohibited-the-buying-and-selling-of-slaves",
+            "event": "The British Parliament prohibited the buying and selling of slaves",
+            "year": 1807
+          },
+          {
+            "id": "slavery-was-abolished-throughout-the-british-empire",
+            "event": "Slavery was abolished throughout the British Empire",
+            "year": 1833
+          },
+          {
+            "id": "upper-and-lower-canada-were-united-as-the-province-of-canada",
+            "event": "Upper and Lower Canada were united as the Province of Canada",
+            "year": 1840
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.early-democracy.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.early-democracy.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "A Tradition of Accommodation; United Empire Loyalists; Abolition of Slavery; Responsible Government",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.loyalists-and-reformers",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.loyalists-and-reformers",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "joseph-brant",
+            "subject": "Joseph Brant",
+            "answer": "Led thousands of Loyalist Mohawk people into Canada"
+          },
+          {
+            "id": "john-graves-simcoe",
+            "subject": "John Graves Simcoe",
+            "answer": "Led Upper Canada as lieutenant governor when it moved toward abolition"
+          },
+          {
+            "id": "lord-durham",
+            "subject": "Lord Durham",
+            "answer": "Recommended merging Upper and Lower Canada and introducing responsible government"
+          },
+          {
+            "id": "louis-hippolyte-la-fontaine",
+            "subject": "Louis-Hippolyte La Fontaine",
+            "answer": "Championed French language rights and headed a responsible government"
+          },
+          {
+            "id": "robert-baldwin",
+            "subject": "Robert Baldwin",
+            "answer": "Worked with La Fontaine for responsible government"
+          },
+          {
+            "id": "joseph-howe",
+            "subject": "Joseph Howe",
+            "answer": "Worked for responsible government in Nova Scotia"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What role does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.loyalists-and-reformers.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What role does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 5,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which person does the guide associate with {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.loyalists-and-reformers.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which person does the guide associate with {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "United Empire Loyalists; Rebellions of 1837–38; Responsible Government",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.confederation-expansion",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.confederation-expansion",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "ontario-quebec-nova-scotia-and-new-brunswick-formed-confederation",
+            "event": "Ontario, Quebec, Nova Scotia and New Brunswick formed Confederation",
+            "year": 1867
+          },
+          {
+            "id": "manitoba-and-the-northwest-territories-joined-canada",
+            "event": "Manitoba and the Northwest Territories joined Canada",
+            "year": 1870
+          },
+          {
+            "id": "british-columbia-joined-canada",
+            "event": "British Columbia joined Canada",
+            "year": 1871
+          },
+          {
+            "id": "prince-edward-island-joined-canada",
+            "event": "Prince Edward Island joined Canada",
+            "year": 1873
+          },
+          {
+            "id": "yukon-territory-was-established",
+            "event": "Yukon Territory was established",
+            "year": 1898
+          },
+          {
+            "id": "alberta-and-saskatchewan-became-provinces",
+            "event": "Alberta and Saskatchewan became provinces",
+            "year": 1905
+          },
+          {
+            "id": "newfoundland-and-labrador-joined-canada",
+            "event": "Newfoundland and Labrador joined Canada",
+            "year": 1949
+          },
+          {
+            "id": "nunavut-was-established",
+            "event": "Nunavut was established",
+            "year": 1999
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.confederation-expansion.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.confederation-expansion.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Confederation; Expansion of the Dominion",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.founding-provinces",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.founding-provinces",
+      "knowledge": {
+        "type": "category-membership",
+        "facts": [
+          {
+            "id": "ontario",
+            "subject": "Ontario",
+            "answer": "One of the original provinces at Confederation"
+          },
+          {
+            "id": "quebec",
+            "subject": "Quebec",
+            "answer": "The French-speaking original province"
+          },
+          {
+            "id": "nova-scotia",
+            "subject": "Nova Scotia",
+            "answer": "The Atlantic original province with Halifax as capital"
+          },
+          {
+            "id": "new-brunswick",
+            "subject": "New Brunswick",
+            "answer": "The Atlantic original province with Fredericton as capital"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description of Confederation matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.founding-provinces.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description of Confederation matches {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Confederation; Expansion of the Dominion",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.westward-growth",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.westward-growth",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "louis-riel-led-an-uprising-after-the-m-tis-of-the-red-river-were-not-con",
+            "event": "Louis Riel led an uprising after the Métis of the Red River were not consulted",
+            "year": 1869
+          },
+          {
+            "id": "the-province-of-manitoba-was-established-after-the-first-m-tis-uprising",
+            "event": "The province of Manitoba was established after the first Métis uprising",
+            "year": 1870
+          },
+          {
+            "id": "the-north-west-mounted-police-were-established",
+            "event": "The North West Mounted Police were established",
+            "year": 1873
+          },
+          {
+            "id": "the-canadian-pacific-railways-last-spike-was-driven",
+            "event": "The Canadian Pacific Railway’s last spike was driven",
+            "year": 1885
+          },
+          {
+            "id": "canada-apologized-for-the-discriminatory-chinese-head-tax",
+            "event": "Canada apologized for the discriminatory Chinese head tax",
+            "year": 2006
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.westward-growth.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.westward-growth.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Challenge in the West; A Railway from Sea to Sea; Moving Westward",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.war-of-1812-people",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.war-of-1812-people",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "isaac-brock",
+            "subject": "Isaac Brock",
+            "answer": "Captured Detroit and died defending at Queenston Heights"
+          },
+          {
+            "id": "tecumseh",
+            "subject": "Tecumseh",
+            "answer": "Led Shawnee who supported the defence of Canada"
+          },
+          {
+            "id": "charles-de-salaberry",
+            "subject": "Charles de Salaberry",
+            "answer": "Led soldiers who turned back American forces at Châteauguay"
+          },
+          {
+            "id": "laura-secord",
+            "subject": "Laura Secord",
+            "answer": "Warned of an American attack before the Battle of Beaver Dams"
+          },
+          {
+            "id": "robert-ross",
+            "subject": "Robert Ross",
+            "answer": "Led the 1814 expedition that burned public buildings in Washington"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.war-of-1812-people.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which person matches this War of 1812 description: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.war-of-1812-people.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which person matches this War of 1812 description: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "The War of 1812: The Fight for Canada",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.women-and-the-vote",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.women-and-the-vote",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "manitoba-became-the-first-province-to-give-women-the-vote",
+            "event": "Manitoba became the first province to give women the vote",
+            "year": 1916
+          },
+          {
+            "id": "some-women-serving-or-related-to-serving-soldiers-received-federal-votin",
+            "event": "Some women serving or related to serving soldiers received federal voting rights",
+            "year": 1917
+          },
+          {
+            "id": "most-canadian-women-citizens-aged-21-or-older-gained-the-federal-vote",
+            "event": "Most Canadian women citizens aged 21 or older gained the federal vote",
+            "year": 1918
+          },
+          {
+            "id": "agnes-macphail-became-the-first-woman-elected-to-the-house-of-commons",
+            "event": "Agnes Macphail became the first woman elected to the House of Commons",
+            "year": 1921
+          },
+          {
+            "id": "quebec-granted-women-the-vote",
+            "event": "Quebec granted women the vote",
+            "year": 1940
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.women-and-the-vote.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.women-and-the-vote.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "Women Get the Vote",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.war-and-remembrance",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.war-and-remembrance",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "canada-formed-an-expeditionary-force-after-the-start-of-the-first-world",
+            "event": "Canada formed an expeditionary force after the start of the First World War",
+            "year": 1914
+          },
+          {
+            "id": "canadian-forces-captured-vimy-ridge",
+            "event": "Canadian forces captured Vimy Ridge",
+            "year": 1917
+          },
+          {
+            "id": "the-first-world-war-ended-in-an-armistice",
+            "event": "The First World War ended in an armistice",
+            "year": 1918
+          },
+          {
+            "id": "a-stock-market-crash-ushered-in-the-great-depression",
+            "event": "A stock market crash ushered in the Great Depression",
+            "year": 1929
+          },
+          {
+            "id": "the-bank-of-canada-was-created",
+            "event": "The Bank of Canada was created",
+            "year": 1934
+          },
+          {
+            "id": "canadian-forces-captured-juno-beach-during-d-day",
+            "event": "Canadian forces captured Juno Beach during D-Day",
+            "year": 1944
+          },
+          {
+            "id": "germany-surrendered-ending-the-war-in-europe",
+            "event": "Germany surrendered, ending the war in Europe",
+            "year": 1945
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.war-and-remembrance.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.war-and-remembrance.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "The First World War; Between the Wars; The Second World War",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.world-war-contributions",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.world-war-contributions",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "vimy-ridge",
+            "subject": "Vimy Ridge",
+            "answer": "A 1917 battle won by the Canadian Corps"
+          },
+          {
+            "id": "juno-beach",
+            "subject": "Juno Beach",
+            "answer": "The Normandy landing beach captured by Canadian troops in 1944"
+          },
+          {
+            "id": "the-netherlands",
+            "subject": "The Netherlands",
+            "answer": "A country liberated with help from the Canadian Army in 1944–45"
+          },
+          {
+            "id": "in-flanders-fields",
+            "subject": "In Flanders Fields",
+            "answer": "A poem composed by Canadian medical officer John McCrae"
+          },
+          {
+            "id": "remembrance-day",
+            "subject": "Remembrance Day",
+            "answer": "A November occasion for remembering those who served and died"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description in the guide matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.world-war-contributions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description in the guide matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which wartime subject matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.world-war-contributions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which wartime subject matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-history.html",
+        "locator": "The First World War; The Second World War",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.postwar-milestones",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.postwar-milestones",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "the-federal-government-introduced-unemployment-insurance",
+            "event": "The federal government introduced unemployment insurance",
+            "year": 1940
+          },
+          {
+            "id": "oil-was-discovered-in-alberta-helping-launch-the-modern-energy-industry",
+            "event": "Oil was discovered in Alberta, helping launch the modern energy industry",
+            "year": 1947
+          },
+          {
+            "id": "japanese-canadians-gained-the-right-to-vote",
+            "event": "Japanese Canadians gained the right to vote",
+            "year": 1948
+          },
+          {
+            "id": "indigenous-peoples-gained-the-federal-vote",
+            "event": "Indigenous peoples gained the federal vote",
+            "year": 1960
+          },
+          {
+            "id": "parliament-created-the-royal-commission-on-bilingualism-and-biculturalis",
+            "event": "Parliament created the Royal Commission on Bilingualism and Biculturalism",
+            "year": 1963
+          },
+          {
+            "id": "the-canada-and-quebec-pension-plans-were-introduced",
+            "event": "The Canada and Quebec Pension Plans were introduced",
+            "year": 1965
+          },
+          {
+            "id": "parliament-passed-the-official-languages-act",
+            "event": "Parliament passed the Official Languages Act",
+            "year": 1969
+          },
+          {
+            "id": "canada-helped-found-la-francophonie",
+            "event": "Canada helped found La Francophonie",
+            "year": 1970
+          },
+          {
+            "id": "a-quebec-sovereignty-referendum-was-defeated",
+            "event": "A Quebec sovereignty referendum was defeated",
+            "year": 1980
+          },
+          {
+            "id": "the-constitution-was-amended",
+            "event": "The Constitution was amended",
+            "year": 1982
+          },
+          {
+            "id": "a-second-quebec-sovereignty-referendum-was-defeated",
+            "event": "A second Quebec sovereignty referendum was defeated",
+            "year": 1995
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.postwar-milestones.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.postwar-milestones.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/modern-canada.html",
+        "locator": "Trade and Economic Growth; Canada and Quebec; A Changing Society",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.canadian-inventions",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.canadian-inventions",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "alexander-graham-bell",
+            "subject": "Alexander Graham Bell",
+            "answer": "Developed the idea of the telephone while at his Canadian summer house"
+          },
+          {
+            "id": "joseph-armand-bombardier",
+            "subject": "Joseph-Armand Bombardier",
+            "answer": "Invented the snowmobile"
+          },
+          {
+            "id": "sandford-fleming",
+            "subject": "Sandford Fleming",
+            "answer": "Developed the worldwide system of standard time zones"
+          },
+          {
+            "id": "mathew-evans-and-henry-woodward",
+            "subject": "Mathew Evans and Henry Woodward",
+            "answer": "Invented an early electric light bulb"
+          },
+          {
+            "id": "reginald-fessenden",
+            "subject": "Reginald Fessenden",
+            "answer": "Sent the first wireless voice message"
+          },
+          {
+            "id": "john-a-hopps",
+            "subject": "John A. Hopps",
+            "answer": "Invented an early cardiac pacemaker"
+          },
+          {
+            "id": "spar-aerospace-and-national-research-council",
+            "subject": "SPAR Aerospace and National Research Council",
+            "answer": "Developed the Canadarm"
+          },
+          {
+            "id": "mike-lazaridis-and-jim-balsillie",
+            "subject": "Mike Lazaridis and Jim Balsillie",
+            "answer": "Associated with Research In Motion and the BlackBerry"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which contribution does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.canadian-inventions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which contribution does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Who or which organization matches this contribution: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.canadian-inventions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Who or which organization matches this contribution: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/modern-canada.html",
+        "locator": "Great Canadian Discoveries and Inventions",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.canadian-arts-and-sport",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.canadian-arts-and-sport",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "group-of-seven",
+            "subject": "Group of Seven",
+            "answer": "Painters known for Canadian wilderness landscapes"
+          },
+          {
+            "id": "emily-carr",
+            "subject": "Emily Carr",
+            "answer": "Artist who painted West Coast forests and Indigenous subjects"
+          },
+          {
+            "id": "kenojuak-ashevak",
+            "subject": "Kenojuak Ashevak",
+            "answer": "Pioneer of modern Inuit printmaking and sculpture"
+          },
+          {
+            "id": "james-naismith",
+            "subject": "James Naismith",
+            "answer": "Canadian credited with inventing basketball"
+          },
+          {
+            "id": "terry-fox",
+            "subject": "Terry Fox",
+            "answer": "Began the Marathon of Hope to raise money for cancer research"
+          },
+          {
+            "id": "rick-hansen",
+            "subject": "Rick Hansen",
+            "answer": "Circled the globe in a wheelchair to raise funds for spinal cord research"
+          },
+          {
+            "id": "paul-henderson",
+            "subject": "Paul Henderson",
+            "answer": "Scored the winning goal in the 1972 Canada–Soviet Summit Series"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which achievement or description is associated with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.canadian-arts-and-sport.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which achievement or description is associated with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which person or group is associated with {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.canadian-arts-and-sport.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which person or group is associated with {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/modern-canada.html",
+        "locator": "Arts and Culture in Canada",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.division-of-powers",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.division-of-powers",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "national-defence",
+            "subject": "National defence",
+            "answer": "Federal government"
+          },
+          {
+            "id": "foreign-policy",
+            "subject": "Foreign policy",
+            "answer": "Federal government"
+          },
+          {
+            "id": "public-education",
+            "subject": "Public education",
+            "answer": "Provincial government"
+          },
+          {
+            "id": "highways",
+            "subject": "Highways",
+            "answer": "Provincial government"
+          },
+          {
+            "id": "local-garbage-collection",
+            "subject": "Local garbage collection",
+            "answer": "Municipal government"
+          },
+          {
+            "id": "local-street-planning",
+            "subject": "Local street planning",
+            "answer": "Municipal government"
+          },
+          {
+            "id": "immigration",
+            "subject": "Immigration",
+            "answer": "Shared federal and provincial jurisdiction"
+          },
+          {
+            "id": "agriculture",
+            "subject": "Agriculture",
+            "answer": "Shared federal and provincial jurisdiction"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which level of government or jurisdiction does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.division-of-powers.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which level of government or jurisdiction does the guide associate with {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/how-canadians-govern-themselves.html",
+        "locator": "Federal State",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.parliament-institutions",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.parliament-institutions",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "sovereign",
+            "subject": "Sovereign",
+            "answer": "Head of state and one part of Parliament"
+          },
+          {
+            "id": "house-of-commons",
+            "subject": "House of Commons",
+            "answer": "Elected federal chamber"
+          },
+          {
+            "id": "senate",
+            "subject": "Senate",
+            "answer": "Federal chamber whose members are appointed"
+          },
+          {
+            "id": "prime-minister",
+            "subject": "Prime Minister",
+            "answer": "Head of government who selects Cabinet ministers"
+          },
+          {
+            "id": "governor-general",
+            "subject": "Governor General",
+            "answer": "The Sovereign’s representative at the federal level"
+          },
+          {
+            "id": "lieutenant-governor",
+            "subject": "Lieutenant Governor",
+            "answer": "The Sovereign’s representative in a province"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which role matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.parliament-institutions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which role matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which institution or office matches this role: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.parliament-institutions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which institution or office matches this role: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/how-canadians-govern-themselves.html",
+        "locator": "Parliamentary Democracy; Constitutional Monarchy",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.bill-stages",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.bill-stages",
+      "knowledge": {
+        "type": "process-steps",
+        "facts": [
+          {
+            "id": "first-reading",
+            "subject": "First reading",
+            "answer": "The bill is read for the first time and printed"
+          },
+          {
+            "id": "second-reading",
+            "subject": "Second reading",
+            "answer": "Members debate the principle of the bill"
+          },
+          {
+            "id": "committee-stage",
+            "subject": "Committee stage",
+            "answer": "Committee members examine clauses of the bill"
+          },
+          {
+            "id": "report-stage",
+            "subject": "Report stage",
+            "answer": "Members can propose other amendments"
+          },
+          {
+            "id": "third-reading",
+            "subject": "Third reading",
+            "answer": "Members debate and vote on the bill"
+          },
+          {
+            "id": "senate-stage",
+            "subject": "Senate stage",
+            "answer": "The bill follows a similar process in the Senate"
+          },
+          {
+            "id": "royal-assent",
+            "subject": "Royal assent",
+            "answer": "The bill receives approval after both houses pass it"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What happens at {{fact.subject}} in the guide’s legislative process?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.bill-stages.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What happens at {{fact.subject}} in the guide’s legislative process?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which legislative stage matches this description: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.bill-stages.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which legislative stage matches this description: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/how-canadians-govern-themselves.html",
+        "locator": "How a bill becomes law — The Legislative Process",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.bill-stage-numbers",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.bill-stage-numbers",
+      "knowledge": {
+        "type": "process-steps",
+        "facts": [
+          {
+            "id": "first-reading",
+            "subject": "First reading",
+            "answer": 1
+          },
+          {
+            "id": "second-reading",
+            "subject": "Second reading",
+            "answer": 2
+          },
+          {
+            "id": "committee-stage",
+            "subject": "Committee stage",
+            "answer": 3
+          },
+          {
+            "id": "report-stage",
+            "subject": "Report stage",
+            "answer": 4
+          },
+          {
+            "id": "third-reading",
+            "subject": "Third reading",
+            "answer": 5
+          },
+          {
+            "id": "senate-stage",
+            "subject": "Senate stage",
+            "answer": 6
+          },
+          {
+            "id": "royal-assent",
+            "subject": "Royal assent",
+            "answer": 7
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "In the guide’s numbered process, what step number is {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.bill-stage-numbers.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "In the guide’s numbered process, what step number is {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which stage is step {{fact.answer}} in the guide’s process?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.bill-stage-numbers.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which stage is step {{fact.answer}} in the guide’s process?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/how-canadians-govern-themselves.html",
+        "locator": "How a bill becomes law — The Legislative Process",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.election-vocabulary",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.election-vocabulary",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "riding",
+            "subject": "Riding",
+            "answer": "A geographic electoral district represented by one member of Parliament"
+          },
+          {
+            "id": "candidate",
+            "subject": "Candidate",
+            "answer": "A person running for elected office"
+          },
+          {
+            "id": "member-of-parliament",
+            "subject": "Member of Parliament",
+            "answer": "A person elected to represent an electoral district in the House of Commons"
+          },
+          {
+            "id": "majority-government",
+            "subject": "Majority government",
+            "answer": "A government whose party holds at least half the seats in the House of Commons"
+          },
+          {
+            "id": "minority-government",
+            "subject": "Minority government",
+            "answer": "A government whose party holds less than half the seats in the House of Commons"
+          },
+          {
+            "id": "official-opposition",
+            "subject": "Official Opposition",
+            "answer": "The opposition party with the most members in the House of Commons"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which definition matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.election-vocabulary.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which definition matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which election term matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.election-vocabulary.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which election term matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/federal-elections.html",
+        "locator": "Federal Elections; After an Election",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.voting-procedures",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.voting-procedures",
+      "knowledge": {
+        "type": "process-steps",
+        "facts": [
+          {
+            "id": "voter-information-card",
+            "subject": "Voter information card",
+            "answer": "Shows a registered elector when and where to vote"
+          },
+          {
+            "id": "advance-poll",
+            "subject": "Advance poll",
+            "answer": "A way to vote before election day"
+          },
+          {
+            "id": "polling-station",
+            "subject": "Polling station",
+            "answer": "The place an elector goes to cast a ballot"
+          },
+          {
+            "id": "marking-the-ballot",
+            "subject": "Marking the ballot",
+            "answer": "Marking an X next to a chosen candidate"
+          },
+          {
+            "id": "secret-ballot",
+            "subject": "Secret ballot",
+            "answer": "Marking a ballot behind a screen without others seeing the choice"
+          },
+          {
+            "id": "ballot-box",
+            "subject": "Ballot box",
+            "answer": "The container into which the marked ballot is deposited"
+          },
+          {
+            "id": "counting-ballots",
+            "subject": "Counting ballots",
+            "answer": "The step after polls close when results are determined"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description matches {{fact.subject}} in the guide?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.voting-procedures.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description matches {{fact.subject}} in the guide?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which voting step or object matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.voting-procedures.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which voting step or object matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/federal-elections.html",
+        "locator": "Voting Procedures During an Election Period",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.election-organizations",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.election-organizations",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "elections-canada",
+            "subject": "Elections Canada",
+            "answer": "Creates voters’ lists from the National Register of Electors"
+          },
+          {
+            "id": "governor-general",
+            "subject": "Governor General",
+            "answer": "Ordinarily invites a party leader to form a government after an election"
+          },
+          {
+            "id": "prime-minister",
+            "subject": "Prime Minister",
+            "answer": "Selects ministers for the federal Cabinet"
+          },
+          {
+            "id": "opposition-parties",
+            "subject": "Opposition parties",
+            "answer": "Question or seek to improve government proposals"
+          },
+          {
+            "id": "voters",
+            "subject": "Voters",
+            "answer": "Choose representatives in their electoral districts"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What role does the guide assign to {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.election-organizations.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What role does the guide assign to {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which actor matches this role: {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.election-organizations.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which actor matches this role: {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/federal-elections.html",
+        "locator": "Voting; After an Election",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.justice-principles",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.justice-principles",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "presumption-of-innocence",
+            "subject": "Presumption of innocence",
+            "answer": "A person is considered innocent until proven guilty"
+          },
+          {
+            "id": "due-process",
+            "subject": "Due process",
+            "answer": "Government must respect legal rights owed to a person"
+          },
+          {
+            "id": "rule-of-law",
+            "subject": "Rule of law",
+            "answer": "Laws apply to everyone, including public officials"
+          },
+          {
+            "id": "courts",
+            "subject": "Courts",
+            "answer": "Institutions that settle disputes"
+          },
+          {
+            "id": "police",
+            "subject": "Police",
+            "answer": "Officials who enforce laws and help keep people safe"
+          },
+          {
+            "id": "lawyers",
+            "subject": "Lawyers",
+            "answer": "People who can assist with legal problems and represent someone in court"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description best matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.justice-principles.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description best matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which principle or institution matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.justice-principles.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which principle or institution matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/justice-system.html",
+        "locator": "The Justice System; Courts; Police; Getting Legal Help",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.court-roles",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.court-roles",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "supreme-court-of-canada",
+            "subject": "Supreme Court of Canada",
+            "answer": "Canada’s highest court"
+          },
+          {
+            "id": "federal-court-of-canada",
+            "subject": "Federal Court of Canada",
+            "answer": "Court that deals with matters concerning the federal government"
+          },
+          {
+            "id": "provincial-courts",
+            "subject": "Provincial courts",
+            "answer": "Courts that may deal with lesser offences"
+          },
+          {
+            "id": "family-courts",
+            "subject": "Family courts",
+            "answer": "Courts that deal with family matters"
+          },
+          {
+            "id": "traffic-courts",
+            "subject": "Traffic courts",
+            "answer": "Courts for traffic matters"
+          },
+          {
+            "id": "small-claims-courts",
+            "subject": "Small claims courts",
+            "answer": "Courts for civil claims involving relatively small sums"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "How does the guide describe {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.court-roles.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "How does the guide describe {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which court matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.court-roles.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which court matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/justice-system.html",
+        "locator": "Courts",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.symbols-and-meanings",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.symbols-and-meanings",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "maple-leaf",
+            "subject": "Maple leaf",
+            "answer": "A familiar national emblem appearing on uniforms and memorials"
+          },
+          {
+            "id": "a-mari-usque-ad-mare",
+            "subject": "A Mari Usque Ad Mare",
+            "answer": "Canada’s motto meaning from sea to sea"
+          },
+          {
+            "id": "beaver",
+            "subject": "Beaver",
+            "answer": "An animal emblem associated with the Hudson’s Bay Company and five-cent coin"
+          },
+          {
+            "id": "o-canada",
+            "subject": "O Canada",
+            "answer": "The national anthem"
+          },
+          {
+            "id": "god-save-the-king",
+            "subject": "God Save the King",
+            "answer": "The royal anthem"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What description matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.symbols-and-meanings.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What description matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which Canadian symbol matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.symbols-and-meanings.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which Canadian symbol matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadian-symbols.html",
+        "locator": "The Maple Leaf; Coat of Arms and Motto; The Beaver; National Anthem; Royal Anthem",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.symbols-history",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.symbols-history",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "current-maple-leaf-flag",
+            "subject": "Current maple-leaf flag",
+            "answer": "First raised in 1965"
+          },
+          {
+            "id": "quebec-flag-with-fleur-de-lys",
+            "subject": "Quebec flag with fleur-de-lys",
+            "answer": "Adopted by Quebec in 1948"
+          },
+          {
+            "id": "peace-tower",
+            "subject": "Peace Tower",
+            "answer": "Completed in memory of the First World War"
+          },
+          {
+            "id": "stanley-cup",
+            "subject": "Stanley Cup",
+            "answer": "Hockey trophy donated by Lord Stanley"
+          },
+          {
+            "id": "clarkson-cup",
+            "subject": "Clarkson Cup",
+            "answer": "Women’s hockey trophy established by Adrienne Clarkson"
+          },
+          {
+            "id": "lacrosse",
+            "subject": "Lacrosse",
+            "answer": "The official summer sport"
+          },
+          {
+            "id": "hockey",
+            "subject": "Hockey",
+            "answer": "The national winter sport"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What fact does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.symbols-history.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What fact does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which Canadian symbol or sport matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.symbols-history.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which Canadian symbol or sport matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadian-symbols.html",
+        "locator": "Flags in Canada; The Fleur-de-lys; Popular Sports; Parliament Buildings",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.symbols-milestones",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.symbols-milestones",
+      "knowledge": {
+        "type": "historical-events",
+        "facts": [
+          {
+            "id": "red-and-white-became-canadas-national-colours",
+            "event": "Red and white became Canada’s national colours",
+            "year": 1921
+          },
+          {
+            "id": "the-new-canadian-flag-was-first-raised",
+            "event": "The new Canadian flag was first raised",
+            "year": 1965
+          },
+          {
+            "id": "the-order-of-canada-was-established",
+            "event": "The Order of Canada was established",
+            "year": 1967
+          },
+          {
+            "id": "parliament-passed-the-official-languages-act",
+            "event": "Parliament passed the Official Languages Act",
+            "year": 1969
+          },
+          {
+            "id": "o-canada-was-proclaimed-the-national-anthem",
+            "event": "O Canada was proclaimed the national anthem",
+            "year": 1980
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+            }
+          ],
+          "answerField": "year",
+          "distractorPoolField": "year",
+          "misconception": "citizenship.symbols-milestones.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, in what year did this happen: {{fact.event}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to Discover Canada, which event occurred in {{fact.year}}?"
+            }
+          ],
+          "answerField": "event",
+          "distractorPoolField": "event",
+          "misconception": "citizenship.symbols-milestones.nearby-fact",
+          "feedback": "Review the order of events in this chapter, then place the named event on that timeline.",
+          "hint": "Place the event on the chapter timeline and compare the neighbouring dates.",
+          "explanation": "{{fact.event}} occurred in {{fact.year}}.",
+          "accessibility": {
+            "screenReaderText": "According to Discover Canada, which event occurred in {{fact.year}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadian-symbols.html",
+        "locator": "Flags in Canada; Canada’s Official Languages; National Anthem; The Order of Canada and Other Honours",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.holidays-fixed-dates",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.holidays-fixed-dates",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "new-years-day",
+            "subject": "New Year’s Day",
+            "answer": "January 1"
+          },
+          {
+            "id": "sir-john-a-macdonald-day",
+            "subject": "Sir John A. Macdonald Day",
+            "answer": "January 11"
+          },
+          {
+            "id": "vimy-day",
+            "subject": "Vimy Day",
+            "answer": "April 9"
+          },
+          {
+            "id": "f-te-nationale-in-quebec",
+            "subject": "Fête Nationale in Quebec",
+            "answer": "June 24"
+          },
+          {
+            "id": "canada-day",
+            "subject": "Canada Day",
+            "answer": "July 1"
+          },
+          {
+            "id": "remembrance-day",
+            "subject": "Remembrance Day",
+            "answer": "November 11"
+          },
+          {
+            "id": "sir-wilfrid-laurier-day",
+            "subject": "Sir Wilfrid Laurier Day",
+            "answer": "November 20"
+          },
+          {
+            "id": "christmas-day",
+            "subject": "Christmas Day",
+            "answer": "December 25"
+          },
+          {
+            "id": "boxing-day",
+            "subject": "Boxing Day",
+            "answer": "December 26"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to the guide, on what date is {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.holidays-fixed-dates.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "According to the guide, on what date is {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which day in the guide falls on {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.holidays-fixed-dates.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which day in the guide falls on {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadian-symbols.html",
+        "locator": "National Public Holidays and Other Important Dates",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.victoria-cross-recipients",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.victoria-cross-recipients",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "alexander-roberts-dunn",
+            "subject": "Alexander Roberts Dunn",
+            "answer": "The first Canadian recipient of the Victoria Cross"
+          },
+          {
+            "id": "william-hall",
+            "subject": "William Hall",
+            "answer": "The first Black recipient of the Victoria Cross"
+          },
+          {
+            "id": "filip-konowal",
+            "subject": "Filip Konowal",
+            "answer": "A Ukrainian-born Canadian soldier decorated for courage at Hill 70"
+          },
+          {
+            "id": "billy-bishop",
+            "subject": "Billy Bishop",
+            "answer": "A flying ace who received the Victoria Cross"
+          },
+          {
+            "id": "paul-triquet",
+            "subject": "Paul Triquet",
+            "answer": "An officer honoured for his leadership at Casa Berardi"
+          },
+          {
+            "id": "robert-hampton-gray",
+            "subject": "Robert Hampton Gray",
+            "answer": "A naval pilot honoured after a 1945 action against a Japanese warship"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What distinction does the guide associate with {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.victoria-cross-recipients.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What distinction does the guide associate with {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 5,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which Victoria Cross recipient matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.victoria-cross-recipients.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which Victoria Cross recipient matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadian-symbols.html",
+        "locator": "The Victoria Cross",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.trade-and-economy",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.trade-and-economy",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "service-industries",
+            "subject": "Service industries",
+            "answer": "Provide jobs in areas such as banking, transportation, and education"
+          },
+          {
+            "id": "manufacturing-industries",
+            "subject": "Manufacturing industries",
+            "answer": "Make goods such as machinery and automobiles"
+          },
+          {
+            "id": "natural-resources-industries",
+            "subject": "Natural resources industries",
+            "answer": "Include activities such as forestry, mining, and fishing"
+          },
+          {
+            "id": "international-trade",
+            "subject": "International trade",
+            "answer": "An important contributor to Canada’s standard of living"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which description in the guide matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.trade-and-economy.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which description in the guide matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which economic concept matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.trade-and-economy.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which economic concept matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-economy.html",
+        "locator": "A Trading Nation; Canada’s Economy Includes Three Main Types of Industries",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.provincial-capitals",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.provincial-capitals",
+      "knowledge": {
+        "type": "entity-attributes",
+        "facts": [
+          {
+            "id": "newfoundland-and-labrador",
+            "subject": "Newfoundland and Labrador",
+            "answer": "St. John’s"
+          },
+          {
+            "id": "prince-edward-island",
+            "subject": "Prince Edward Island",
+            "answer": "Charlottetown"
+          },
+          {
+            "id": "nova-scotia",
+            "subject": "Nova Scotia",
+            "answer": "Halifax"
+          },
+          {
+            "id": "new-brunswick",
+            "subject": "New Brunswick",
+            "answer": "Fredericton"
+          },
+          {
+            "id": "quebec",
+            "subject": "Quebec",
+            "answer": "Québec City"
+          },
+          {
+            "id": "ontario",
+            "subject": "Ontario",
+            "answer": "Toronto"
+          },
+          {
+            "id": "manitoba",
+            "subject": "Manitoba",
+            "answer": "Winnipeg"
+          },
+          {
+            "id": "saskatchewan",
+            "subject": "Saskatchewan",
+            "answer": "Regina"
+          },
+          {
+            "id": "alberta",
+            "subject": "Alberta",
+            "answer": "Edmonton"
+          },
+          {
+            "id": "british-columbia",
+            "subject": "British Columbia",
+            "answer": "Victoria"
+          },
+          {
+            "id": "yukon",
+            "subject": "Yukon",
+            "answer": "Whitehorse"
+          },
+          {
+            "id": "northwest-territories",
+            "subject": "Northwest Territories",
+            "answer": "Yellowknife"
+          },
+          {
+            "id": "nunavut",
+            "subject": "Nunavut",
+            "answer": "Iqaluit"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What is the capital of {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.provincial-capitals.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What is the capital of {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which province or territory has {{fact.answer}} as its capital?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.provincial-capitals.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which province or territory has {{fact.answer}} as its capital?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-regions.html",
+        "locator": "Provinces and Territories",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.province-regions",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.province-regions",
+      "knowledge": {
+        "type": "category-membership",
+        "facts": [
+          {
+            "id": "newfoundland-and-labrador",
+            "subject": "Newfoundland and Labrador",
+            "answer": "Atlantic provinces"
+          },
+          {
+            "id": "prince-edward-island",
+            "subject": "Prince Edward Island",
+            "answer": "Atlantic provinces"
+          },
+          {
+            "id": "nova-scotia",
+            "subject": "Nova Scotia",
+            "answer": "Atlantic provinces"
+          },
+          {
+            "id": "new-brunswick",
+            "subject": "New Brunswick",
+            "answer": "Atlantic provinces"
+          },
+          {
+            "id": "quebec",
+            "subject": "Quebec",
+            "answer": "Central Canada"
+          },
+          {
+            "id": "ontario",
+            "subject": "Ontario",
+            "answer": "Central Canada"
+          },
+          {
+            "id": "manitoba",
+            "subject": "Manitoba",
+            "answer": "Prairie provinces"
+          },
+          {
+            "id": "saskatchewan",
+            "subject": "Saskatchewan",
+            "answer": "Prairie provinces"
+          },
+          {
+            "id": "alberta",
+            "subject": "Alberta",
+            "answer": "Prairie provinces"
+          },
+          {
+            "id": "british-columbia",
+            "subject": "British Columbia",
+            "answer": "West Coast"
+          },
+          {
+            "id": "yukon",
+            "subject": "Yukon",
+            "answer": "Northern Territories"
+          },
+          {
+            "id": "northwest-territories",
+            "subject": "Northwest Territories",
+            "answer": "Northern Territories"
+          },
+          {
+            "id": "nunavut",
+            "subject": "Nunavut",
+            "answer": "Northern Territories"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "According to the guide, which region includes {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.province-regions.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "According to the guide, which region includes {{fact.subject}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-regions.html",
+        "locator": "The Atlantic provinces; Central Canada; The Prairie Provinces; The West Coast; The Northern Territories",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.regional-landmarks",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.regional-landmarks",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "prince-edward-island",
+            "subject": "Prince Edward Island",
+            "answer": "The province linked to the Confederation Bridge and Anne of Green Gables"
+          },
+          {
+            "id": "nova-scotia",
+            "subject": "Nova Scotia",
+            "answer": "The province associated with the Bay of Fundy’s exceptionally high tides"
+          },
+          {
+            "id": "new-brunswick",
+            "subject": "New Brunswick",
+            "answer": "The only officially bilingual province"
+          },
+          {
+            "id": "saskatchewan",
+            "subject": "Saskatchewan",
+            "answer": "The Prairie province associated with large grain and potash production"
+          },
+          {
+            "id": "alberta",
+            "subject": "Alberta",
+            "answer": "The Prairie province associated with Banff National Park and oil sands"
+          },
+          {
+            "id": "british-columbia",
+            "subject": "British Columbia",
+            "answer": "The province with the Port of Vancouver on the Pacific coast"
+          },
+          {
+            "id": "yukon",
+            "subject": "Yukon",
+            "answer": "The territory containing Mount Logan"
+          },
+          {
+            "id": "northwest-territories",
+            "subject": "Northwest Territories",
+            "answer": "The territory whose capital is Yellowknife"
+          },
+          {
+            "id": "nunavut",
+            "subject": "Nunavut",
+            "answer": "The territory established in 1999 with capital Iqaluit"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which guide description matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.regional-landmarks.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which guide description matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 4,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which province or territory matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.regional-landmarks.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which province or territory matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-regions.html",
+        "locator": "The Atlantic provinces; Central Canada; The Prairie Provinces; The West Coast; The Northern Territories",
+        "reviewStatus": "draft"
+      }
+    },
+    {
+      "id": "citizenship.regional-waterways",
+      "version": 1,
+      "type": "fact-collection-single-select",
+      "skill": "citizenship.regional-waterways",
+      "knowledge": {
+        "type": "relationships",
+        "facts": [
+          {
+            "id": "atlantic-ocean",
+            "subject": "Atlantic Ocean",
+            "answer": "Ocean bordering Canada to the east"
+          },
+          {
+            "id": "pacific-ocean",
+            "subject": "Pacific Ocean",
+            "answer": "Ocean bordering Canada to the west"
+          },
+          {
+            "id": "arctic-ocean",
+            "subject": "Arctic Ocean",
+            "answer": "Ocean bordering Canada to the north"
+          },
+          {
+            "id": "st-lawrence-river",
+            "subject": "St. Lawrence River",
+            "answer": "River along which much of Quebec’s population lives"
+          },
+          {
+            "id": "mackenzie-river",
+            "subject": "Mackenzie River",
+            "answer": "Major river system of the Northwest Territories"
+          },
+          {
+            "id": "ottawa-river",
+            "subject": "Ottawa River",
+            "answer": "River on which the national capital is located"
+          }
+        ]
+      },
+      "variants": [
+        {
+          "id": "identify-answer",
+          "difficulty": 2,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "What description in the guide matches {{fact.subject}}?"
+            }
+          ],
+          "answerField": "answer",
+          "distractorPoolField": "answer",
+          "misconception": "citizenship.regional-waterways.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "What description in the guide matches {{fact.subject}}?"
+          }
+        },
+        {
+          "id": "identify-subject",
+          "difficulty": 3,
+          "prompt": [
+            {
+              "type": "text",
+              "value": "Which ocean or river matches {{fact.answer}}?"
+            }
+          ],
+          "answerField": "subject",
+          "distractorPoolField": "subject",
+          "misconception": "citizenship.regional-waterways.nearby-fact",
+          "feedback": "That choice describes another item in this topic. Match the detail in the question to its specific source fact.",
+          "hint": "Think about the specific link described in this chapter.",
+          "explanation": "{{fact.subject}} — {{fact.answer}}.",
+          "accessibility": {
+            "screenReaderText": "Which ocean or river matches {{fact.answer}}?"
+          }
+        }
+      ],
+      "source": {
+        "title": "Discover Canada: The Rights and Responsibilities of Citizenship",
+        "url": "https://www.canada.ca/en/immigration-refugees-citizenship/corporate/publications-manuals/discover-canada/read-online/canadas-regions.html",
+        "locator": "Canada’s Regions; The Atlantic provinces; Central Canada; The Northern Territories",
+        "reviewStatus": "draft"
+      }
+    }
+  ]
+}
