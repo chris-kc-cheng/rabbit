@@ -77,6 +77,20 @@ def test_learner_can_start_a_twenty_question_discover_canada_session():
     assert len(response.json()["questions"]) == 20
 
 
+def test_learner_can_start_a_twenty_question_discover_canada_session():
+    _, learner_headers, learner = family()
+    admin_headers, _ = login()
+    client.put("/api/v1/admin/content", headers=admin_headers, json={"include_drafts": True})
+
+    response = client.post("/api/v1/sessions", headers=learner_headers, json={
+        "learner_id": learner["id"], "subject": "canadian-citizenship",
+        "seed": 8675309, "count": 20,
+    })
+
+    assert response.status_code == 201, response.text
+    assert len(response.json()["questions"]) == 20
+
+
 def test_role_login_family_isolation_password_reset_and_progress():
     parent_headers, learner_headers, learner = family()
     session = client.post("/api/v1/sessions", headers=learner_headers, json={"learner_id":learner["id"],"seed":42,"count":2}).json()

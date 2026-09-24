@@ -106,7 +106,9 @@ working in this repository, not production-ready at population scale.
   bank. A parent can also practice under their own profile, listed after the
   children, with an explicit route back to the family dashboard. Parent-owned
   progress remains on a parent-authorized route; learner-only progress routes do
-  not accept parent credentials.
+  not accept parent credentials. Starting self-practice switches the parent into
+  the learner interface while retaining that parent-authorized progress route,
+  and the return control restores the family dashboard.
 - [x] Parent-only, topic-filtered PDF worksheet generation for 1–50 reproducible
   questions, with a separate answer key and worked explanations.
 - [x] Parents can choose one, several, or all topics from a learner's default
