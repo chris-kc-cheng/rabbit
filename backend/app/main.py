@@ -361,7 +361,7 @@ def publish_question_bank(subject: str, _: dict = Depends(require_role("admin"))
 def delete_question_bank(subject: str, _: dict = Depends(require_role("admin")),
                          db: Session = Depends(get_db)) -> None:
     try:
-        ContentRepository(db).delete_draft(subject)
+        ContentRepository(db).delete_bank(subject)
     except ValueError as error:
         raise HTTPException(404 if "not found" in str(error) else 409, str(error)) from None
 

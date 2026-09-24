@@ -268,7 +268,7 @@ def test_ontario_grade_5_sample_imports():
     assert response.json()["templates_imported"] == 264
 
 
-def test_admin_can_replace_then_publish_a_draft_but_published_bank_is_immutable():
+def test_admin_can_replace_publish_and_delete_a_bank_but_not_edit_published_content():
     headers, _ = login()
     bank = json.loads((Path(__file__).parents[2] / "content/math.question-bank.json").read_text())
     bank.update(subject="math.review", title="Review Math", publicationStatus="draft")
@@ -283,9 +283,10 @@ def test_admin_can_replace_then_publish_a_draft_but_published_bank_is_immutable(
 
     published = client.post("/api/v1/admin/question-banks/math.review/publish", headers=headers)
     assert published.json()["publication_status"] == "published"
-    assert client.delete("/api/v1/admin/question-banks/math.review", headers=headers).status_code == 409
     conflict = client.post("/api/v1/admin/questions/import", headers=headers, json={"document": bank})
     assert conflict.status_code == 409 and "published" in conflict.json()["detail"]
+    assert client.delete("/api/v1/admin/question-banks/math.review", headers=headers).status_code == 204
+    assert all(item["subject"] != "math.review" for item in client.get("/api/v1/admin/question-banks", headers=headers).json())
 
 
 def test_admin_can_import_a_draft_override_after_restoring_a_built_in_bank():

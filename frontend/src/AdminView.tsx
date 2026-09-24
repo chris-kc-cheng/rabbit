@@ -2,20 +2,64 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { api } from "./api";
 import { QuestionVisual } from "./QuestionVisual";
 import { MathBlock } from "./MathBlock";
-import type { AdminBankPreview, ImportError, QuestionBankAdmin, User } from "./types";
+import type {
+  AdminBankPreview,
+  ImportError,
+  QuestionBankAdmin,
+  User,
+} from "./types";
 
 type Section = "overview" | "curriculum" | "users" | "settings";
 
-
-function UserMenu({ user, onView, onEdit, onReset }: { user: User; onView: (user: User) => Promise<void>; onEdit: (user: User) => void; onReset: (user: User) => Promise<void> }) {
-  return <details className="action-menu"><summary aria-label={`Actions for ${user.display_name}`}>•••</summary><div><button disabled={user.disabled} onClick={() => void onView(user)}>View as</button><button onClick={() => onEdit({ ...user })}>Edit account</button><button onClick={() => void onReset(user)}>Reset password</button></div></details>;
+function UserMenu({
+  user,
+  open,
+  onToggle,
+  onView,
+  onEdit,
+  onReset,
+}: {
+  user: User;
+  open: boolean;
+  onToggle: () => void;
+  onView: (user: User) => Promise<void>;
+  onEdit: (user: User) => void;
+  onReset: (user: User) => Promise<void>;
+}) {
+  return (
+    <details
+      className="action-menu"
+      open={open}
+      onToggle={(event) => {
+        if (event.currentTarget.open !== open) onToggle();
+      }}
+    >
+      <summary aria-label={`Actions for ${user.display_name}`}>•••</summary>
+      <div>
+        <button disabled={user.disabled} onClick={() => void onView(user)}>
+          View as
+        </button>
+        <button onClick={() => onEdit({ ...user })}>Edit account</button>
+        <button onClick={() => void onReset(user)}>Reset password</button>
+      </div>
+    </details>
+  );
 }
-export function AdminView({ onImpersonate }: { onImpersonate: (user: User) => Promise<void> }) {
+export function AdminView({
+  onImpersonate,
+}: {
+  onImpersonate: (user: User) => Promise<void>;
+}) {
   const [section, setSection] = useState<Section>("overview");
   const [accounts, setAccounts] = useState<User[]>([]);
   const [banks, setBanks] = useState<QuestionBankAdmin[]>([]);
   const [selectedSubject, setSelectedSubject] = useState("");
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [openUserMenu, setOpenUserMenu] = useState<string | null>(null);
+  const [collapsedFamilies, setCollapsedFamilies] = useState<Set<string>>(
+    () => new Set(),
+  );
+  const [showCreateUser, setShowCreateUser] = useState(false);
   const [preview, setPreview] = useState<AdminBankPreview | null>(null);
   const [previewTitle, setPreviewTitle] = useState("");
   const [previewTargetIndex, setPreviewTargetIndex] = useState(0);
@@ -28,138 +72,1030 @@ export function AdminView({ onImpersonate }: { onImpersonate: (user: User) => Pr
   const refreshBanks = async () => {
     const value = await api.getQuestionBanks();
     setBanks(value);
-    setSelectedSubject(current => value.some(bank => bank.subject === current) ? current : value[0]?.subject ?? "");
+    setSelectedSubject((current) =>
+      value.some((bank) => bank.subject === current)
+        ? current
+        : (value[0]?.subject ?? ""),
+    );
   };
   useEffect(() => {
-    void Promise.all([refreshUsers(), refreshBanks(), api.getContentSettings().then(value => setIncludeDrafts(value.include_drafts))]);
+    void Promise.all([
+      refreshUsers(),
+      refreshBanks(),
+      api
+        .getContentSettings()
+        .then((value) => setIncludeDrafts(value.include_drafts)),
+    ]);
   }, []);
-  const selectedBank = banks.find(bank => bank.subject === selectedSubject);
-  const parents = accounts.filter(user => user.role === "parent");
-  const unassignedLearners = accounts.filter(user => user.role === "learner" && !parents.some(parent => parent.id === user.parent_id));
+  const selectedBank = banks.find((bank) => bank.subject === selectedSubject);
+  const parents = accounts.filter((user) => user.role === "parent");
+  const unassignedLearners = accounts.filter(
+    (user) =>
+      user.role === "learner" &&
+      !parents.some((parent) => parent.id === user.parent_id),
+  );
   const parentCount = parents.length;
-  const learnerCount = accounts.filter(user => user.role === "learner").length;
-  const draftCount = banks.filter(bank => bank.publication_status === "draft").length;
-  const skills = useMemo(() => selectedBank ? new Set(selectedBank.document.templates.map(template => template.skill)).size : 0, [selectedBank]);
+  const learnerCount = accounts.filter(
+    (user) => user.role === "learner",
+  ).length;
+  const draftCount = banks.filter(
+    (bank) => bank.publication_status === "draft",
+  ).length;
+  const skills = useMemo(
+    () =>
+      selectedBank
+        ? new Set(
+            selectedBank.document.templates.map((template) => template.skill),
+          ).size
+        : 0,
+    [selectedBank],
+  );
   useEffect(() => setPreview(null), [selectedSubject]);
   useEffect(() => {
     if (!preview) return;
-    const close = (event: KeyboardEvent) => { if (event.key === "Escape") setPreview(null); };
+    const close = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setPreview(null);
+    };
     window.addEventListener("keydown", close);
     return () => window.removeEventListener("keydown", close);
   }, [preview]);
 
   const create = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); const form = event.currentTarget; const data = new FormData(form);
-    try { await api.createParent(String(data.get("displayName")), String(data.get("newUsername")), String(data.get("newPassword"))); form.reset(); setNotice("Parent account created."); await refreshUsers(); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not create account"); }
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+    try {
+      await api.createParent(
+        String(data.get("displayName")),
+        String(data.get("newUsername")),
+        String(data.get("newPassword")),
+      );
+      form.reset();
+      setShowCreateUser(false);
+      setNotice("Parent account created.");
+      await refreshUsers();
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error ? caught.message : "Could not create account",
+      );
+    }
   };
   const saveUser = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault(); if (!editingUser) return;
-    try { const saved = await api.updateManagedUser(editingUser); setEditingUser(null); setNotice(`${saved.display_name} was updated.`); await refreshUsers(); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not update account"); }
+    event.preventDefault();
+    if (!editingUser) return;
+    try {
+      const saved = await api.updateManagedUser(editingUser);
+      setEditingUser(null);
+      setNotice(`${saved.display_name} was updated.`);
+      await refreshUsers();
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error ? caught.message : "Could not update account",
+      );
+    }
   };
   const reset = async (user: User) => {
-    const password = window.prompt(`New password for ${user.display_name} (8+ characters)`); if (!password) return;
-    try { await api.adminReset(user.id, password); setNotice("Password reset. Existing login tokens for this account are now invalid."); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not reset password"); }
+    const password = window.prompt(
+      `New password for ${user.display_name} (8+ characters)`,
+    );
+    if (!password) return;
+    try {
+      await api.adminReset(user.id, password);
+      setNotice(
+        "Password reset. Existing login tokens for this account are now invalid.",
+      );
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error ? caught.message : "Could not reset password",
+      );
+    }
   };
   const impersonate = async (user: User) => {
     setNotice("");
-    try { await onImpersonate(user); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not view this account"); }
+    try {
+      await onImpersonate(user);
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error
+          ? caught.message
+          : "Could not view this account",
+      );
+    }
   };
   const upload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; if (!file) return; setErrors([]); setNotice("");
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setErrors([]);
+    setNotice("");
     let document: object;
     try {
       const parsed: unknown = JSON.parse(await file.text());
-      if (parsed === null || Array.isArray(parsed) || typeof parsed !== "object") throw new Error("The top-level JSON value must be an object.");
+      if (
+        parsed === null ||
+        Array.isArray(parsed) ||
+        typeof parsed !== "object"
+      )
+        throw new Error("The top-level JSON value must be an object.");
       document = parsed;
     } catch (caught) {
-      setErrors([{ path: "$", message: caught instanceof Error ? caught.message : "The file is not valid JSON.", suggestion: "Upload a complete question-bank JSON object." }]); event.target.value = ""; return;
+      setErrors([
+        {
+          path: "$",
+          message:
+            caught instanceof Error
+              ? caught.message
+              : "The file is not valid JSON.",
+          suggestion: "Upload a complete question-bank JSON object.",
+        },
+      ]);
+      event.target.value = "";
+      return;
     }
     try {
       const result = await api.importQuestions(document);
-      setNotice(result.status === "replaced" ? `Updated the ${result.subject} draft with ${result.templates_imported} templates.` : `Imported ${result.templates_imported} templates for ${result.subject}.`);
-      await refreshBanks(); setSelectedSubject(result.subject);
+      setNotice(
+        result.status === "replaced"
+          ? `Updated the ${result.subject} draft with ${result.templates_imported} templates.`
+          : `Imported ${result.templates_imported} templates for ${result.subject}.`,
+      );
+      await refreshBanks();
+      setSelectedSubject(result.subject);
     } catch (caught) {
-      const error = caught as Error & { details?: ImportError[] }; const message = caught instanceof Error ? caught.message : "Import failed"; setNotice(message);
-      setErrors(error.details ?? [{ path: "$", message, suggestion: message.includes("built-in") && message.includes("published") ? "Use a new subject ID. Published curriculum stays immutable so learner history remains auditable." : message.includes("built-in") ? "Set publicationStatus to draft, import it, review it here, and then publish it." : message.includes("published") ? "Use a new subject ID for a new bank. Published banks stay immutable so learner history remains auditable." : "Open the existing draft and either publish or delete it, or upload a draft with the same subject to replace it." }]);
+      const error = caught as Error & { details?: ImportError[] };
+      const message =
+        caught instanceof Error ? caught.message : "Import failed";
+      setNotice(message);
+      setErrors(
+        error.details ?? [
+          {
+            path: "$",
+            message,
+            suggestion:
+              message.includes("built-in") && message.includes("published")
+                ? "Use a new subject ID. Published curriculum stays immutable so learner history remains auditable."
+                : message.includes("built-in")
+                  ? "Set publicationStatus to draft, import it, review it here, and then publish it."
+                  : message.includes("published")
+                    ? "Use a new subject ID for a new bank. Published banks stay immutable so learner history remains auditable."
+                    : "Open the existing draft and either publish or delete it, or upload a draft with the same subject to replace it.",
+          },
+        ],
+      );
     }
     event.target.value = "";
   };
   const publish = async (bank: QuestionBankAdmin) => {
-    if (!window.confirm(`Publish ${bank.title}? Published curriculum cannot be edited or deleted.`)) return;
-    try { await api.publishQuestionBank(bank.subject); setNotice(`${bank.title} is now published and immutable.`); await refreshBanks(); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not publish bank"); }
+    if (
+      !window.confirm(
+        `Publish ${bank.title}? Published curriculum cannot be edited, but an administrator can still delete the bank.`,
+      )
+    )
+      return;
+    try {
+      await api.publishQuestionBank(bank.subject);
+      setNotice(`${bank.title} is now published and immutable.`);
+      await refreshBanks();
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error ? caught.message : "Could not publish bank",
+      );
+    }
   };
   const remove = async (bank: QuestionBankAdmin) => {
     const prompt = bank.replaces_builtin
-      ? `Remove the imported “${bank.title}” draft? The bundled draft for this subject will be restored.`
-      : `Delete the draft “${bank.title}”?`;
+      ? `Remove the imported “${bank.title}” bank? The bundled bank for this subject will be restored.`
+      : `Delete “${bank.title}”? This removes it from future practice; existing attempt snapshots remain available.`;
     if (!window.confirm(prompt)) return;
-    try { await api.deleteQuestionBank(bank.subject); setNotice(bank.replaces_builtin ? `${bank.title} restored to its bundled draft.` : `${bank.title} draft deleted.`); await refreshBanks(); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not delete bank"); }
+    try {
+      await api.deleteQuestionBank(bank.subject);
+      setNotice(
+        bank.replaces_builtin
+          ? `${bank.title} restored to its bundled bank.`
+          : `${bank.title} deleted.`,
+      );
+      await refreshBanks();
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error ? caught.message : "Could not delete bank",
+      );
+    }
   };
   const updateDrafts = async (enabled: boolean) => {
-    try { const value = await api.saveContentSettings(enabled); setIncludeDrafts(value.include_drafts); setNotice(value.include_drafts ? "Draft subjects are visible to learners." : "Draft subjects are hidden from learners."); }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not update draft visibility"); }
+    try {
+      const value = await api.saveContentSettings(enabled);
+      setIncludeDrafts(value.include_drafts);
+      setNotice(
+        value.include_drafts
+          ? "Draft subjects are visible to learners."
+          : "Draft subjects are hidden from learners.",
+      );
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error
+          ? caught.message
+          : "Could not update draft visibility",
+      );
+    }
   };
-  const previewTargets = useMemo(() => selectedBank?.template_summaries.flatMap(template =>
-    template.variants.map(variant => ({ templateId: template.id, variantId: variant })),
-  ) ?? [], [selectedBank]);
-  const generatePreview = async (bank: QuestionBankAdmin, targetIndex = 0, showLastQuestion = false, seed = Date.now()) => {
+  const previewTargets = useMemo(
+    () =>
+      selectedBank?.template_summaries.flatMap((template) =>
+        template.variants.map((variant) => ({
+          templateId: template.id,
+          variantId: variant,
+        })),
+      ) ?? [],
+    [selectedBank],
+  );
+  const generatePreview = async (
+    bank: QuestionBankAdmin,
+    targetIndex = 0,
+    showLastQuestion = false,
+    seed = Date.now(),
+  ) => {
     const target = previewTargets[targetIndex];
     if (!target) return;
     setPreviewing(true);
     setPreviewTitle(`${target.templateId} · ${target.variantId}`);
     try {
-      const result = await api.previewQuestionBank(bank.subject, target.templateId, target.variantId, seed);
-      setPreview(result); setPreviewTargetIndex(targetIndex); setPreviewIndex(showLastQuestion ? result.questions.length - 1 : 0);
+      const result = await api.previewQuestionBank(
+        bank.subject,
+        target.templateId,
+        target.variantId,
+        seed,
+      );
+      setPreview(result);
+      setPreviewTargetIndex(targetIndex);
+      setPreviewIndex(showLastQuestion ? result.questions.length - 1 : 0);
+    } catch (caught) {
+      setNotice(
+        caught instanceof Error
+          ? caught.message
+          : "Could not generate a preview",
+      );
+    } finally {
+      setPreviewing(false);
     }
-    catch (caught) { setNotice(caught instanceof Error ? caught.message : "Could not generate a preview"); }
-    finally { setPreviewing(false); }
   };
   const movePreview = (direction: -1 | 1) => {
     if (!selectedBank || !preview) return;
     const nextQuestionIndex = previewIndex + direction;
-    if (nextQuestionIndex >= 0 && nextQuestionIndex < preview.questions.length) {
-      setPreviewIndex(nextQuestionIndex); return;
+    if (
+      nextQuestionIndex >= 0 &&
+      nextQuestionIndex < preview.questions.length
+    ) {
+      setPreviewIndex(nextQuestionIndex);
+      return;
     }
     const nextTargetIndex = previewTargetIndex + direction;
     if (nextTargetIndex >= 0 && nextTargetIndex < previewTargets.length) {
-      void generatePreview(selectedBank, nextTargetIndex, direction === -1, preview.seed);
+      void generatePreview(
+        selectedBank,
+        nextTargetIndex,
+        direction === -1,
+        preview.seed,
+      );
     }
   };
 
-  return <main className="admin-workspace">
-    <aside className="admin-sidebar"><div><p className="eyebrow">Administration</p><h1>Control room</h1></div><nav aria-label="Administration sections">
-      {([['overview','Overview','⌂'],['curriculum','Curriculum','▤'],['users','People','♙'],['settings','Settings','⚙']] as const).map(([id,label,icon]) => <button key={id} className={section === id ? "active" : ""} onClick={() => setSection(id)}><span aria-hidden="true">{icon}</span>{label}{id === "curriculum" && draftCount > 0 && <b>{draftCount}</b>}</button>)}
-    </nav><p className="sidebar-help">Changes to published learning content are locked to protect learner history.</p></aside>
-    <div className="admin-main">
-      <header className="admin-header"><div><p className="eyebrow">Administration / {section}</p><h1>{section === "overview" ? "Good to see you" : section === "curriculum" ? "Curriculum library" : section === "users" ? "People & access" : "Learning settings"}</h1></div>{section === "curriculum" && <label className="admin-upload">＋ Import JSON<input type="file" accept="application/json,.json" onChange={upload} /></label>}</header>
-      {notice && <p className="admin-notice" role="status">{notice}<button aria-label="Dismiss notification" onClick={() => setNotice("")}>×</button></p>}
-      {errors.length > 0 && <div className="validation-errors admin-errors"><h3>Import needs attention</h3>{errors.map((error, index) => <article key={index}><code>{error.path}</code><strong>{error.message}</strong><p>Potential fix: {error.suggestion}</p></article>)}</div>}
+  return (
+    <main className="admin-workspace">
+      <aside className="admin-sidebar">
+        <div>
+          <p className="eyebrow">Administration</p>
+          <h1>Control room</h1>
+        </div>
+        <nav aria-label="Administration sections">
+          {(
+            [
+              ["overview", "Overview", "⌂"],
+              ["curriculum", "Curriculum", "▤"],
+              ["users", "People", "♙"],
+              ["settings", "Settings", "⚙"],
+            ] as const
+          ).map(([id, label, icon]) => (
+            <button
+              key={id}
+              className={section === id ? "active" : ""}
+              onClick={() => setSection(id)}
+            >
+              <span aria-hidden="true">{icon}</span>
+              {label}
+              {id === "curriculum" && draftCount > 0 && <b>{draftCount}</b>}
+            </button>
+          ))}
+        </nav>
+        <p className="sidebar-help">
+          Changes to published learning content are locked to protect learner
+          history.
+        </p>
+      </aside>
+      <div className="admin-main">
+        <header className="admin-header">
+          <div>
+            <p className="eyebrow">Administration / {section}</p>
+            <h1>
+              {section === "overview"
+                ? "Good to see you"
+                : section === "curriculum"
+                  ? "Curriculum library"
+                  : section === "users"
+                    ? "People & access"
+                    : "Learning settings"}
+            </h1>
+          </div>
+          {section === "curriculum" && (
+            <label className="admin-upload">
+              ＋ Import JSON
+              <input
+                type="file"
+                accept="application/json,.json"
+                onChange={upload}
+              />
+            </label>
+          )}
+        </header>
+        {notice && (
+          <p className="admin-notice" role="status">
+            {notice}
+            <button
+              aria-label="Dismiss notification"
+              onClick={() => setNotice("")}
+            >
+              ×
+            </button>
+          </p>
+        )}
+        {errors.length > 0 && (
+          <div className="validation-errors admin-errors">
+            <h3>Import needs attention</h3>
+            {errors.map((error, index) => (
+              <article key={index}>
+                <code>{error.path}</code>
+                <strong>{error.message}</strong>
+                <p>Potential fix: {error.suggestion}</p>
+              </article>
+            ))}
+          </div>
+        )}
 
-      {section === "overview" && <><section className="admin-stats"><article><span>Curriculum banks</span><strong>{banks.length}</strong><small>{draftCount} awaiting review</small></article><article><span>Parent accounts</span><strong>{parentCount}</strong><small>{accounts.filter(user => user.role === "parent" && !user.disabled).length} active</small></article><article><span>Learners</span><strong>{learnerCount}</strong><small>Across registered families</small></article></section><section className="admin-card"><div className="card-heading"><div><p className="eyebrow">Review queue</p><h2>Draft curriculum</h2></div><button className="quiet" onClick={() => setSection("curriculum")}>View library ▶</button></div>{banks.filter(bank => bank.publication_status === "draft").map(bank => <button className="review-row" key={bank.subject} onClick={() => { setSelectedSubject(bank.subject); setSection("curriculum"); }}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} templates · {bank.subject}</small></span><i>Review</i></button>)}{draftCount === 0 && <p className="empty">No curriculum is waiting for review.</p>}</section></>}
+        {section === "overview" && (
+          <>
+            <section className="admin-stats">
+              <article>
+                <span>Curriculum banks</span>
+                <strong>{banks.length}</strong>
+                <small>{draftCount} awaiting review</small>
+              </article>
+              <article>
+                <span>Parent accounts</span>
+                <strong>{parentCount}</strong>
+                <small>
+                  {
+                    accounts.filter(
+                      (user) => user.role === "parent" && !user.disabled,
+                    ).length
+                  }{" "}
+                  active
+                </small>
+              </article>
+              <article>
+                <span>Learners</span>
+                <strong>{learnerCount}</strong>
+                <small>Across registered families</small>
+              </article>
+            </section>
+            <section className="admin-card">
+              <div className="card-heading">
+                <div>
+                  <p className="eyebrow">Review queue</p>
+                  <h2>Draft curriculum</h2>
+                </div>
+                <button
+                  className="quiet"
+                  onClick={() => setSection("curriculum")}
+                >
+                  View library ▶
+                </button>
+              </div>
+              {banks
+                .filter((bank) => bank.publication_status === "draft")
+                .map((bank) => (
+                  <button
+                    className="review-row"
+                    key={bank.subject}
+                    onClick={() => {
+                      setSelectedSubject(bank.subject);
+                      setSection("curriculum");
+                    }}
+                  >
+                    <span className="bank-icon">
+                      {bank.title.slice(0, 2).toUpperCase()}
+                    </span>
+                    <span>
+                      <strong>{bank.title}</strong>
+                      <small>
+                        {bank.template_count} templates · {bank.subject}
+                      </small>
+                    </span>
+                    <i>Review</i>
+                  </button>
+                ))}
+              {draftCount === 0 && (
+                <p className="empty">No curriculum is waiting for review.</p>
+              )}
+            </section>
+          </>
+        )}
 
-      {section === "curriculum" && <div className="library-layout">
-        <section className="admin-card bank-list"><div className="list-title"><h2>Question banks</h2><span>{banks.length}</span></div>{banks.map(bank => <button key={bank.subject} className={selectedSubject === bank.subject ? "selected" : ""} onClick={() => setSelectedSubject(bank.subject)}><span className="bank-icon">{bank.title.slice(0,2).toUpperCase()}</span><span><strong>{bank.title}</strong><small>{bank.template_count} authored {bank.template_count === 1 ? "template" : "templates"}</small></span><i className={`status ${bank.publication_status}`}>{bank.publication_status}</i></button>)}</section>
-        {selectedBank && <section className="admin-card bank-detail">
-          <header><div><span className="source-label">{selectedBank.source} bank</span><h2>{selectedBank.title}</h2><code>{selectedBank.subject}</code></div><div className="bank-header-actions"><i className={`status ${selectedBank.publication_status}`}>{selectedBank.publication_status}</i><button className="preview-bank-button" disabled={previewing || previewTargets.length === 0} onClick={() => void generatePreview(selectedBank)}>Preview bank</button></div></header>
-          <div className="bank-facts"><div><span>Authored templates</span><strong>{selectedBank.template_count}</strong></div><div><span>Skills</span><strong>{skills}</strong></div><div><span>Generator</span><strong>{selectedBank.document.generatorVersion}</strong></div></div>
-          <p className="count-explainer">A template is a reusable recipe, not one question. Facts, variants, and parameters let one template generate many distinct questions.</p>
-          <div className="template-table detailed"><div className="table-head"><span>Template in stored bank</span><span>Authored content</span></div>{selectedBank.template_summaries.map(template => <div key={template.id}><span><strong>{template.id} · v{template.version}</strong><small>{template.type} · {template.skill}{template.difficulty ? ` · difficulty ${template.difficulty}` : ""}</small></span><span>{template.fact_count ? `${template.fact_count} facts × ${template.variant_count} variants` : "Parameterized recipe"}</span></div>)}</div>
-          <details className="raw-bank"><summary>View exact {selectedBank.source === "imported" ? "database JSON" : "bundled JSON"}</summary><p>{selectedBank.source === "imported" ? "This is the complete document currently stored in the database." : "This bank comes from the deployed content files, not the database."}</p><pre>{JSON.stringify(selectedBank.document, null, 2)}</pre></details>
-          <footer>{selectedBank.source === "built-in" ? <p>Built-in content is read-only and updated through reviewed source releases.</p> : selectedBank.publication_status === "published" ? <p>Published content is application-locked to preserve reproducible learner records; this is not a database foreign-key restriction.</p> : <><button className="danger-button" onClick={() => void remove(selectedBank)}>Delete draft</button><button className="primary" onClick={() => void publish(selectedBank)}>Publish bank</button></>}</footer>
-        </section>}
-      </div>}
+        {section === "curriculum" && (
+          <div className="library-layout">
+            <section className="admin-card bank-list">
+              <div className="list-title">
+                <h2>Question banks</h2>
+                <span>{banks.length}</span>
+              </div>
+              {banks.map((bank) => (
+                <button
+                  key={bank.subject}
+                  className={selectedSubject === bank.subject ? "selected" : ""}
+                  onClick={() => setSelectedSubject(bank.subject)}
+                >
+                  <span className="bank-icon">
+                    {bank.title.slice(0, 2).toUpperCase()}
+                  </span>
+                  <span>
+                    <strong>{bank.title}</strong>
+                    <small>
+                      {bank.template_count} authored{" "}
+                      {bank.template_count === 1 ? "template" : "templates"}
+                    </small>
+                  </span>
+                  <i className={`status ${bank.publication_status}`}>
+                    {bank.publication_status}
+                  </i>
+                </button>
+              ))}
+            </section>
+            {selectedBank && (
+              <section className="admin-card bank-detail">
+                <header>
+                  <div>
+                    <span className="source-label">
+                      {selectedBank.source} bank
+                    </span>
+                    <h2>{selectedBank.title}</h2>
+                    <code>{selectedBank.subject}</code>
+                  </div>
+                  <div className="bank-header-actions">
+                    <i className={`status ${selectedBank.publication_status}`}>
+                      {selectedBank.publication_status}
+                    </i>
+                    <button
+                      className="preview-bank-button"
+                      disabled={previewing || previewTargets.length === 0}
+                      onClick={() => void generatePreview(selectedBank)}
+                    >
+                      Preview bank
+                    </button>
+                  </div>
+                </header>
+                <div className="bank-facts">
+                  <div>
+                    <span>Authored templates</span>
+                    <strong>{selectedBank.template_count}</strong>
+                  </div>
+                  <div>
+                    <span>Skills</span>
+                    <strong>{skills}</strong>
+                  </div>
+                  <div>
+                    <span>Generator</span>
+                    <strong>{selectedBank.document.generatorVersion}</strong>
+                  </div>
+                </div>
+                <p className="count-explainer">
+                  A template is a reusable recipe, not one question. Facts,
+                  variants, and parameters let one template generate many
+                  distinct questions.
+                </p>
+                <div className="template-table detailed">
+                  <div className="table-head">
+                    <span>Template in stored bank</span>
+                    <span>Authored content</span>
+                  </div>
+                  {selectedBank.template_summaries.map((template) => (
+                    <div key={template.id}>
+                      <span>
+                        <strong>
+                          {template.id} · v{template.version}
+                        </strong>
+                        <small>
+                          {template.type} · {template.skill}
+                          {template.difficulty
+                            ? ` · difficulty ${template.difficulty}`
+                            : ""}
+                        </small>
+                      </span>
+                      <span>
+                        {template.fact_count
+                          ? `${template.fact_count} facts × ${template.variant_count} variants`
+                          : "Parameterized recipe"}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+                <details className="raw-bank">
+                  <summary>
+                    View exact{" "}
+                    {selectedBank.source === "imported"
+                      ? "database JSON"
+                      : "bundled JSON"}
+                  </summary>
+                  <p>
+                    {selectedBank.source === "imported"
+                      ? "This is the complete document currently stored in the database."
+                      : "This bank comes from the deployed content files, not the database."}
+                  </p>
+                  <pre>{JSON.stringify(selectedBank.document, null, 2)}</pre>
+                </details>
+                <footer>
+                  {selectedBank.source === "built-in" ? (
+                    <p>
+                      Built-in content is read-only and updated through reviewed
+                      source releases.
+                    </p>
+                  ) : (
+                    <>
+                      <button
+                        className="danger-button"
+                        onClick={() => void remove(selectedBank)}
+                      >
+                        Delete bank
+                      </button>
+                      {selectedBank.publication_status === "draft" && (
+                        <button
+                          className="primary"
+                          onClick={() => void publish(selectedBank)}
+                        >
+                          Publish bank
+                        </button>
+                      )}{" "}
+                      {selectedBank.publication_status === "published" && (
+                        <p>
+                          Existing learner attempts keep their exact question
+                          snapshots after deletion.
+                        </p>
+                      )}
+                    </>
+                  )}
+                </footer>
+              </section>
+            )}
+          </div>
+        )}
 
-      {section === "users" && <div className="people-layout"><section className="admin-card"><div className="list-title"><div><h2>Families</h2><p className="table-caption">Learners are grouped under the parent who manages them.</p></div><span>{parentCount} families · {learnerCount} learners</span></div><div className="people-tree" role="treegrid" aria-label="Parent and learner accounts"><div className="table-head" role="row"><span>Person</span><span>Type</span><span>Status</span><span aria-label="Actions" /></div>{parents.map(parent => { const children = accounts.filter(user => user.role === "learner" && user.parent_id === parent.id); return <div className="family-group" key={parent.id} role="rowgroup"><div className="person-row parent-row" role="row"><span className="tree-person"><i className="tree-toggle" aria-hidden="true">⌄</i><span className="person-icon parent-icon" aria-hidden="true">♙</span><span>{parent.display_name}<small>{parent.email ?? parent.username} · {children.length} {children.length === 1 ? "child" : "children"}</small></span></span><span className="role-label">Parent</span><span className={`user-status ${parent.disabled ? "disabled" : "active"}`}><i aria-hidden="true">{parent.disabled ? "Ⅱ" : "●"}</i>{parent.disabled ? "Paused" : "Active"}</span><UserMenu user={parent} onView={impersonate} onEdit={setEditingUser} onReset={reset} /></div>{children.map(child => <div className="person-row child-row" key={child.id} role="row"><span className="tree-person"><i className="tree-branch" aria-hidden="true">└</i><span className="person-icon learner-icon" aria-hidden="true">◇</span><span>{child.display_name}<small>@{child.username}</small></span></span><span className="role-label">Learner</span><span className={`user-status ${child.disabled ? "disabled" : "active"}`}><i aria-hidden="true">{child.disabled ? "Ⅱ" : "●"}</i>{child.disabled ? "Paused" : "Active"}</span><UserMenu user={child} onView={impersonate} onEdit={setEditingUser} onReset={reset} /></div>)}</div>; })}{unassignedLearners.map(child => <div className="person-row child-row" key={child.id} role="row"><span className="tree-person"><i className="tree-branch" aria-hidden="true">—</i><span className="person-icon learner-icon" aria-hidden="true">◇</span><span>{child.display_name}<small>@{child.username} · unassigned</small></span></span><span className="role-label">Learner</span><span className={`user-status ${child.disabled ? "disabled" : "active"}`}><i aria-hidden="true">{child.disabled ? "Ⅱ" : "●"}</i>{child.disabled ? "Paused" : "Active"}</span><UserMenu user={child} onView={impersonate} onEdit={setEditingUser} onReset={reset} /></div>)}</div></section><section className="admin-card create-account"><p className="eyebrow">New account</p><h2>Create a parent</h2><form onSubmit={create} className="stack-form" autoComplete="off"><label>Display name<input name="displayName" autoComplete="off" required /></label><label>Email address<input name="newUsername" type="email" autoComplete="off" minLength={3} required /></label><label>Temporary password<input name="newPassword" type="password" autoComplete="new-password" minLength={8} required /></label><button className="primary">Create parent</button></form></section></div>}
+        {section === "users" && (
+          <div className="people-layout">
+            <section className="admin-card">
+              <div className="list-title">
+                <div>
+                  <h2>Families</h2>
+                  <p className="table-caption">
+                    Learners are grouped under the parent who manages them.
+                  </p>
+                </div>
+                <div className="people-heading-actions">
+                  <span>
+                    {parentCount} families · {learnerCount} learners
+                  </span>
+                  <button
+                    className="primary"
+                    onClick={() => setShowCreateUser(true)}
+                  >
+                    ＋ Create user
+                  </button>
+                </div>
+              </div>
+              <div
+                className="people-tree"
+                role="treegrid"
+                aria-label="Parent and learner accounts"
+              >
+                <div className="table-head" role="row">
+                  <span>Person</span>
+                  <span>Type</span>
+                  <span>Status</span>
+                  <span aria-label="Actions" />
+                </div>
+                {parents.map((parent) => {
+                  const children = accounts.filter(
+                    (user) =>
+                      user.role === "learner" && user.parent_id === parent.id,
+                  );
+                  const collapsed = collapsedFamilies.has(parent.id);
+                  return (
+                    <div
+                      className="family-group"
+                      key={parent.id}
+                      role="rowgroup"
+                    >
+                      <div className="person-row parent-row" role="row">
+                        <span className="tree-person">
+                          <button
+                            className="tree-toggle"
+                            aria-label={`${collapsed ? "Expand" : "Collapse"} ${parent.display_name}'s family`}
+                            aria-expanded={!collapsed}
+                            onClick={() =>
+                              setCollapsedFamilies((current) => {
+                                const next = new Set(current);
+                                if (next.has(parent.id)) next.delete(parent.id);
+                                else next.add(parent.id);
+                                return next;
+                              })
+                            }
+                          >
+                            {collapsed ? "›" : "⌄"}
+                          </button>
+                          <span
+                            className="person-icon parent-icon"
+                            aria-hidden="true"
+                          >
+                            ♙
+                          </span>
+                          <span>
+                            {parent.display_name}
+                            <small>
+                              {parent.email ?? parent.username} ·{" "}
+                              {children.length}{" "}
+                              {children.length === 1 ? "child" : "children"}
+                            </small>
+                          </span>
+                        </span>
+                        <span className="role-label">Parent</span>
+                        <span
+                          className={`user-status ${parent.disabled ? "disabled" : "active"}`}
+                        >
+                          <i aria-hidden="true">
+                            {parent.disabled ? "Ⅱ" : "✓"}
+                          </i>
+                          {parent.disabled ? "Paused" : "Active"}
+                        </span>
+                        <UserMenu
+                          user={parent}
+                          open={openUserMenu === parent.id}
+                          onToggle={() =>
+                            setOpenUserMenu((current) =>
+                              current === parent.id ? null : parent.id,
+                            )
+                          }
+                          onView={impersonate}
+                          onEdit={setEditingUser}
+                          onReset={reset}
+                        />
+                      </div>
+                      {!collapsed &&
+                        children.map((child) => (
+                          <div
+                            className="person-row child-row"
+                            key={child.id}
+                            role="row"
+                          >
+                            <span className="tree-person">
+                              <i className="tree-branch" aria-hidden="true">
+                                └
+                              </i>
+                              <span
+                                className="person-icon learner-icon"
+                                aria-hidden="true"
+                              >
+                                ◇
+                              </span>
+                              <span>
+                                {child.display_name}
+                                <small>@{child.username}</small>
+                              </span>
+                            </span>
+                            <span className="role-label">Learner</span>
+                            <span
+                              className={`user-status ${child.disabled ? "disabled" : "active"}`}
+                            >
+                              <i aria-hidden="true">
+                                {child.disabled ? "Ⅱ" : "✓"}
+                              </i>
+                              {child.disabled ? "Paused" : "Active"}
+                            </span>
+                            <UserMenu
+                              user={child}
+                              open={openUserMenu === child.id}
+                              onToggle={() =>
+                                setOpenUserMenu((current) =>
+                                  current === child.id ? null : child.id,
+                                )
+                              }
+                              onView={impersonate}
+                              onEdit={setEditingUser}
+                              onReset={reset}
+                            />
+                          </div>
+                        ))}
+                    </div>
+                  );
+                })}
+                {unassignedLearners.map((child) => (
+                  <div
+                    className="person-row child-row"
+                    key={child.id}
+                    role="row"
+                  >
+                    <span className="tree-person">
+                      <i className="tree-branch" aria-hidden="true">
+                        —
+                      </i>
+                      <span
+                        className="person-icon learner-icon"
+                        aria-hidden="true"
+                      >
+                        ◇
+                      </span>
+                      <span>
+                        {child.display_name}
+                        <small>@{child.username} · unassigned</small>
+                      </span>
+                    </span>
+                    <span className="role-label">Learner</span>
+                    <span
+                      className={`user-status ${child.disabled ? "disabled" : "active"}`}
+                    >
+                      <i aria-hidden="true">{child.disabled ? "Ⅱ" : "✓"}</i>
+                      {child.disabled ? "Paused" : "Active"}
+                    </span>
+                    <UserMenu
+                      user={child}
+                      open={openUserMenu === child.id}
+                      onToggle={() =>
+                        setOpenUserMenu((current) =>
+                          current === child.id ? null : child.id,
+                        )
+                      }
+                      onView={impersonate}
+                      onEdit={setEditingUser}
+                      onReset={reset}
+                    />
+                  </div>
+                ))}
+              </div>
+            </section>
+          </div>
+        )}
 
-      {section === "settings" && <section className="admin-card settings-card"><div><p className="eyebrow">Learner access</p><h2>Draft curriculum visibility</h2><p>Draft banks are hidden by default. Turn this on only for supervised testing; drafts will become available to every signed-in learner.</p></div><label className="switch"><input type="checkbox" checked={includeDrafts} onChange={event => void updateDrafts(event.target.checked)} /><span aria-hidden="true" /><b>{includeDrafts ? "Visible" : "Hidden"}</b></label></section>}
-    </div>
-    {editingUser && <div className="modal-backdrop" role="presentation" onMouseDown={() => setEditingUser(null)}><section className="admin-modal" role="dialog" aria-modal="true" aria-labelledby="edit-user-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setEditingUser(null)} aria-label="Close">×</button><p className="eyebrow">Account details</p><h2 id="edit-user-title">Edit {editingUser.role}</h2><form className="stack-form" onSubmit={saveUser}><label>Display name<input value={editingUser.display_name} onChange={event => setEditingUser({...editingUser, display_name: event.target.value})} required /></label><label>{editingUser.role === "parent" ? "Email address" : "Username"}<input type={editingUser.role === "parent" ? "email" : "text"} value={editingUser.role === "parent" ? editingUser.email ?? editingUser.username : editingUser.username} onChange={event => setEditingUser({...editingUser, username: event.target.value, email: editingUser.role === "parent" ? event.target.value : editingUser.email})} minLength={3} required /></label><label className="status-check"><input type="checkbox" checked={!editingUser.disabled} onChange={event => setEditingUser({...editingUser, disabled: !event.target.checked})} /><span><strong>Account active</strong><small>Paused accounts cannot sign in.</small></span></label><button className="primary">Save changes</button></form></section></div>}
-    {preview && preview.questions[previewIndex] && <div className="modal-backdrop" role="presentation" onMouseDown={() => setPreview(null)}><section className="admin-modal preview-modal" role="dialog" aria-modal="true" aria-labelledby="preview-title" onMouseDown={event => event.stopPropagation()}><button className="modal-close" onClick={() => setPreview(null)} aria-label="Close preview">×</button><p className="eyebrow">Question bank preview</p><h2 id="preview-title">{previewTitle}</h2><p className="preview-seed">Template &amp; variant {previewTargetIndex + 1} of {previewTargets.length} · Question {previewIndex + 1} of {preview.questions.length} · Seed {preview.seed}</p>{(() => { const question = preview.questions[previewIndex]; return <article className="admin-question-preview"><p className="eyebrow">Difficulty {question.difficulty}</p><div className="preview-prompt">{question.prompt.map((block, index) => block.type === "math" ? <MathBlock key={index} value={block.value} /> : <p key={index}>{block.value}</p>)}</div>{question.visual && <QuestionVisual visual={question.visual} />}<ol>{question.choices.map(choice => <li key={choice.id}>{choice.value}</li>)}</ol><aside>Hint: {question.hint}</aside></article>; })()}<div className="preview-rotation"><button className="quiet" disabled={previewing || (previewTargetIndex === 0 && previewIndex === 0)} onClick={() => movePreview(-1)}>◀ Previous</button><div role="group" aria-label="Questions in this variant">{preview.questions.map((_, index) => <button key={index} className={index === previewIndex ? "active" : ""} aria-label={`Show question ${index + 1}`} aria-current={index === previewIndex ? "true" : undefined} onClick={() => setPreviewIndex(index)} />)}</div><button className="quiet" disabled={previewing || (previewTargetIndex === previewTargets.length - 1 && previewIndex === preview.questions.length - 1)} onClick={() => movePreview(1)}>Next ▶</button></div><p className="preview-privacy">Answers and misconception metadata stay server-side.</p></section></div>}
-  </main>;
+        {section === "settings" && (
+          <section className="admin-card settings-card">
+            <div>
+              <p className="eyebrow">Learner access</p>
+              <h2>Draft curriculum visibility</h2>
+              <p>
+                Draft banks are hidden by default. Turn this on only for
+                supervised testing; drafts will become available to every
+                signed-in learner.
+              </p>
+            </div>
+            <label className="switch">
+              <input
+                type="checkbox"
+                checked={includeDrafts}
+                onChange={(event) => void updateDrafts(event.target.checked)}
+              />
+              <span aria-hidden="true" />
+              <b>{includeDrafts ? "Visible" : "Hidden"}</b>
+            </label>
+          </section>
+        )}
+      </div>
+      {showCreateUser && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={() => setShowCreateUser(false)}
+        >
+          <section
+            className="admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-user-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => setShowCreateUser(false)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <p className="eyebrow">New account</p>
+            <h2 id="create-user-title">Create a parent</h2>
+            <form onSubmit={create} className="stack-form" autoComplete="off">
+              <label>
+                Display name
+                <input name="displayName" autoComplete="off" required />
+              </label>
+              <label>
+                Email address
+                <input
+                  name="newUsername"
+                  type="email"
+                  autoComplete="off"
+                  minLength={3}
+                  required
+                />
+              </label>
+              <label>
+                Temporary password
+                <input
+                  name="newPassword"
+                  type="password"
+                  autoComplete="new-password"
+                  minLength={8}
+                  required
+                />
+              </label>
+              <button className="primary">Create parent</button>
+            </form>
+          </section>
+        </div>
+      )}
+      {editingUser && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={() => setEditingUser(null)}
+        >
+          <section
+            className="admin-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="edit-user-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => setEditingUser(null)}
+              aria-label="Close"
+            >
+              ×
+            </button>
+            <p className="eyebrow">Account details</p>
+            <h2 id="edit-user-title">Edit {editingUser.role}</h2>
+            <form className="stack-form" onSubmit={saveUser}>
+              <label>
+                Display name
+                <input
+                  value={editingUser.display_name}
+                  onChange={(event) =>
+                    setEditingUser({
+                      ...editingUser,
+                      display_name: event.target.value,
+                    })
+                  }
+                  required
+                />
+              </label>
+              <label>
+                {editingUser.role === "parent" ? "Email address" : "Username"}
+                <input
+                  type={editingUser.role === "parent" ? "email" : "text"}
+                  value={
+                    editingUser.role === "parent"
+                      ? (editingUser.email ?? editingUser.username)
+                      : editingUser.username
+                  }
+                  onChange={(event) =>
+                    setEditingUser({
+                      ...editingUser,
+                      username: event.target.value,
+                      email:
+                        editingUser.role === "parent"
+                          ? event.target.value
+                          : editingUser.email,
+                    })
+                  }
+                  minLength={3}
+                  required
+                />
+              </label>
+              <label className="status-check">
+                <input
+                  type="checkbox"
+                  checked={!editingUser.disabled}
+                  onChange={(event) =>
+                    setEditingUser({
+                      ...editingUser,
+                      disabled: !event.target.checked,
+                    })
+                  }
+                />
+                <span>
+                  <strong>Account active</strong>
+                  <small>Paused accounts cannot sign in.</small>
+                </span>
+              </label>
+              <button className="primary">Save changes</button>
+            </form>
+          </section>
+        </div>
+      )}
+      {preview && preview.questions[previewIndex] && (
+        <div
+          className="modal-backdrop"
+          role="presentation"
+          onMouseDown={() => setPreview(null)}
+        >
+          <section
+            className="admin-modal preview-modal"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="preview-title"
+            onMouseDown={(event) => event.stopPropagation()}
+          >
+            <button
+              className="modal-close"
+              onClick={() => setPreview(null)}
+              aria-label="Close preview"
+            >
+              ×
+            </button>
+            <p className="eyebrow">Question bank preview</p>
+            <h2 id="preview-title">{previewTitle}</h2>
+            <p className="preview-seed">
+              Template &amp; variant {previewTargetIndex + 1} of{" "}
+              {previewTargets.length} · Question {previewIndex + 1} of{" "}
+              {preview.questions.length} · Seed {preview.seed}
+            </p>
+            {(() => {
+              const question = preview.questions[previewIndex];
+              return (
+                <article className="admin-question-preview">
+                  <p className="eyebrow">Difficulty {question.difficulty}</p>
+                  <div className="preview-prompt">
+                    {question.prompt.map((block, index) =>
+                      block.type === "math" ? (
+                        <MathBlock key={index} value={block.value} />
+                      ) : (
+                        <p key={index}>{block.value}</p>
+                      ),
+                    )}
+                  </div>
+                  {question.visual && (
+                    <QuestionVisual visual={question.visual} />
+                  )}
+                  <ol>
+                    {question.choices.map((choice) => (
+                      <li key={choice.id}>{choice.value}</li>
+                    ))}
+                  </ol>
+                  <aside>Hint: {question.hint}</aside>
+                </article>
+              );
+            })()}
+            <div className="preview-rotation">
+              <button
+                className="quiet"
+                disabled={
+                  previewing || (previewTargetIndex === 0 && previewIndex === 0)
+                }
+                onClick={() => movePreview(-1)}
+              >
+                ◀ Previous
+              </button>
+              <div role="group" aria-label="Questions in this variant">
+                {preview.questions.map((_, index) => (
+                  <button
+                    key={index}
+                    className={index === previewIndex ? "active" : ""}
+                    aria-label={`Show question ${index + 1}`}
+                    aria-current={index === previewIndex ? "true" : undefined}
+                    onClick={() => setPreviewIndex(index)}
+                  />
+                ))}
+              </div>
+              <button
+                className="quiet"
+                disabled={
+                  previewing ||
+                  (previewTargetIndex === previewTargets.length - 1 &&
+                    previewIndex === preview.questions.length - 1)
+                }
+                onClick={() => movePreview(1)}
+              >
+                Next ▶
+              </button>
+            </div>
+            <p className="preview-privacy">
+              Answers and misconception metadata stay server-side.
+            </p>
+          </section>
+        </div>
+      )}
+    </main>
+  );
 }

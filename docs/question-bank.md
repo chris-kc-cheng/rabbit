@@ -148,12 +148,12 @@ by the number of prompt variants; computed templates can produce combinations
 across every allowed parameter value. The admin view exposes these counts, the
 complete stored JSON document, and a seeded server-generated preview.
 
-Publishing is an application/content-governance lock, not a foreign-key
-constraint. Rabbit refuses update and deletion of published bank rows so an
-administrator cannot silently change the versioned source of learner activity.
-Existing attempts already retain exact resolved snapshots, but immutable
-publication remains the safer authoring rule. A future retirement workflow can
-hide a published bank from new sessions without deleting its historical record.
+Publishing is an application/content-governance edit lock, not a foreign-key
+constraint. Rabbit refuses updates to published bank rows so an administrator
+cannot silently change the versioned source of learner activity. Administrators
+may explicitly delete imported banks, including published banks. Existing
+attempts retain exact resolved snapshots, so prior learner evidence remains
+reproducible after a bank is removed from future sessions.
 
 ## Reusable fact collections
 
