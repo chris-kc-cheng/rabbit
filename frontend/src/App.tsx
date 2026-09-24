@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AdminView } from "./AdminView";
 import { api } from "./api";
-import { Landing, Login } from "./AuthViews";
+import { Activate, Landing, Login, Signup } from "./AuthViews";
 import { DemoPack } from "./DemoPack";
 import { Documentation } from "./Documentation";
 import { LearnerView } from "./LearnerView";
@@ -9,13 +9,14 @@ import { LearnerChrome } from "./LearnerChrome";
 import { ParentView } from "./ParentView";
 import type { User } from "./types";
 
-type PublicView = "landing" | "login" | "demo" | "docs";
+type PublicView = "landing" | "login" | "signup" | "activate" | "demo" | "docs";
 const ORIGINAL_TOKEN_KEY = "rabbit_original_token";
 const IMPERSONATED_USER_KEY = "rabbit_impersonated_user";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
-  const [view, setView] = useState<PublicView>(sessionStorage.getItem("rabbit_token") ? "login" : "landing");
+  const activationToken = new URLSearchParams(window.location.search).get("activate");
+  const [view, setView] = useState<PublicView>(activationToken ? "activate" : sessionStorage.getItem("rabbit_token") ? "login" : "landing");
   const [checking, setChecking] = useState(Boolean(sessionStorage.getItem("rabbit_token")));
   const [showDocs, setShowDocs] = useState(false);
   const [impersonatedUser, setImpersonatedUser] = useState<User | null>(() => {
@@ -88,7 +89,7 @@ export default function App() {
   if (checking) return <main className="auth-page"><div className="spinner" /><p>Opening your learning space…</p></main>;
   if (!user) return <div className="app-shell">
     <header className="topbar public-top"><button className="brand" aria-label="Go to home" onClick={() => setView("landing")}><img className="brand-logo" src="/rabbit-reading-logo.png" alt="" /></button><nav aria-label="Explore"><button className={view === "landing" ? "active" : ""} onClick={() => setView("landing")}>Home</button><button className={view === "demo" ? "active" : ""} onClick={() => setView("demo")}>Demo</button><button className={view === "docs" ? "active" : ""} onClick={() => setView("docs")}>Docs</button></nav><div className="header-tools">{displayButtons}<button className="primary header-login" onClick={() => setView("login")}>Log in</button></div></header>
-    {view === "landing" ? <Landing onLogin={() => setView("login")} onDemo={() => setView("demo")} /> : view === "login" ? <Login onBack={() => setView("landing")} onSuccess={setUser} /> : view === "docs" ? <Documentation /> : <DemoPack />}
+    {view === "landing" ? <Landing onLogin={() => setView("login")} onSignup={() => setView("signup")} onDemo={() => setView("demo")} /> : view === "login" ? <Login onBack={() => setView("landing")} onSuccess={setUser} /> : view === "signup" ? <Signup onBack={() => setView("landing")} onLogin={() => setView("login")} /> : view === "activate" && activationToken ? <Activate token={activationToken} onBack={() => setView("login")} onSuccess={setUser} /> : view === "docs" ? <Documentation /> : <DemoPack />}
   </div>;
   return <div className="app-shell">
     {impersonatedUser && <div className="impersonation-banner" role="status"><span><strong>Viewing the {impersonatedUser.role} experience as {impersonatedUser.display_name}</strong><small>@{impersonatedUser.username}</small></span><button type="button" onClick={() => void stopImpersonating()}>Return to dashboard</button></div>}

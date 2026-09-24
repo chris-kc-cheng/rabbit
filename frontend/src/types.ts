@@ -53,7 +53,7 @@ export type AttemptHistoryItem = {
   time_spent_ms: number;
   question: Question;
 };
-export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; display_name: string; parent_id?: string | null; disabled: boolean; default_subject?: string; default_topics?: string[] };
+export type User = { id: string; role: "admin" | "parent" | "learner"; username: string; email?: string | null; display_name: string; parent_id?: string | null; disabled: boolean; default_subject?: string; default_topics?: string[] };
 export type AuthSession = { access_token: string; expires_at: number; user: User };
 export type FamilyLearner = User & { progress: Progress; is_self: boolean };
 export type ImportError = { path: string; message: string; suggestion: string };

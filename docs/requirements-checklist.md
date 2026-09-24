@@ -146,8 +146,11 @@ working in this repository, not production-ready at population scale.
 
 ## C. Not yet implemented
 
-- [ ] Free parent sign-up, OIDC login, Google/Apple federation, magic links, or
-  passkeys. Prototype username/password login is not the chosen production identity solution.
+- [~] Free parent sign-up now verifies ownership with a 30-minute, single-use
+  Resend activation URL before initial password setup. Parent login uses email;
+  child profiles retain parent-created usernames. OIDC login, Google/Apple
+  federation, password recovery, passkeys, abuse rate limits, and transactional
+  email outbox/retry handling remain production requirements.
 - [ ] Join code/PIN, QR handoff, immediate session/device revocation, multiple
   guardians within one family, durable audit logs, and forced temporary-password
   change. Basic parent-created learner accounts and role/family authorization are

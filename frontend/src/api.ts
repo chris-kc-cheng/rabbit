@@ -34,7 +34,10 @@ async function download(url: string, body: object): Promise<Blob> {
 }
 
 export const api = {
-  login: (username: string, password: string) => request<AuthSession>("/api/v1/auth/login", { method: "POST", body: JSON.stringify({ username, password }) }),
+  login: (email: string, password: string) => request<AuthSession>("/api/v1/auth/login", { method: "POST", body: JSON.stringify({ email, password }) }),
+  signup: (email: string, display_name: string) => request<{ message: string }>("/api/v1/auth/signup", { method: "POST", body: JSON.stringify({ email, display_name }) }),
+  inspectActivation: (token: string) => request<{ email: string; display_name: string }>(`/api/v1/auth/activate/${encodeURIComponent(token)}`),
+  activate: (token: string, password: string) => request<AuthSession>("/api/v1/auth/activate", { method: "POST", body: JSON.stringify({ token, password }) }),
   me: () => request<User>("/api/v1/auth/me"),
   logout: () => request<void>("/api/v1/auth/logout", { method: "POST" }),
   createDemoSession: () => request<DemoSession>("/api/v1/demo-pack/sessions", { method: "POST" }),
@@ -69,8 +72,8 @@ export const api = {
   getWorksheetTopics: () => request<WorksheetTopic[]>("/api/v1/parents/worksheet-topics"),
   createWorksheet: (subject: string, topic: string, count: number) => download("/api/v1/parents/worksheets", { subject, topic, count }),
   getManagedUsers: () => request<User[]>("/api/v1/admin/users"),
-  updateManagedUser: (user: User) => request<User>(`/api/v1/admin/users/${user.id}`, { method: "PUT", body: JSON.stringify({ display_name: user.display_name, username: user.username, disabled: user.disabled }) }),
-  createParent: (display_name: string, username: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, username, password }) }),
+  updateManagedUser: (user: User) => request<User>(`/api/v1/admin/users/${user.id}`, { method: "PUT", body: JSON.stringify({ display_name: user.display_name, username: user.username, email: user.role === "parent" ? user.email : null, disabled: user.disabled }) }),
+  createParent: (display_name: string, email: string, password: string) => request<User>("/api/v1/admin/parents", { method: "POST", body: JSON.stringify({ display_name, email, password }) }),
   adminReset: (id: string, password: string) => request<void>(`/api/v1/admin/users/${id}/password`, { method: "PUT", body: JSON.stringify({ password }) }),
   impersonateUser: (id: string) => request<AuthSession>(`/api/v1/admin/users/${id}/impersonate`, { method: "POST" }),
   importQuestions: (document: object) => request<{ subject: string; templates_imported: number; status: "imported" | "replaced" }>("/api/v1/admin/questions/import", { method: "POST", body: JSON.stringify({ document }) }),
