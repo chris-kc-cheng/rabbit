@@ -188,6 +188,19 @@ environment secrets:
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 
+Add these under **GitHub repository → Settings → Environments → production →
+Environment secrets**. The deployment job is attached to that `production`
+environment and writes the values into the server's permission-restricted
+`~/rabbit/.env.prod`; do not add them to a committed `.env` file.
+
+For Resend, use these values:
+
+- `RESEND_API_KEY`: the API key copied from **Resend → API Keys**.
+- `RABBIT_EMAIL_FROM`: a sender on a domain verified in Resend, for example
+  `Rabbit <hello@example.com>`. The address must use your verified domain.
+- `RABBIT_PUBLIC_URL`: the public HTTPS origin with no trailing slash, for
+  example `https://learn.example.com`. Activation links use this origin.
+
 Before the first production deployment, create the shared external network used
 by the dedicated Caddy container:
 

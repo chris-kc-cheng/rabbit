@@ -88,10 +88,14 @@ jobs:
           RABBIT_ADMIN_PASSWORD: "${{ secrets.RABBIT_ADMIN_PASSWORD }}"
           RABBIT_JWT_SECRET: "${{ secrets.RABBIT_JWT_SECRET }}"
           RABBIT_DATABASE_PASSWORD: "${{ secrets.RABBIT_DATABASE_PASSWORD }}"
+          RESEND_API_KEY: "${{ secrets.RESEND_API_KEY }}"
+          RABBIT_EMAIL_FROM: "${{ secrets.RABBIT_EMAIL_FROM }}"
+          RABBIT_PUBLIC_URL: "${{ secrets.RABBIT_PUBLIC_URL }}"
         run: |
           test -n "$RABBIT_ADMIN_PASSWORD" && test -n "$RABBIT_JWT_SECRET" && test -n "$RABBIT_DATABASE_PASSWORD"
+          test -n "$RESEND_API_KEY" && test -n "$RABBIT_EMAIL_FROM" && test -n "$RABBIT_PUBLIC_URL"
           ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'mkdir -p ~/rabbit'
           scp -i ~/.ssh/hostinger -P "$PORT" compose.prod.yml "$USER@$HOST:~/rabbit/compose.prod.yml"
           printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" "docker login ghcr.io -u '${{ github.actor }}' --password-stdin"
-          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_ADMIN_PASSWORD=%s\nRABBIT_JWT_SECRET=%s\nRABBIT_DATABASE_PASSWORD=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_ADMIN_PASSWORD" "$RABBIT_JWT_SECRET" "$RABBIT_DATABASE_PASSWORD" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
+          printf 'RABBIT_API_IMAGE=%s\nRABBIT_WEB_IMAGE=%s\nRABBIT_ADMIN_PASSWORD=%s\nRABBIT_JWT_SECRET=%s\nRABBIT_DATABASE_PASSWORD=%s\nRESEND_API_KEY=%s\nRABBIT_EMAIL_FROM=%s\nRABBIT_PUBLIC_URL=%s\n' "$API_IMAGE" "$WEB_IMAGE" "$RABBIT_ADMIN_PASSWORD" "$RABBIT_JWT_SECRET" "$RABBIT_DATABASE_PASSWORD" "$RESEND_API_KEY" "$RABBIT_EMAIL_FROM" "$RABBIT_PUBLIC_URL" | ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'umask 077; cat > ~/rabbit/.env.prod'
           ssh -i ~/.ssh/hostinger -p "$PORT" "$USER@$HOST" 'cd ~/rabbit && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml pull && docker compose -p rabbit --env-file .env.prod -f compose.prod.yml up -d --remove-orphans'
