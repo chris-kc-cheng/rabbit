@@ -32,12 +32,23 @@ class User(Base):
     family_id: Mapped[str | None] = mapped_column(ForeignKey("families.id", ondelete="RESTRICT"), index=True)
     role: Mapped[str] = mapped_column(String(12), nullable=False)
     username: Mapped[str] = mapped_column(String(80), nullable=False, unique=True)
+    email: Mapped[str | None] = mapped_column(String(320), nullable=True, unique=True)
     display_name: Mapped[str] = mapped_column(String(80), nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     disabled: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     token_version: Mapped[int] = mapped_column(nullable=False, default=1)
     default_subject: Mapped[str] = mapped_column(String(80), nullable=False, default="math.elementary")
     default_topics: Mapped[list[str]] = mapped_column(JSON_DOCUMENT, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
+
+
+class AccountActivation(Base):
+    __tablename__ = "account_activations"
+
+    token_hash: Mapped[str] = mapped_column(String(64), primary_key=True)
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), nullable=False, unique=True)
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
 

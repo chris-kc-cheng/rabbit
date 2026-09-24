@@ -126,6 +126,18 @@ the test suite.
 
 ## Prototype accounts and authentication
 
+Parents can register with an email address from the public site. Rabbit sends a
+single-use activation URL through Resend; the URL expires after 30 minutes and
+opens the initial-password form. Parent email addresses are normalized before
+storage and login, while parent-created learner profiles continue to use a
+username so children do not need their own email address.
+
+Configure `RESEND_API_KEY`, `RABBIT_EMAIL_FROM` (a sender on your verified
+domain), and the externally reachable `RABBIT_PUBLIC_URL`. Never commit the API
+key: provide it through the deployment secret store or local shell environment.
+Resend's `onboarding@resend.dev` sender is only the local default and is not a
+production sender.
+
 The database bootstrap creates an `admin` account after Alembic migrations. Its
 development-only password defaults to `rabbit-admin`; set `RABBIT_ADMIN_PASSWORD`,
 `RABBIT_DATABASE_PASSWORD`, and a long random `RABBIT_JWT_SECRET` in every shared
@@ -170,6 +182,9 @@ environment secrets:
 - `RABBIT_ADMIN_PASSWORD`
 - `RABBIT_DATABASE_PASSWORD`
 - `RABBIT_JWT_SECRET`
+- `RESEND_API_KEY`
+- `RABBIT_EMAIL_FROM`
+- `RABBIT_PUBLIC_URL`
 - `HOSTINGER_SSH_KEY`
 - `HOSTINGER_KNOWN_HOSTS`
 

@@ -28,6 +28,9 @@ services:
       RABBIT_DATABASE_NAME: rabbit
       RABBIT_DATABASE_USER: rabbit
       RABBIT_DATABASE_PASSWORD: rabbit-local
+      RESEND_API_KEY: ${RESEND_API_KEY:-}
+      RABBIT_EMAIL_FROM: ${RABBIT_EMAIL_FROM:-Rabbit <onboarding@resend.dev>}
+      RABBIT_PUBLIC_URL: ${RABBIT_PUBLIC_URL:-http://localhost:8090}
       WATCHFILES_FORCE_POLLING: "true"
     command: ["sh", "-c", "alembic upgrade head && python -m app.bootstrap && exec uvicorn app.main:app --host 0.0.0.0 --port 8000 --proxy-headers --reload --reload-dir app"]
     volumes:

@@ -1,6 +1,6 @@
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field, field_validator
 
 
 class ContentBlock(BaseModel):
@@ -80,21 +80,41 @@ class ProgressResponse(BaseModel):
 
 
 class LoginRequest(BaseModel):
-    username: str = Field(min_length=3, max_length=80)
+    email: str = Field(min_length=3, max_length=320, validation_alias=AliasChoices("email", "username"))
     password: str = Field(min_length=8, max_length=200)
+
+
+class SignupRequest(BaseModel):
+    email: str = Field(min_length=3, max_length=320)
+    display_name: str = Field(min_length=1, max_length=80)
+
+    @field_validator("email")
+    @classmethod
+    def validate_email(cls, value: str) -> str:
+        normalized = value.strip().casefold()
+        local, separator, domain = normalized.rpartition("@")
+        if not separator or not local or "." not in domain or domain.startswith(".") or domain.endswith("."):
+            raise ValueError("Enter a valid email address")
+        return normalized
 
 
 class PasswordRequest(BaseModel):
     password: str = Field(min_length=8, max_length=200)
 
 
-class ParentCreate(LoginRequest):
+class ActivationRequest(PasswordRequest):
+    token: str = Field(min_length=32, max_length=200)
+
+
+class ParentCreate(PasswordRequest):
+    email: str = Field(min_length=3, max_length=320, validation_alias=AliasChoices("email", "username"))
     display_name: str = Field(min_length=1, max_length=80)
 
 
 class ManagedUserUpdate(BaseModel):
     display_name: str = Field(min_length=1, max_length=80)
     username: str = Field(min_length=3, max_length=80)
+    email: str | None = Field(default=None, min_length=3, max_length=320)
     disabled: bool
 
 

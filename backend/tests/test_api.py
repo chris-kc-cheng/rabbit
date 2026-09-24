@@ -458,3 +458,37 @@ def test_backend_image_contains_the_demo_pdf_asset():
     dockerfile = (Path(__file__).parents[1] / "Dockerfile").read_text(encoding="utf-8")
     assert "RABBIT_DEMO_ASSET_DIRECTORY=/app/frontend/public" in dockerfile
     assert "COPY frontend/public/trivia-animals.png ./frontend/public/trivia-animals.png" in dockerfile
+
+
+def test_parent_signup_requires_email_activation_and_password_setup(monkeypatch):
+    delivered = {}
+
+    def capture(email, display_name, token):
+        delivered.update(email=email, display_name=display_name, token=token)
+
+    monkeypatch.setattr(main_module, "send_activation_email", capture)
+    signup = client.post("/api/v1/auth/signup", json={"email": "Parent@Example.com", "display_name": "Pat Parent"})
+    assert signup.status_code == 202
+    assert delivered["email"] == "parent@example.com"
+    assert client.post("/api/v1/auth/login", json={"email": "parent@example.com", "password": "new-password"}).status_code == 401
+
+    inspection = client.get(f"/api/v1/auth/activate/{delivered['token']}")
+    assert inspection.status_code == 200
+    assert inspection.json() == {"email": "parent@example.com", "display_name": "Pat Parent"}
+
+    activated = client.post("/api/v1/auth/activate", json={"token": delivered["token"], "password": "new-password"})
+    assert activated.status_code == 200
+    assert activated.json()["user"]["email"] == "parent@example.com"
+    assert client.post("/api/v1/auth/activate", json={"token": delivered["token"], "password": "new-password"}).status_code == 410
+    assert client.post("/api/v1/auth/login", json={"email": "PARENT@example.com", "password": "new-password"}).status_code == 200
+
+
+def test_signup_does_not_reveal_an_existing_active_email(monkeypatch):
+    delivered = []
+    monkeypatch.setattr(main_module, "send_activation_email", lambda *args: delivered.append(args))
+    client.post("/api/v1/auth/signup", json={"email": "same@example.com", "display_name": "First"})
+    token = delivered[0][2]
+    client.post("/api/v1/auth/activate", json={"token": token, "password": "new-password"})
+    duplicate = client.post("/api/v1/auth/signup", json={"email": "same@example.com", "display_name": "Someone"})
+    assert duplicate.status_code == 202
+    assert len(delivered) == 1

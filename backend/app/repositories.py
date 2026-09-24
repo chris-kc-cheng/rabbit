@@ -1,8 +1,9 @@
 from __future__ import annotations
 
+import hashlib
 import secrets
 from collections import Counter
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
@@ -10,7 +11,7 @@ from sqlalchemy.orm import Session
 
 from .auth import hash_password
 from .db_models import (
-    ApplicationSetting, Attempt, DemoAttemptRecord, DemoSession, Family, FamilyGuardian,
+    AccountActivation, ApplicationSetting, Attempt, DemoAttemptRecord, DemoSession, Family, FamilyGuardian,
     ImportedQuestionBank, LearnerProfile, PracticeSession, RevokedToken, RewardSetting,
     SessionQuestion, User,
 )
@@ -23,6 +24,7 @@ def user_record(user: User) -> dict:
         "id": user.id,
         "role": user.role,
         "username": user.username,
+        "email": user.email,
         "display_name": user.display_name,
         "parent_id": user.family_id if user.role == "learner" else None,
         "family_id": user.family_id,
@@ -36,7 +38,7 @@ def user_record(user: User) -> dict:
 
 def public_user(user: User | dict) -> dict:
     record = user_record(user) if isinstance(user, User) else user
-    return {key: record[key] for key in ("id", "role", "username", "display_name", "parent_id", "disabled", "default_subject", "default_topics")}
+    return {key: record[key] for key in ("id", "role", "username", "email", "display_name", "parent_id", "disabled", "default_subject", "default_topics")}
 
 
 class IdentityRepository:
@@ -49,13 +51,69 @@ class IdentityRepository:
     def get_by_username(self, username: str) -> User | None:
         return self.session.scalar(select(User).where(User.username == username.strip().casefold()))
 
+    def get_by_login(self, identifier: str) -> User | None:
+        normalized = identifier.strip().casefold()
+        return self.session.scalar(select(User).where((User.email == normalized) | (User.username == normalized)))
+
+    def create_signup(self, email: str, display_name: str) -> tuple[User | None, str | None]:
+        normalized = email.strip().casefold()
+        existing = self.session.scalar(select(User).where(User.email == normalized))
+        if existing is not None and not existing.disabled:
+            return None, None
+        token = secrets.token_urlsafe(32)
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        if existing is None:
+            identifier = secrets.token_urlsafe(10)
+            self.session.add(Family(id=identifier))
+            self.session.flush()
+            existing = User(id=identifier, family_id=identifier, role="parent", username=normalized,
+                            email=normalized, display_name=display_name.strip(), password_hash="", disabled=True)
+            self.session.add(existing)
+            self.session.flush()
+            self.session.add_all([FamilyGuardian(family_id=identifier, guardian_user_id=identifier),
+                                  LearnerProfile(user_id=identifier, family_id=identifier)])
+        else:
+            existing.display_name = display_name.strip()
+            old = self.session.scalar(select(AccountActivation).where(AccountActivation.user_id == existing.id))
+            if old is not None:
+                self.session.delete(old)
+                self.session.flush()
+        self.session.add(AccountActivation(token_hash=token_hash, user_id=existing.id,
+                                           expires_at=datetime.now(UTC) + timedelta(minutes=30)))
+        self.session.commit()
+        return existing, token
+
+    def activation_user(self, token: str) -> User | None:
+        activation = self.session.get(AccountActivation, hashlib.sha256(token.encode()).hexdigest())
+        if activation is None or activation.used_at is not None:
+            return None
+        expires_at = activation.expires_at
+        if expires_at.tzinfo is None:
+            expires_at = expires_at.replace(tzinfo=UTC)
+        if expires_at <= datetime.now(UTC):
+            return None
+        return self.get_by_id(activation.user_id)
+
+    def activate(self, token: str, password: str) -> User | None:
+        activation = self.session.get(AccountActivation, hashlib.sha256(token.encode()).hexdigest())
+        user = self.activation_user(token)
+        if activation is None or user is None:
+            return None
+        user.password_hash = hash_password(password)
+        user.disabled = False
+        user.token_version += 1
+        activation.used_at = datetime.now(UTC)
+        self.session.commit()
+        self.session.refresh(user)
+        return user
+
     def list_managed_users(self) -> list[User]:
         return list(self.session.scalars(
             select(User).where(User.role.in_(("parent", "learner"))).order_by(User.created_at, User.id)
         ))
 
-    def create_parent(self, username: str, password: str, display_name: str) -> User:
-        normalized_username = username.strip().casefold()
+    def create_parent(self, email: str, password: str, display_name: str) -> User:
+        normalized_username = email.strip().casefold()
         if self.get_by_username(normalized_username) is not None:
             raise ValueError("That username is already in use")
         identifier = secrets.token_urlsafe(10)
@@ -65,6 +123,7 @@ class IdentityRepository:
             family_id=identifier,
             role="parent",
             username=normalized_username,
+            email=normalized_username,
             display_name=display_name.strip(),
             password_hash=hash_password(password),
         )
@@ -123,6 +182,8 @@ class IdentityRepository:
 
     def update_managed_user(self, user: User, username: str, display_name: str, disabled: bool) -> User:
         user.username = username.strip().casefold()
+        if user.role == "parent":
+            user.email = user.username
         user.display_name = display_name.strip()
         if user.disabled != disabled:
             user.token_version += 1
