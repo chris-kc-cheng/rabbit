@@ -111,6 +111,9 @@ working in this repository, not production-ready at population scale.
   questions, with a separate answer key and worked explanations.
 - [x] Parents can choose one, several, or all topics from a learner's default
   question bank; the saved plan filters that learner's next online sessions.
+- [x] Discover Canada learner practice uses 20-question sessions; the session API
+  accepts up to 20 reproducibly generated questions while other learner banks
+  continue to use 10-question sessions.
 - [x] Parent progress includes an accessible topic radar with a text alternative,
   while evidence callouts continue to describe strengths and practice opportunities.
 - [x] PostgreSQL 17 service definitions, SQLAlchemy 2 persistence boundaries, and
