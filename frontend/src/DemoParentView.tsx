@@ -2,7 +2,7 @@ import { useState } from "react";
 import { api } from "./api";
 import { TopicRadar } from "./TopicRadar";
 
-export function DemoParentView() {
+export function DemoParentView({ onStartPractice }: { onStartPractice: () => void }) {
   const [rewardEnabled, setRewardEnabled] = useState(true);
   const [reward, setReward] = useState("Choose Friday's family movie");
   const [generating, setGenerating] = useState(false);
@@ -53,7 +53,7 @@ export function DemoParentView() {
         </div>
       </article>
       <article className="child-summary"><button className="child-summary-toggle" aria-expanded="false"><span className="child-avatar" aria-hidden="true">S</span><span className="child-name">Sofia<small>@sofia</small></span><span className="summary-stat"><i>27</i><small>questions</small></span><span className="summary-stat"><i>74%</i><small>accuracy</small></span><span className="summary-stat"><i>2</i><small>day streak</small></span><span className="summary-stat"><i>11 min</i><small>time spent</small></span><span className="accordion-chevron" aria-hidden="true">▼</span></button></article>
-      <article className="child-summary"><button className="child-summary-toggle" aria-expanded="false"><span className="child-avatar" aria-hidden="true">A</span><span className="child-name">Alex<small>You · parent learner</small></span><span className="summary-stat"><i>8</i><small>questions</small></span><span className="summary-stat"><i>88%</i><small>accuracy</small></span><span className="summary-stat"><i>1</i><small>day streak</small></span><span className="summary-stat"><i>6 min</i><small>time spent</small></span><span className="accordion-chevron" aria-hidden="true">▼</span></button></article>
+      <article className="child-summary open"><button className="child-summary-toggle" aria-expanded="true"><span className="child-avatar" aria-hidden="true">A</span><span className="child-name">Alex<small>You · parent learner</small></span><span className="summary-stat"><i>8</i><small>questions</small></span><span className="summary-stat"><i>88%</i><small>accuracy</small></span><span className="summary-stat"><i>1</i><small>day streak</small></span><span className="summary-stat"><i>6 min</i><small>time spent</small></span><span className="accordion-chevron" aria-hidden="true">▼</span></button><div className="child-detail"><section className="next-bank topic-planner"><div className="topic-planner-main"><p><strong>Practice on your own profile</strong></p><p className="empty">Your answers stay separate from each child&apos;s learning evidence.</p></div><button className="primary" onClick={onStartPractice}>Start my practice</button></section></div></article>
     </section>
   </main>;
 }

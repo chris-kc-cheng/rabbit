@@ -12,6 +12,7 @@ import type { User } from "./types";
 type PublicView = "landing" | "login" | "signup" | "activate" | "demo" | "docs";
 const ORIGINAL_TOKEN_KEY = "rabbit_original_token";
 const IMPERSONATED_USER_KEY = "rabbit_impersonated_user";
+const PARENT_SELF_PRACTICE_KEY = "rabbit_parent_self_practice";
 
 export default function App() {
   const [user, setUser] = useState<User | null>(null);
@@ -38,6 +39,9 @@ export default function App() {
       return null;
     }
   });
+  const [parentSelfPractice, setParentSelfPractice] = useState(
+    () => sessionStorage.getItem(PARENT_SELF_PRACTICE_KEY) === "true",
+  );
   const [theme, setTheme] = useState<"light" | "dark">(() => {
     const saved = localStorage.getItem("rabbit-color-theme");
     if (saved === "light" || saved === "dark") return saved;
@@ -65,6 +69,8 @@ export default function App() {
     const expired = () => {
       sessionStorage.removeItem(ORIGINAL_TOKEN_KEY);
       sessionStorage.removeItem(IMPERSONATED_USER_KEY);
+      sessionStorage.removeItem(PARENT_SELF_PRACTICE_KEY);
+      setParentSelfPractice(false);
       setImpersonatedUser(null);
       setUser(null);
       setView("login");
@@ -87,6 +93,8 @@ export default function App() {
     sessionStorage.removeItem("rabbit_token");
     sessionStorage.removeItem(ORIGINAL_TOKEN_KEY);
     sessionStorage.removeItem(IMPERSONATED_USER_KEY);
+    sessionStorage.removeItem(PARENT_SELF_PRACTICE_KEY);
+    setParentSelfPractice(false);
     setImpersonatedUser(null);
     setUser(null);
     setView("landing");
@@ -99,6 +107,8 @@ export default function App() {
     sessionStorage.setItem(ORIGINAL_TOKEN_KEY, adminToken);
     sessionStorage.setItem(IMPERSONATED_USER_KEY, JSON.stringify(auth.user));
     sessionStorage.setItem("rabbit_token", auth.access_token);
+    sessionStorage.removeItem(PARENT_SELF_PRACTICE_KEY);
+    setParentSelfPractice(false);
     setImpersonatedUser(auth.user);
     setUser(auth.user);
   };
@@ -115,6 +125,13 @@ export default function App() {
     sessionStorage.setItem(ORIGINAL_TOKEN_KEY, returnToken);
     sessionStorage.setItem(IMPERSONATED_USER_KEY, JSON.stringify(auth.user));
     sessionStorage.setItem("rabbit_token", auth.access_token);
+    if (target.role === "parent") {
+      sessionStorage.setItem(PARENT_SELF_PRACTICE_KEY, "true");
+      setParentSelfPractice(true);
+    } else {
+      sessionStorage.removeItem(PARENT_SELF_PRACTICE_KEY);
+      setParentSelfPractice(false);
+    }
     setImpersonatedUser(auth.user);
     setUser(auth.user);
   };
@@ -127,6 +144,8 @@ export default function App() {
     sessionStorage.setItem("rabbit_token", adminToken);
     sessionStorage.removeItem(ORIGINAL_TOKEN_KEY);
     sessionStorage.removeItem(IMPERSONATED_USER_KEY);
+    sessionStorage.removeItem(PARENT_SELF_PRACTICE_KEY);
+    setParentSelfPractice(false);
     setImpersonatedUser(null);
     try {
       setUser(await api.me());
@@ -282,7 +301,7 @@ export default function App() {
       </header>
       {user.role === "admin" ? (
         <AdminView onImpersonate={startImpersonating} />
-      ) : user.role === "parent" ? (
+      ) : user.role === "parent" && !parentSelfPractice ? (
         <ParentView refreshKey={0} onPractice={startParentPractice} />
       ) : (
         <LearnerChrome>
@@ -290,6 +309,11 @@ export default function App() {
             learnerId={user.id}
             defaultSubject={user.default_subject}
             onAttemptsChanged={() => {}}
+            loadProgress={
+              parentSelfPractice
+                ? () => api.getParentLearnerProgress(user.id)
+                : api.getOwnProgress
+            }
           />
         </LearnerChrome>
       )}
