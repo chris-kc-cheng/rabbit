@@ -451,7 +451,7 @@ export function RaceTrack({
   const sleepSeconds = 2 + wrong * 2;
   const position = (progress: number) =>
     ({
-      "--race-x": `${progress * 78}%`,
+      "--race-x": `${progress * 65}%`,
       "--race-y": `${progress * 48}%`,
     }) as React.CSSProperties;
   return (
@@ -473,14 +473,23 @@ export function RaceTrack({
           preserveAspectRatio="none"
           aria-hidden="true"
         >
+          <g className="race-cloud" transform="translate(52 38)">
+            <circle cx="20" cy="16" r="14" />
+            <circle cx="38" cy="12" r="20" />
+            <circle cx="59" cy="18" r="15" />
+            <rect x="20" y="16" width="39" height="17" rx="8" />
+          </g>
+          <g className="race-cloud" transform="translate(268 24) scale(.72)">
+            <circle cx="20" cy="16" r="14" />
+            <circle cx="38" cy="12" r="20" />
+            <circle cx="59" cy="18" r="15" />
+            <rect x="20" y="16" width="39" height="17" rx="8" />
+          </g>
           <path className="far-hill" d="M0 126 Q104 83 205 111 T500 64 V240 H0Z" />
           <path className="near-hill" d="M0 172 Q112 132 224 111 Q326 91 500 72 V240 H0Z" />
-          <path className="race-road-edge" d="M18 234 C94 194 70 153 163 143 S221 96 286 92 S393 91 444 76" />
-          <path className="race-road" d="M18 234 C94 194 70 153 163 143 S221 96 286 92 S393 91 444 76" />
-          <g className="finish-flag" aria-label="Finish flag">
-            <path className="flag-pole" d="M444 76 V20" />
-            <path className="flag-cloth" d="M444 21 Q463 29 483 20 V48 Q463 57 444 48Z" />
-            <path className="flag-check" d="M444 21h10v14h-10zm20 0h10v14h-10zm-10 14h10v14h-10zm20 0h9v13q-5 3-9 3z" />
+          <g className="finish-flag" aria-label="Red finish flag">
+            <path className="flag-pole" d="M444 76 V24" />
+            <path className="flag-cloth" d="M444 25 H482 L471 38 L482 51 H444Z" />
           </g>
         </svg>
         <div
