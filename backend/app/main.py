@@ -22,6 +22,7 @@ from .models import (
     AttemptCreate,
     AttemptResult,
     AdminQuestionPreview,
+    ActivationRequest,
     ContentSettings,
     DefaultSubjectUpdate,
     LearningPreferencesUpdate,
@@ -35,10 +36,12 @@ from .models import (
     RewardSettings,
     SessionCreate,
     SessionResponse,
+    SignupRequest,
     WorksheetCreate,
 )
 from .repositories import (ContentRepository, IdentityRepository, PracticeRepository, TokenRepository,
                            public_user, user_record)
+from .email_delivery import EmailDeliveryError, send_activation_email
 from .worksheet import build_demo_pack_pdf, build_worksheet_pdf, topic_title
 
 app = FastAPI(title="Rabbit Learning API", version="0.1.0", docs_url="/api/docs", openapi_url="/api/openapi.json")
@@ -97,12 +100,46 @@ def preview_demo_worksheet(request: DemoWorksheetCreate) -> dict:
 
 @app.post("/api/v1/auth/login")
 def login(request: LoginRequest, db: Session = Depends(get_db)) -> dict:
-    model = IdentityRepository(db).get_by_username(request.username)
+    model = IdentityRepository(db).get_by_login(request.email)
     user = user_record(model) if model is not None else None
     if user is None or user["disabled"] or not verify_password(request.password, user["password_hash"]):
-        raise HTTPException(401, "Username or password is not correct")
+        raise HTTPException(401, "Email address or password is not correct")
     token, expires_at = issue_token(user)
     return {"access_token": token, "token_type": "bearer", "expires_at": expires_at, "user": public_user(user)}
+
+
+@app.post("/api/v1/auth/signup", status_code=202)
+def signup(request: SignupRequest, db: Session = Depends(get_db)) -> dict:
+    """Create an inactive parent and email a short-lived, single-use setup link."""
+    try:
+        user, token = IdentityRepository(db).create_signup(request.email, request.display_name)
+    except ValueError:
+        user, token = None, None
+    if user is not None and token is not None:
+        try:
+            send_activation_email(user.email or request.email, user.display_name, token)
+        except EmailDeliveryError as error:
+            raise HTTPException(503, str(error)) from None
+    return {"message": "If this email can be registered, an activation link is on its way."}
+
+
+@app.get("/api/v1/auth/activate/{token}")
+def inspect_activation(token: str, db: Session = Depends(get_db)) -> dict:
+    user = IdentityRepository(db).activation_user(token)
+    if user is None:
+        raise HTTPException(410, "This activation link is invalid, expired, or already used")
+    return {"email": user.email, "display_name": user.display_name}
+
+
+@app.post("/api/v1/auth/activate")
+def activate_account(request: ActivationRequest, db: Session = Depends(get_db)) -> dict:
+    user = IdentityRepository(db).activate(request.token, request.password)
+    if user is None:
+        raise HTTPException(410, "This activation link is invalid, expired, or already used")
+    record = user_record(user)
+    token, expires_at = issue_token(record)
+    return {"access_token": token, "token_type": "bearer", "expires_at": expires_at,
+            "user": public_user(user)}
 
 
 @app.get("/api/v1/auth/me")
@@ -132,7 +169,7 @@ def update_managed_user(user_id: str, request: ManagedUserUpdate, _: dict = Depe
         raise HTTPException(404, "Parent or learner not found")
     try:
         return public_user(repository.update_managed_user(
-            user, request.username, request.display_name, request.disabled
+            user, request.email or request.username, request.display_name, request.disabled
         ))
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
@@ -142,7 +179,7 @@ def update_managed_user(user_id: str, request: ManagedUserUpdate, _: dict = Depe
 def create_parent(request: ParentCreate, _: dict = Depends(require_role("admin")),
                   db: Session = Depends(get_db)) -> dict:
     try:
-        return public_user(IdentityRepository(db).create_parent(request.username, request.password, request.display_name))
+        return public_user(IdentityRepository(db).create_parent(request.email, request.password, request.display_name))
     except ValueError as error:
         raise HTTPException(409, str(error)) from None
 
