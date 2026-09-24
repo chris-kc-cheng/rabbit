@@ -186,8 +186,8 @@ administrators may delete them; existing attempts retain their immutable snapsho
 The public **Docs** page remains available before and after login and provides a
 non-publishing validator with the same schema and generation checks.
 
-Click the rabbit logo or mascot to learn the name: a rabbit is “all ears,” so it
-listens carefully in class.
+Click the rabbit logo to reveal the name story: a rabbit is “all ears,” so it
+listens carefully and learns something new in every class.
 
 ## Production deployment
 
