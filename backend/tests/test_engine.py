@@ -128,6 +128,14 @@ def test_fact_collection_selects_a_fact_and_hides_answer_metadata():
         assert question.generation["seed"] == 8675309
 
 
+def test_fact_collection_can_fill_a_twenty_question_practice_set():
+    bank = load_bank(ROOT / "content" / "canadian-citizenship.question-bank.json")
+    questions = generate_session(8675309, 20, bank)
+
+    assert len(questions) == 20
+    assert len({item.generation["factId"] for item in questions[:6]}) == 6
+
+
 def test_all_fact_collection_types_generate_and_lists_render_consistently():
     schema = json.loads((ROOT / "content/question-template.schema.json").read_text())
     collection_types = [
