@@ -4,10 +4,10 @@ import { api } from "./api";
 import { Activate, Landing, Login, Signup } from "./AuthViews";
 import { DemoPack } from "./DemoPack";
 import { Documentation } from "./Documentation";
-import { LearnerView } from "./LearnerView";
+import { AchievementSummary, LearnerView } from "./LearnerView";
 import { LearnerChrome } from "./LearnerChrome";
 import { ParentView } from "./ParentView";
-import type { User } from "./types";
+import type { Progress, User } from "./types";
 
 type PublicView = "landing" | "login" | "signup" | "activate" | "demo" | "docs";
 const ORIGINAL_TOKEN_KEY = "rabbit_original_token";
@@ -52,6 +52,7 @@ export default function App() {
   const [wide, setWide] = useState(
     () => localStorage.getItem("rabbit-layout") === "wide",
   );
+  const [learnerProgress, setLearnerProgress] = useState<Progress | null>(null);
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
@@ -280,7 +281,11 @@ export default function App() {
         <button className="brand" aria-label="Go to workspace">
           <img className="brand-logo" src="/rabbit-reading-logo.png" alt="" />
         </button>
-        <div />
+        {(user.role === "learner" || parentSelfPractice) ? (
+          <AchievementSummary progress={learnerProgress} />
+        ) : (
+          <div />
+        )}
         <div className="header-tools">
           {displayButtons}
           <details className="account-menu">
@@ -309,6 +314,7 @@ export default function App() {
             learnerId={user.id}
             defaultSubject={user.default_subject}
             onAttemptsChanged={() => {}}
+            onProgressChanged={setLearnerProgress}
             loadProgress={
               parentSelfPractice
                 ? () => api.getParentLearnerProgress(user.id)
